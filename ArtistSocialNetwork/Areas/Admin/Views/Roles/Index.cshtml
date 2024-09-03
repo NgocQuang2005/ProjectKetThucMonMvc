@@ -1,0 +1,136 @@
+﻿@model IEnumerable<Business.Role>
+@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+@using X.PagedList.Web.Common;
+@{
+    ViewData["Title"] = "Index";
+}
+@section Style {
+    <style>
+        p {
+            margin: 0;
+        }
+
+        .title-index h2 {
+            color: #fff;
+        }
+
+        .whiteCl {
+            color: white !important;
+        }
+    </style>
+}
+
+<div class="bdlayout">
+    <div class="row">
+        <div class="title-index bg1">
+            <h2>Danh sách vai trò</h2>
+            <p class="btn btn-primary ">
+                <a asp-action="Create" class="whiteCl">Tạo mới</a>
+            </p>
+        </div>
+        @{
+            if (TempData["AlertMessage"] != null)
+            {
+                <div id="alert-message" class="alert success @TempData["AlertType"]">
+                    @TempData["AlertMessage"]
+                </div>
+            }
+        }
+        <table class="table">
+            <thead>
+                <tr>
+                    <th align="center">#</th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Active)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RoleName)
+                    </th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int dem = 1;
+                    int page = Convert.ToInt32(Context.Request.Query["page"]);
+                    if (page > 1)
+                    {
+                        dem = (page - 1) * ViewBag.Page + 1;
+                    }
+                }
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-center">@dem</td>
+                        <td>
+                            <a href="#" class="btn @(item.Active ? "btn-primary":"btn-danger") btn-active" data-id="@item.IdRole">@(item.Active ? "Bật" : "Tắt")</a>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.RoleName)
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.IdRole" class="btn btn-outline-primary">Chỉnh sửa</a>
+                            <a href="#" title="Xoá" class="delete-link btn btn-danger" data-id="@item.IdRole" data-confirm="Bạn có thật sự muốn xoá?" data-toggle="modal" data-target="#confirmModal"> Xoá</a>
+
+                            @* <a asp-action="Delete" asp-route-id="@item.IdRole" class="btn btn-outline-danger">Xóa</a> *@
+                        </td>
+                    </tr>
+                    dem = dem + 1;
+                }
+            </tbody>
+        </table>
+        <div class="row mb-3">
+            @Html.PagedListPager((IPagedList)Model, page => Url.Action("Index", "Roles", new { ViewBag.SearchName, page, SearchString = @Context.Request.Query["SearchString"] }),
+            PagedListRenderOptions.EnableUnobtrusiveAjaxReplacing(new AjaxOptions()
+            {
+            HttpMethod = "POST",
+            UpdateTargetId = "targetElement",
+            OnSuccess = "onAjaxSuccess",
+            OnFailure = "onAjaxFailure"
+            }))
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel1">Xác nhận xóa</h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Bạn có đồng ý thực hiện việc xoá không?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    Hủy
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Loading for BS 5 -->
+<div class="modal" id="loadingModal" tabindex="-1" role="dialog" aria-labelledby="loadingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body  text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only"></span>
+                </div>
+                <p class="mt-2">Đang xử lý, vui lòng đợi...</p>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{
+        DateTime currentDate = DateTime.Now;
+    }
+    <script src="~/controllers/RolesController.js?@currentDate"></script>
+}

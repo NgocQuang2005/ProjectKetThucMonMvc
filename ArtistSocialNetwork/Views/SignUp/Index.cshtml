@@ -1,0 +1,131 @@
+﻿@model ArtistSocialNetwork.Models.SignUpWeb
+
+@{
+    Layout = null;
+    ViewBag.Title = "Sign Up";
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/png" href="~/Website/images/logo-16x16.png" />
+    <title>Argon - Social Network</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Major+Mono+Display" rel="stylesheet">
+    <link href='https://cdn.jsdelivr.net/npm/boxicons@1.9.2/css/boxicons.min.css' rel='stylesheet'>
+
+    <!-- Styles -->
+    <link href="~/Website/css/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="~/Website/css/style.css" rel="stylesheet">
+    <link href="~/Website/css/components.css" rel="stylesheet">
+    <link href="~/Website/css/auth.css" rel="stylesheet">
+    <link href="~/Website/css/media.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="row ht-100v flex-row-reverse no-gutters">
+        <div class="col-md-6 d-flex justify-content-center align-items-center">
+            <div class="signup-form">
+                <div class="auth-logo text-center mb-5">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <img src="~/Website/images/logo-64x64.png" class="logo-img" alt="Logo">
+                        </div>
+                        <div class="col-md-10">
+                            <p>Argon Social Network</p>
+                            <span>Design System</span>
+                        </div>
+                    </div>
+                </div>
+                <form asp-action="Index" method="post" class="pt-5">
+                    <div class="row">
+                        <div class="col-md-12 my-2">
+                            @if (TempData["AlertMessage"] != null)
+                            {
+                                <div class="alert @TempData["Type"]">
+                                    @TempData["AlertMessage"]
+                                </div>
+                            }
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <input asp-for="Fullname" placeholder="  Tên đầy đủ ..." class="form-control" />
+                                <span asp-validation-for="Fullname" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <input asp-for="Email" placeholder="  Email.." class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <input asp-for="Password" placeholder=" Mật khẩu.." class="form-control" type="password" />
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <input type="date" id="Birthday" name="Birthday" class="form-control" value="@(Model?.Birthday != null ? Model.Birthday.Value.ToString("yyyy-MM-dd") : "")" />
+                                <span class="text-danger">@Html.ValidationMessage("Birthday")</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <select asp-for="Gender" class="form-control" asp-items="@(new SelectList(ViewBag.GenderOptions ?? new List<SelectListItem>(), "Value", "Text"))">
+                                    <option value="">--Chọn giới tính--</option>
+                                </select>
+                                <span asp-validation-for="Gender" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input asp-for="Nationality" placeholder=" Quốc gia.." class="form-control" />
+                                <span asp-validation-for="Nationality" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <p class="agree-privacy">Bằng cách nhấp vào nút Đăng ký bên dưới, bạn đồng ý với chính sách bảo mật và điều khoản sử dụng trang web của chúng tôi.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <span class="go-login">Đă có tài khoản? <a href="@Url.Action("Index", "Login")">Đăng nhập</a></span>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">Đăng ký</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-6 auth-bg-image d-flex justify-content-center align-items-center">
+            <div class="auth-left-content mt-5 mb-5 text-center">
+                <div class="weather-small text-white">
+                    <p class="current-weather"><i class='bx bx-sun'></i> <span>14&deg;</span></p>
+                    <p class="weather-city">Gyumri</p>
+                </div>
+                <div class="text-white mt-5 mb-5">
+                    <h2 class="create-account mb-3">Create Account</h2>
+                    <p>Enter your personal details and start your journey with us.</p>
+                </div>
+                <div class="auth-quick-links">
+                    <a href="#" class="btn btn-outline-primary">Purchase template</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core -->
+    <script src="~/Website/js/jquery/jquery-3.3.1.min.js"></script>
+    <script src="~/Website/js/popper/popper.min.js"></script>
+    <script src="~/Website/js/bootstrap/bootstrap.min.js"></script>
+    <!-- Optional -->
+    <script src="~/Website/js/app.js"></script>
+</body>
+</html>

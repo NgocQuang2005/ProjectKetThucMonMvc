@@ -1,0 +1,62 @@
+﻿@model Business.TypeOfArtwork
+
+@{
+    ViewData["Title"] = "Edit";
+}
+@section Style {
+    <style>
+        .form-check .form-check-input {
+            margin-left: 0px !important;
+        }
+    </style>
+}
+
+<div class="bdlayout p-0">
+    <h2 class="h2-title bg4 text-white">Chỉnh sửa loại tác phẩm </h2>
+    @{
+        if (TempData["AlertMessage"] != null)
+        {
+            <div id="alert-message" class="alert @TempData["AlertType"]">
+                @TempData["AlertMessage"]
+            </div>
+        }
+    }
+
+    <div class="container my-4">
+        <form asp-action="Edit">
+            <div class="row">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="IdTypeOfArtwork" />
+                <div class="form-group form-check col-md-6">
+                    <label class="form-check-label">
+                        @Html.DisplayNameFor(model => model.Active) <br />
+                        <input class="form-check-input" asp-for="Active" />
+                    </label>
+                </div>
+                <div class="form-group col-md-6">
+                    <label asp-for="NameTypeOfArtwork" class="control-label"></label>
+                    <input asp-for="NameTypeOfArtwork" class="form-control" />
+                    <span asp-validation-for="NameTypeOfArtwork" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6">
+                    <label asp-for="Description" class="control-label"></label>
+                    <textarea asp-for="Description" class="form-control" id="editor" style="width: 100%; min-height: 200px;"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                <div class="form-group btnGround">
+                    <input type="submit" value="Sửa" class="btn btn-primary" />
+                    <a asp-action="Index" class="btn btn-dark">Trở về</a>
+
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
