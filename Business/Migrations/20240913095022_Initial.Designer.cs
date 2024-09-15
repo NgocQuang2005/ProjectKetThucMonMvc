@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Business.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240830032236_Initial")]
+    [Migration("20240913095022_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -43,7 +43,7 @@ namespace Business.Migrations
                     b.Property<DateTime?>("Birthday")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("CCCD")
+                    b.Property<int?>("CCCD")
                         .HasColumnType("int");
 
                     b.Property<int?>("CreatedBy")
@@ -53,7 +53,6 @@ namespace Business.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Fullname")
@@ -99,13 +98,13 @@ namespace Business.Migrations
                             Active = true,
                             CCCD = 123456789,
                             CreatedBy = 1,
-                            CreatedWhen = new DateTime(2024, 8, 30, 10, 22, 35, 930, DateTimeKind.Local).AddTicks(1193),
+                            CreatedWhen = new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7424),
                             Description = "Admin account",
                             Fullname = "Nguyễn Ngọc Quang",
                             Gender = "Nam",
                             IdAccount = 1,
                             LastUpdateBy = 1,
-                            LastUpdateWhen = new DateTime(2024, 8, 30, 10, 22, 35, 930, DateTimeKind.Local).AddTicks(1194),
+                            LastUpdateWhen = new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7425),
                             Nationality = "Vietnam"
                         },
                         new
@@ -114,13 +113,13 @@ namespace Business.Migrations
                             Active = true,
                             CCCD = 987654321,
                             CreatedBy = 2,
-                            CreatedWhen = new DateTime(2024, 8, 30, 10, 22, 35, 930, DateTimeKind.Local).AddTicks(1198),
+                            CreatedWhen = new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7430),
                             Description = "User account",
                             Fullname = "Minh Khang",
                             Gender = "Nam",
                             IdAccount = 2,
                             LastUpdateBy = 1,
-                            LastUpdateWhen = new DateTime(2024, 8, 30, 10, 22, 35, 930, DateTimeKind.Local).AddTicks(1199),
+                            LastUpdateWhen = new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7431),
                             Nationality = "Vietnam"
                         });
                 });
@@ -176,19 +175,19 @@ namespace Business.Migrations
                         new
                         {
                             IdAccount = 1,
-                            CreatedWhen = new DateTime(2024, 8, 30, 10, 22, 35, 930, DateTimeKind.Local).AddTicks(1154),
+                            CreatedWhen = new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7376),
                             Email = "Quang111420@gmail.com",
                             IdRole = 1,
-                            LastUpdateWhen = new DateTime(2024, 8, 30, 10, 22, 35, 930, DateTimeKind.Local).AddTicks(1155),
+                            LastUpdateWhen = new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7377),
                             Password = "quang111420"
                         },
                         new
                         {
                             IdAccount = 2,
-                            CreatedWhen = new DateTime(2024, 8, 30, 10, 22, 35, 930, DateTimeKind.Local).AddTicks(1158),
+                            CreatedWhen = new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7381),
                             Email = "khang2007@gmail.com",
                             IdRole = 2,
-                            LastUpdateWhen = new DateTime(2024, 8, 30, 10, 22, 35, 930, DateTimeKind.Local).AddTicks(1159),
+                            LastUpdateWhen = new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7382),
                             Password = "khang2007"
                         });
                 });
@@ -232,7 +231,6 @@ namespace Business.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("MediaUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Tags")
@@ -308,9 +306,6 @@ namespace Business.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdDcIf"));
 
-                    b.Property<int?>("AccountIdAccount")
-                        .HasColumnType("int");
-
                     b.Property<bool>("Active")
                         .HasColumnType("bit");
 
@@ -320,7 +315,7 @@ namespace Business.Migrations
                     b.Property<DateTime?>("Created_when")
                         .HasColumnType("datetime");
 
-                    b.Property<int?>("IdAcDt")
+                    b.Property<int?>("IdAc")
                         .HasColumnType("int");
 
                     b.Property<int?>("IdArtwork")
@@ -351,11 +346,9 @@ namespace Business.Migrations
 
                     b.HasKey("IdDcIf");
 
-                    b.HasIndex("AccountIdAccount");
-
                     b.HasIndex("Created_by");
 
-                    b.HasIndex("IdAcDt");
+                    b.HasIndex("IdAc");
 
                     b.HasIndex("IdArtwork");
 
@@ -376,9 +369,6 @@ namespace Business.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdEvent"));
 
-                    b.Property<int?>("AccountIdAccount")
-                        .HasColumnType("int");
-
                     b.Property<bool>("Active")
                         .HasColumnType("bit");
 
@@ -395,10 +385,11 @@ namespace Business.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("IdAcDt")
+                    b.Property<int>("IdAc")
                         .HasColumnType("int");
 
                     b.Property<int?>("LastUpdateBy")
+                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("LastUpdateWhen")
@@ -417,11 +408,9 @@ namespace Business.Migrations
 
                     b.HasKey("IdEvent");
 
-                    b.HasIndex("AccountIdAccount");
-
                     b.HasIndex("CreatedBy");
 
-                    b.HasIndex("IdAcDt");
+                    b.HasIndex("IdAc");
 
                     b.HasIndex("LastUpdateBy");
 
@@ -764,18 +753,15 @@ namespace Business.Migrations
 
             modelBuilder.Entity("Business.DocumentInfo", b =>
                 {
-                    b.HasOne("Business.Account", null)
-                        .WithMany("DocumentInfos")
-                        .HasForeignKey("AccountIdAccount");
-
                     b.HasOne("Business.Account", "CreatedBy")
                         .WithMany("CreatedDocuments")
                         .HasForeignKey("Created_by")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("AccountDetail", "AccountDetail")
-                        .WithMany()
-                        .HasForeignKey("IdAcDt");
+                    b.HasOne("Business.Account", "Account")
+                        .WithMany("DocumentInfos")
+                        .HasForeignKey("IdAc")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Business.Artwork", "IdArtworkNavigation")
                         .WithMany("DocumentInfos")
@@ -797,7 +783,7 @@ namespace Business.Migrations
                         .HasForeignKey("Last_update_by")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("AccountDetail");
+                    b.Navigation("Account");
 
                     b.Navigation("CreatedBy");
 
@@ -812,27 +798,24 @@ namespace Business.Migrations
 
             modelBuilder.Entity("Business.Event", b =>
                 {
-                    b.HasOne("Business.Account", null)
-                        .WithMany("Events")
-                        .HasForeignKey("AccountIdAccount");
-
                     b.HasOne("Business.Account", "Creator")
                         .WithMany("CreatedE")
                         .HasForeignKey("CreatedBy")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("AccountDetail", "AccountDetail")
-                        .WithMany()
-                        .HasForeignKey("IdAcDt")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("Business.Account", "Account")
+                        .WithMany("Events")
+                        .HasForeignKey("IdAc")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Business.Account", "Updater")
                         .WithMany("UpdatedE")
                         .HasForeignKey("LastUpdateBy")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.Navigation("AccountDetail");
+                    b.Navigation("Account");
 
                     b.Navigation("Creator");
 
@@ -944,8 +927,7 @@ namespace Business.Migrations
 
             modelBuilder.Entity("Business.Account", b =>
                 {
-                    b.Navigation("AccountDetail")
-                        .IsRequired();
+                    b.Navigation("AccountDetail");
 
                     b.Navigation("Artworks");
 

@@ -59,6 +59,8 @@ namespace Business
         public ICollection<Project>? CreatedPj { get; set; }
         public ICollection<Project>? UpdatedPj { get; set; }
         public ICollection<ProjectParticipant>? PjAccDt { get; set; }
+        public ICollection<DocumentInfo>? DocumentInfos { get; set; }
+
         public ICollection<DocumentInfo>? CreatedDocuments { get; set; }
         public ICollection<DocumentInfo>? UpdatedDocuments { get; set; }
     }

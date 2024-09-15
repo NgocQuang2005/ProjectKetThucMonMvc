@@ -51,7 +51,6 @@ public class AccountDetail
 
     public DateTime? LastUpdateWhen { get; set; } = DateTime.Now;
 
-    public ICollection<DocumentInfo>? DocumentInfos { get; set; }
 
 
 }

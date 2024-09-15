@@ -1,12 +1,10 @@
-﻿@model IEnumerable<Business.DocumentInfo>
+﻿@model IEnumerable<Business.Artwork>
 @using X.PagedList;
 @using X.PagedList.Mvc.Core;
 @using X.PagedList.Web.Common;
 @{
     ViewData["Title"] = "Index";
 }
-
-
 @section Style {
     <style>
         p {
@@ -25,7 +23,7 @@
 <div class="bdlayout">
     <div class="row">
         <div class="title-index bg1">
-            <h2>Danh sách thông tin người dùng</h2>
+            <h2>Danh sách tác phẩm</h2>
             <p class="btn btn-primary ">
                 <a asp-action="Create" class="whiteCl">Tạo mới</a>
             </p>
@@ -38,7 +36,7 @@
                 </div>
             }
         }
-        @using (Html.BeginForm("Index", "AccountDetails", FormMethod.Post, new { id = "form-search" }))
+        @* @using (Html.BeginForm("Index", "Artworks", FormMethod.Post, new { id = "form-search" }))
         {
             <div class="row mb-3">
                 <div class="col-sm-6 col-form-label">
@@ -48,7 +46,8 @@
                     <button class="btn btn-danger"><i class="fa fa-search"></i> Tìm kiếm</button>
                 </div>
             </div>
-        }
+
+        } *@
         <table class="table">
             <thead>
                 <tr>
@@ -57,27 +56,32 @@
                         @Html.DisplayNameFor(model => model.Active)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.AccountDetail)
+                        @Html.DisplayNameFor(model => model.Account)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.IdEventNavigation)
+                        @Html.DisplayNameFor(model => model.TypeOfArtwork)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.IdProjectNavigation)
+                        @Html.DisplayNameFor(model => model.Title)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.IdArtworkNavigation)
+                        @Html.DisplayNameFor(model => model.Description)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.TypeFile)
+                        @Html.DisplayNameFor(model => model.Tags)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.Path)
+                        @Html.DisplayNameFor(model => model.MediaType)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.UrlDocument)
+                        @Html.DisplayNameFor(model => model.MediaUrl)
                     </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Watched)
+                    </th>
+
                     <th>Hành động</th>
+
                 </tr>
             </thead>
             <tbody>
@@ -97,40 +101,41 @@
                             @Html.DisplayFor(modelItem => item.Active)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.AccountDetail.Fullname)
+                            @Html.DisplayFor(modelItem => item.Account.Email)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.IdEventNavigation.Title)
+                            @Html.DisplayFor(modelItem => item.TypeOfArtwork.Description)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.IdProjectNavigation.Title)
+                            @Html.DisplayFor(modelItem => item.Title)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.IdArtworkNavigation.Title)
+                            @Html.DisplayFor(modelItem => item.Description)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.TypeFile)
+                            @Html.DisplayFor(modelItem => item.Tags)
                         </td>
                         <td>
-                            @if (!string.IsNullOrEmpty(item.Path))
-                            {
-                                <img src="~/Upload/@item.Path" alt="Document" style="max-width: 100px; max-height: 100px;" />
-                            }
+                            @Html.DisplayFor(modelItem => item.MediaType)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.UrlDocument)
+                            @Html.DisplayFor(modelItem => item.MediaUrl)
                         </td>
                         <td>
-                            <a asp-action="Edit" asp-route-id="@item.IdDcIf">Sửa</a> 
-                            <a href="#" title="Xoá" class="delete-link btn btn-danger" data-id="@item.IdDcIf" data-confirm="Bạn có thật sự muốn xoá?" data-toggle="modal" data-target="#confirmModal"> Xoá</a>
+                            @Html.DisplayFor(modelItem => item.Watched)
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.IdArtwork" class="btn btn-outline-primary">Chỉnh sửa</a>
+                            <a href="#" title="Xoá" class="delete-link btn btn-danger" data-id="@item.IdArtwork" data-confirm="Bạn có thật sự muốn xoá?" data-toggle="modal" data-target="#confirmModal"> Xoá</a>
                         </td>
                     </tr>
                     dem = dem + 1;
+
                 }
             </tbody>
         </table>
-        <div class="row mb-3">
-            @Html.PagedListPager((IPagedList)Model, page => Url.Action("Index", "DocumentInfo", new { ViewBag.SearchName, page, SearchString = @Context.Request.Query["SearchString"] }),
+        @* <div class="row mb-3">
+            @Html.PagedListPager((IPagedList)Model, page => Url.Action("Index", "Artworks", new { ViewBag.SearchName, page, SearchString = @Context.Request.Query["SearchString"] }),
             PagedListRenderOptions.EnableUnobtrusiveAjaxReplacing(new AjaxOptions()
             {
             HttpMethod = "POST",
@@ -138,7 +143,7 @@
             OnSuccess = "onAjaxSuccess",
             OnFailure = "onAjaxFailure"
             }))
-        </div>
+        </div> *@
     </div>
 </div>
 <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
@@ -181,5 +186,6 @@
     @{
         DateTime currentDate = DateTime.Now;
     }
-    <script src="~/controllers/DocumentController.js?@currentDate"></script>
+    <script src="~/controllers/AccountDetailsController.js?@currentDate"></script>
+
 }

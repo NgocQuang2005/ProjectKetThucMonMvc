@@ -17,9 +17,9 @@ namespace Business
         public bool Active { get; set; }
 
         // Foreign Key - AccountDetail
-        public int? IdAcDt { get; set; }
-        [ForeignKey("IdAcDt")]
-        public virtual AccountDetail? AccountDetail { get; set; }
+        public int? IdAc { get; set; }
+        [ForeignKey("IdAc")]
+        public virtual Account? Account { get; set; }
 
         // Foreign Key - Event
         public int? IdEvent { get; set; }

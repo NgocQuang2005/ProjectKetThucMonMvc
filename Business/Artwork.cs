@@ -43,14 +43,14 @@ namespace Business
         [MaxLength(50)]
         public string MediaType { get; set; }
 
-        public string MediaUrl { get; set; }
+        public string? MediaUrl { get; set; }
 
         public int? Watched { get; set; }
 
         public int? CreatedBy { get; set; }
 
         [ForeignKey("CreatedBy")]
-        public Account Creator { get; set; }
+        public Account? Creator { get; set; }
 
         public DateTime? CreatedWhen { get; set; } = DateTime.Now;
 
@@ -61,9 +61,9 @@ namespace Business
 
         public DateTime? LastUpdateWhen { get; set; } = DateTime.Now;
 
-        public ICollection<Comment> Comments { get; set; }
-        public ICollection<Reaction> Reactions { get; set; }
-        public ICollection<DocumentInfo> DocumentInfos { get; set; }
+        public ICollection<Comment>? Comments { get; set; }
+        public ICollection<Reaction>? Reactions { get; set; }
+        public ICollection<DocumentInfo>? DocumentInfos { get; set; }
 
     }
 }

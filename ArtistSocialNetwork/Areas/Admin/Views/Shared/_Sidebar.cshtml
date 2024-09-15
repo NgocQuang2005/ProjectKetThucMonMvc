@@ -50,13 +50,7 @@
         <div class="sidebar-list">
             <!-- Sidebar Menu Start -->
             <ul class="navbar-nav iq-main-menu" id="sidebar-menu">
-                <li class="nav-item static-item">
-                    <a class="nav-link static-item disabled" href="#" tabindex="-1">
-                        <span class="default-icon">Trang chủ</span>
-
-                        <span class="mini-icon">-</span>
-                    </a>
-                </li>
+               
                 <li class="nav-item">
                     <a class="nav-link @IsActive("Home")" aria-current="page" href="@Url.Action("Index", "Home")">
                         <i class="icon">
@@ -125,7 +119,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link @IsActive("Artworks")" href="@Url.Action("Index", "Artworks")">
                         <i class="icon">
                             <i class="fa-regular fa-newspaper icon-20  flexI"></i>
                         </i>
@@ -179,7 +173,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link @IsActive("DocumentInfo")" href="@Url.Action("Index", "DocumentInfo")">
+                    <a class="nav-link @IsActive("DocumentInfoes")" href="@Url.Action("Index", "DocumentInfoes")">
                         <i class="icon">
                             <i class="fa-regular fa-image icon-20  flexI"></i>
                         </i>
@@ -202,12 +196,35 @@
                         <span class="item-name">Quản lý Bình luận </span>
                     </a>
                 </li>
-                <li class="nav-item mb-5">
+                <li class="nav-item">
                     <a class="nav-link" href="#">
                         <i class="icon">
                             <i class="fa-regular fa-heart icon-20  flexI"></i>
                         </i>
                         <span class="item-name"> Quản lý Cảm xúc </span>
+                    </a>
+                </li>
+                <li><hr class="hr-horizontal"></li>
+                <li class="nav-item static-item">
+                    <a class="nav-link static-item disabled" href="#" tabindex="-1">
+                        <span class="default-icon">Báo cáo và thống kê </span>
+                        <span class="mini-icon">-</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="icon">
+                            <i class="fa-solid fa-square-poll-horizontal  icon-20  flexI"></i>
+                        </i>
+                        <span class="item-name">Báo cáo </span>
+                    </a>
+                </li>
+                <li class="nav-item mb-5">
+                    <a class="nav-link" href="#">
+                        <i class="icon">
+                            <i class="fa-solid fa-chart-simple icon-20  flexI"></i>
+                        </i>
+                        <span class="item-name"> Thống kê </span>
                     </a>
                 </li>
             </ul>

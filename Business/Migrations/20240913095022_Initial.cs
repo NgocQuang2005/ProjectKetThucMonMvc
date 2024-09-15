@@ -87,8 +87,8 @@ namespace Business.Migrations
                     Active = table.Column<bool>(type: "bit", nullable: false),
                     Fullname = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     IdAccount = table.Column<int>(type: "int", nullable: false),
-                    CCCD = table.Column<int>(type: "int", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CCCD = table.Column<int>(type: "int", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Birthday = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Nationality = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Gender = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
@@ -134,7 +134,7 @@ namespace Business.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Tags = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     MediaType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    MediaUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MediaUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Watched = table.Column<int>(type: "int", nullable: true),
                     CreatedBy = table.Column<int>(type: "int", nullable: true),
                     CreatedWhen = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -167,6 +167,47 @@ namespace Business.Migrations
                         column: x => x.IdTypeOfArtwork,
                         principalTable: "TypeOfArtworks",
                         principalColumn: "IdTypeOfArtwork",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Events",
+                columns: table => new
+                {
+                    IdEvent = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Active = table.Column<bool>(type: "bit", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    IdAc = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    NumberOfPeople = table.Column<int>(type: "int", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
+                    CreatedWhen = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastUpdateBy = table.Column<int>(type: "int", nullable: false),
+                    LastUpdateWhen = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Events", x => x.IdEvent);
+                    table.ForeignKey(
+                        name: "FK_Events_Accounts_CreatedBy",
+                        column: x => x.CreatedBy,
+                        principalTable: "Accounts",
+                        principalColumn: "IdAccount",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Events_Accounts_IdAc",
+                        column: x => x.IdAc,
+                        principalTable: "Accounts",
+                        principalColumn: "IdAccount",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Events_Accounts_LastUpdateBy",
+                        column: x => x.LastUpdateBy,
+                        principalTable: "Accounts",
+                        principalColumn: "IdAccount",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -240,53 +281,6 @@ namespace Business.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Events",
-                columns: table => new
-                {
-                    IdEvent = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Active = table.Column<bool>(type: "bit", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    IdAcDt = table.Column<int>(type: "int", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    NumberOfPeople = table.Column<int>(type: "int", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: true),
-                    CreatedWhen = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastUpdateBy = table.Column<int>(type: "int", nullable: true),
-                    LastUpdateWhen = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    AccountIdAccount = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Events", x => x.IdEvent);
-                    table.ForeignKey(
-                        name: "FK_Events_AccountDetails_IdAcDt",
-                        column: x => x.IdAcDt,
-                        principalTable: "AccountDetails",
-                        principalColumn: "IdAccountDt",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Events_Accounts_AccountIdAccount",
-                        column: x => x.AccountIdAccount,
-                        principalTable: "Accounts",
-                        principalColumn: "IdAccount");
-                    table.ForeignKey(
-                        name: "FK_Events_Accounts_CreatedBy",
-                        column: x => x.CreatedBy,
-                        principalTable: "Accounts",
-                        principalColumn: "IdAccount",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Events_Accounts_LastUpdateBy",
-                        column: x => x.LastUpdateBy,
-                        principalTable: "Accounts",
-                        principalColumn: "IdAccount",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Comments",
                 columns: table => new
                 {
@@ -347,29 +341,30 @@ namespace Business.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProjectParticipants",
+                name: "EventParticipants",
                 columns: table => new
                 {
-                    IdProjectParticipant = table.Column<int>(type: "int", nullable: false)
+                    IdEventParticipant = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Active = table.Column<bool>(type: "bit", nullable: false),
-                    IdProject = table.Column<int>(type: "int", nullable: false),
-                    IdAc = table.Column<int>(type: "int", nullable: false)
+                    IdEvent = table.Column<int>(type: "int", nullable: false),
+                    IdAc = table.Column<int>(type: "int", nullable: false),
+                    RegistrationTime = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProjectParticipants", x => x.IdProjectParticipant);
+                    table.PrimaryKey("PK_EventParticipants", x => x.IdEventParticipant);
                     table.ForeignKey(
-                        name: "FK_ProjectParticipants_Accounts_IdAc",
+                        name: "FK_EventParticipants_Accounts_IdAc",
                         column: x => x.IdAc,
                         principalTable: "Accounts",
                         principalColumn: "IdAccount",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_ProjectParticipants_Projects_IdProject",
-                        column: x => x.IdProject,
-                        principalTable: "Projects",
-                        principalColumn: "IdProject",
+                        name: "FK_EventParticipants_Events_IdEvent",
+                        column: x => x.IdEvent,
+                        principalTable: "Events",
+                        principalColumn: "IdEvent",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -380,7 +375,7 @@ namespace Business.Migrations
                     IdDcIf = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Active = table.Column<bool>(type: "bit", nullable: false),
-                    IdAcDt = table.Column<int>(type: "int", nullable: true),
+                    IdAc = table.Column<int>(type: "int", nullable: true),
                     IdEvent = table.Column<int>(type: "int", nullable: true),
                     IdProject = table.Column<int>(type: "int", nullable: true),
                     IdArtwork = table.Column<int>(type: "int", nullable: true),
@@ -390,25 +385,20 @@ namespace Business.Migrations
                     Created_by = table.Column<int>(type: "int", nullable: true),
                     Created_when = table.Column<DateTime>(type: "datetime", nullable: true),
                     Last_update_by = table.Column<int>(type: "int", nullable: true),
-                    Last_update_when = table.Column<DateTime>(type: "datetime", nullable: true),
-                    AccountIdAccount = table.Column<int>(type: "int", nullable: true)
+                    Last_update_when = table.Column<DateTime>(type: "datetime", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DocumentInfos", x => x.IdDcIf);
                     table.ForeignKey(
-                        name: "FK_DocumentInfos_AccountDetails_IdAcDt",
-                        column: x => x.IdAcDt,
-                        principalTable: "AccountDetails",
-                        principalColumn: "IdAccountDt");
-                    table.ForeignKey(
-                        name: "FK_DocumentInfos_Accounts_AccountIdAccount",
-                        column: x => x.AccountIdAccount,
-                        principalTable: "Accounts",
-                        principalColumn: "IdAccount");
-                    table.ForeignKey(
                         name: "FK_DocumentInfos_Accounts_Created_by",
                         column: x => x.Created_by,
+                        principalTable: "Accounts",
+                        principalColumn: "IdAccount",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DocumentInfos_Accounts_IdAc",
+                        column: x => x.IdAc,
                         principalTable: "Accounts",
                         principalColumn: "IdAccount",
                         onDelete: ReferentialAction.Restrict);
@@ -439,30 +429,29 @@ namespace Business.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "EventParticipants",
+                name: "ProjectParticipants",
                 columns: table => new
                 {
-                    IdEventParticipant = table.Column<int>(type: "int", nullable: false)
+                    IdProjectParticipant = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Active = table.Column<bool>(type: "bit", nullable: false),
-                    IdEvent = table.Column<int>(type: "int", nullable: false),
-                    IdAc = table.Column<int>(type: "int", nullable: false),
-                    RegistrationTime = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    IdProject = table.Column<int>(type: "int", nullable: false),
+                    IdAc = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EventParticipants", x => x.IdEventParticipant);
+                    table.PrimaryKey("PK_ProjectParticipants", x => x.IdProjectParticipant);
                     table.ForeignKey(
-                        name: "FK_EventParticipants_Accounts_IdAc",
+                        name: "FK_ProjectParticipants_Accounts_IdAc",
                         column: x => x.IdAc,
                         principalTable: "Accounts",
                         principalColumn: "IdAccount",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_EventParticipants_Events_IdEvent",
-                        column: x => x.IdEvent,
-                        principalTable: "Events",
-                        principalColumn: "IdEvent",
+                        name: "FK_ProjectParticipants_Projects_IdProject",
+                        column: x => x.IdProject,
+                        principalTable: "Projects",
+                        principalColumn: "IdProject",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -480,8 +469,8 @@ namespace Business.Migrations
                 columns: new[] { "IdAccount", "CreatedBy", "CreatedWhen", "Email", "IdRole", "LastUpdateBy", "LastUpdateWhen", "Password", "Phone" },
                 values: new object[,]
                 {
-                    { 1, null, new DateTime(2024, 8, 30, 10, 22, 35, 930, DateTimeKind.Local).AddTicks(1154), "Quang111420@gmail.com", 1, null, new DateTime(2024, 8, 30, 10, 22, 35, 930, DateTimeKind.Local).AddTicks(1155), "quang111420", null },
-                    { 2, null, new DateTime(2024, 8, 30, 10, 22, 35, 930, DateTimeKind.Local).AddTicks(1158), "khang2007@gmail.com", 2, null, new DateTime(2024, 8, 30, 10, 22, 35, 930, DateTimeKind.Local).AddTicks(1159), "khang2007", null }
+                    { 1, null, new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7376), "Quang111420@gmail.com", 1, null, new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7377), "quang111420", null },
+                    { 2, null, new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7381), "khang2007@gmail.com", 2, null, new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7382), "khang2007", null }
                 });
 
             migrationBuilder.InsertData(
@@ -489,8 +478,8 @@ namespace Business.Migrations
                 columns: new[] { "IdAccountDt", "Active", "Address", "Birthday", "CCCD", "CreatedBy", "CreatedWhen", "Description", "Fullname", "Gender", "IdAccount", "LastUpdateBy", "LastUpdateWhen", "Nationality" },
                 values: new object[,]
                 {
-                    { 1, true, null, null, 123456789, 1, new DateTime(2024, 8, 30, 10, 22, 35, 930, DateTimeKind.Local).AddTicks(1193), "Admin account", "Nguyễn Ngọc Quang", "Nam", 1, 1, new DateTime(2024, 8, 30, 10, 22, 35, 930, DateTimeKind.Local).AddTicks(1194), "Vietnam" },
-                    { 2, true, null, null, 987654321, 2, new DateTime(2024, 8, 30, 10, 22, 35, 930, DateTimeKind.Local).AddTicks(1198), "User account", "Minh Khang", "Nam", 2, 1, new DateTime(2024, 8, 30, 10, 22, 35, 930, DateTimeKind.Local).AddTicks(1199), "Vietnam" }
+                    { 1, true, null, null, 123456789, 1, new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7424), "Admin account", "Nguyễn Ngọc Quang", "Nam", 1, 1, new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7425), "Vietnam" },
+                    { 2, true, null, null, 987654321, 2, new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7430), "User account", "Minh Khang", "Nam", 2, 1, new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7431), "Vietnam" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -555,19 +544,14 @@ namespace Business.Migrations
                 column: "IdArtwork");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DocumentInfos_AccountIdAccount",
-                table: "DocumentInfos",
-                column: "AccountIdAccount");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_DocumentInfos_Created_by",
                 table: "DocumentInfos",
                 column: "Created_by");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DocumentInfos_IdAcDt",
+                name: "IX_DocumentInfos_IdAc",
                 table: "DocumentInfos",
-                column: "IdAcDt");
+                column: "IdAc");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DocumentInfos_IdArtwork",
@@ -600,19 +584,14 @@ namespace Business.Migrations
                 column: "IdEvent");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Events_AccountIdAccount",
-                table: "Events",
-                column: "AccountIdAccount");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Events_CreatedBy",
                 table: "Events",
                 column: "CreatedBy");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Events_IdAcDt",
+                name: "IX_Events_IdAc",
                 table: "Events",
-                column: "IdAcDt");
+                column: "IdAc");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Events_LastUpdateBy",
@@ -669,6 +648,9 @@ namespace Business.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "AccountDetails");
+
+            migrationBuilder.DropTable(
                 name: "Comments");
 
             migrationBuilder.DropTable(
@@ -696,13 +678,10 @@ namespace Business.Migrations
                 name: "Artworks");
 
             migrationBuilder.DropTable(
-                name: "AccountDetails");
+                name: "Accounts");
 
             migrationBuilder.DropTable(
                 name: "TypeOfArtworks");
-
-            migrationBuilder.DropTable(
-                name: "Accounts");
 
             migrationBuilder.DropTable(
                 name: "Roles");

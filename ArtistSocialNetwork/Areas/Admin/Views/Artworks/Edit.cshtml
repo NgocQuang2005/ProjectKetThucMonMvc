@@ -1,0 +1,88 @@
+﻿@model Business.Artwork
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+@section Style {
+    <style>
+        .form-check .form-check-input {
+            margin-left: 0px !important;
+        }
+    </style>
+}
+<div class="bdlayout p-0">
+    <h2 class="h2-title bg4 text-white">Chỉnh sửa tài khoản </h2>
+    @{
+        if (TempData["AlertMessage"] != null)
+        {
+            <div id="alert-message" class="alert @TempData["AlertType"]">
+                @TempData["AlertMessage"]
+            </div>
+        }
+    }
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div class="row">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="IdArtwork" />
+                <div class="form-group form-check">
+                    <label class="form-check-label">
+                        @Html.DisplayNameFor(model => model.Active) <br />
+                        <input class="form-check-input" asp-for="Active" />
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label asp-for="IdAc" class="control-label"></label>
+                    <select asp-for="IdAc" class="form-control" asp-items="ViewBag.IdAc"></select>
+                    <span asp-validation-for="IdAc" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="IdTypeOfArtwork" class="control-label"></label>
+                    <select asp-for="IdTypeOfArtwork" class="form-control" asp-items="ViewBag.IdTypeOfArtwork"></select>
+                    <span asp-validation-for="IdTypeOfArtwork" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Title" class="control-label"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Description" class="control-label"></label>
+                    <input asp-for="Description" class="form-control" />
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Tags" class="control-label"></label>
+                    <input asp-for="Tags" class="form-control" />
+                    <span asp-validation-for="Tags" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="MediaType" class="control-label"></label>
+                    <input asp-for="MediaType" class="form-control" />
+                    <span asp-validation-for="MediaType" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="MediaUrl" class="control-label"></label>
+                    <input asp-for="MediaUrl" class="form-control" />
+                    <span asp-validation-for="MediaUrl" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Watched" class="control-label"></label>
+                    <input asp-for="Watched" class="form-control" />
+                    <span asp-validation-for="Watched" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Sửa" class="btn btn-primary" />
+                    <a asp-action="Index" class="btn btn-dark">Trở về</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

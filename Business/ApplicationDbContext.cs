@@ -207,7 +207,11 @@ namespace Business
                 .WithOne(ep => ep.Account)
                 .HasForeignKey(ep => ep.IdAc)
                 .OnDelete(DeleteBehavior.Restrict);
-
+            modelBuilder.Entity<Account>()
+                .HasMany(a => a.DocumentInfos)
+                .WithOne(d => d.Account)
+                .HasForeignKey(d => d.IdAc)
+                .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Account>()
                 .HasMany(a => a.PjAccDt)
                 .WithOne(pp => pp.Account)
@@ -230,11 +234,6 @@ namespace Business
                 .HasMany(a => a.DocumentInfos)
                 .WithOne(d => d.IdArtworkNavigation)
                 .HasForeignKey(d => d.IdArtwork)
-                .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<AccountDetail>()
-                .HasMany(a => a.DocumentInfos)
-                .WithOne(d => d.AccountDetail)
-                .HasForeignKey(d => d.IdAcDt)
                 .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Artwork>()
                 .HasMany(a => a.Reactions)

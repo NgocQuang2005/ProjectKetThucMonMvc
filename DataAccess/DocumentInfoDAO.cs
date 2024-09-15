@@ -1,44 +1,60 @@
 ﻿using Business;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DataAccess
 {
     public class DocumentInfoDAO : SingletonBase<DocumentInfoDAO>
     {
+        private readonly ApplicationDbContext _context; // Đảm bảo bạn đã khai báo đúng DbContext
+
+        public DocumentInfoDAO()
+        {
+            _context = new ApplicationDbContext(); // Thay YourDbContext bằng tên thực tế
+        }
+
+        // Phương thức lấy tất cả DocumentInfo
         public async Task<IEnumerable<DocumentInfo>> GetDocumentInfoAll()
         {
-            var documentInfo = await _context.DocumentInfos.ToListAsync();
-            return documentInfo;
+            return await _context.DocumentInfos
+                .Include(d => d.Account) // Bao gồm dữ liệu từ bảng liên quan
+                .Include(d => d.IdArtworkNavigation)
+                .Include(d => d.IdProjectNavigation)
+                .Include(d => d.IdEventNavigation)
+                .ToListAsync();
         }
+
+        // Phương thức lấy DocumentInfo theo ID
         public async Task<DocumentInfo> GetDocumentInfoById(int id)
         {
-            var documentInfo = await _context.DocumentInfos.FirstOrDefaultAsync(df => df.IdDcIf == id);
-            if (documentInfo == null) return null;
-
-            return documentInfo;
+            return await _context.DocumentInfos
+                .Include(d => d.Account) // Bao gồm dữ liệu từ bảng liên quan
+                .Include(d => d.IdArtworkNavigation)
+                .Include(d => d.IdProjectNavigation)
+                .Include(d => d.IdEventNavigation)
+                .FirstOrDefaultAsync(df => df.IdDcIf == id);
         }
+
+        // Phương thức thêm DocumentInfo
         public async Task Add(DocumentInfo documentInfo)
         {
-            _context.DocumentInfos.Add(documentInfo);
+            await _context.DocumentInfos.AddAsync(documentInfo);
             await _context.SaveChangesAsync();
         }
+
+        // Phương thức cập nhật DocumentInfo
         public async Task Update(DocumentInfo documentInfo)
         {
-
             var existingItem = await GetDocumentInfoById(documentInfo.IdDcIf);
             if (existingItem != null)
             {
-                // Cập nhật các thuộc tính cần thiết
                 _context.Entry(existingItem).CurrentValues.SetValues(documentInfo);
                 await _context.SaveChangesAsync();
             }
-
         }
+
+        // Phương thức xóa DocumentInfo
         public async Task Delete(int id)
         {
             var documentInfo = await GetDocumentInfoById(id);
@@ -48,12 +64,39 @@ namespace DataAccess
                 await _context.SaveChangesAsync();
             }
         }
+
+        // Phương thức thay đổi trạng thái hoạt động của DocumentInfo
         public async Task<bool> ChangeActive(int id)
         {
             var documentInfo = await GetDocumentInfoById(id);
-            documentInfo.Active = !documentInfo.Active;
-            await _context.SaveChangesAsync();
-            return documentInfo.Active;
+            if (documentInfo != null)
+            {
+                documentInfo.Active = !documentInfo.Active;
+                await _context.SaveChangesAsync();
+                return documentInfo.Active;
+            }
+            return false; // Nếu không tìm thấy documentInfo, trả về false
+        }
+
+        // Thêm các phương thức lấy dữ liệu từ các bảng liên quan nếu cần
+        public async Task<IEnumerable<AccountDetail>> GetAccountDetailAll()
+        {
+            return await _context.AccountDetails.ToListAsync();
+        }
+
+        public async Task<IEnumerable<Artwork>> GetArtworkAll()
+        {
+            return await _context.Artworks.ToListAsync();
+        }
+
+        public async Task<IEnumerable<Project>> GetProjectAll()
+        {
+            return await _context.Projects.ToListAsync();
+        }
+        
+        public async Task<IEnumerable<Event>> GetEventAll()
+        {
+            return await _context.Events.ToListAsync();
         }
     }
 }

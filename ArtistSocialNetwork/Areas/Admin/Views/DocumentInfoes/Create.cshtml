@@ -1,0 +1,82 @@
+﻿@model Business.DocumentInfo
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>DocumentInfo</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Active" /> @Html.DisplayNameFor(model => model.Active)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="IdAc" class="control-label"></label>
+                <select asp-for="IdAc" class ="form-control" asp-items="ViewBag.IdAc"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="IdEvent" class="control-label"></label>
+                <select asp-for="IdEvent" class ="form-control" asp-items="ViewBag.IdEvent"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="IdProject" class="control-label"></label>
+                <select asp-for="IdProject" class ="form-control" asp-items="ViewBag.IdProject"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="IdArtwork" class="control-label"></label>
+                <select asp-for="IdArtwork" class ="form-control" asp-items="ViewBag.IdArtwork"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="TypeFile" class="control-label"></label>
+                <input asp-for="TypeFile" class="form-control" />
+                <span asp-validation-for="TypeFile" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Path" class="control-label"></label>
+                <input asp-for="Path" class="form-control" />
+                <span asp-validation-for="Path" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UrlDocument" class="control-label"></label>
+                <input asp-for="UrlDocument" class="form-control" />
+                <span asp-validation-for="UrlDocument" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Created_by" class="control-label"></label>
+                <select asp-for="Created_by" class ="form-control" asp-items="ViewBag.Created_by"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Created_when" class="control-label"></label>
+                <input asp-for="Created_when" class="form-control" />
+                <span asp-validation-for="Created_when" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Last_update_by" class="control-label"></label>
+                <select asp-for="Last_update_by" class ="form-control" asp-items="ViewBag.Last_update_by"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Last_update_when" class="control-label"></label>
+                <input asp-for="Last_update_when" class="form-control" />
+                <span asp-validation-for="Last_update_when" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

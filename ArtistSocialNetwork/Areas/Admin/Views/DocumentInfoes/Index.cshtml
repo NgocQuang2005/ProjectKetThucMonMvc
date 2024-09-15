@@ -1,0 +1,101 @@
+﻿@model IEnumerable<Business.DocumentInfo>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Active)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Account)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IdEventNavigation)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IdProjectNavigation)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IdArtworkNavigation)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TypeFile)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Path)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UrlDocument)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedBy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Created_when)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LastUpdatedBy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Last_update_when)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Active)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Account.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IdEventNavigation.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IdProjectNavigation.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IdArtworkNavigation.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TypeFile)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Path)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UrlDocument)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedBy.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Created_when)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastUpdatedBy.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Last_update_when)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.IdDcIf">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.IdDcIf">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.IdDcIf">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
