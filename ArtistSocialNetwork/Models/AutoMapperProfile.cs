@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Business;
-using DTO;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ArtistSocialNetwork.Models
@@ -9,8 +8,7 @@ namespace ArtistSocialNetwork.Models
     {
         public AutoMapperProfile()
         {
-            CreateMap<Role, RoleDTO>();
-            CreateMap<Account, AccountDTO>();
+            CreateMap<DocumentInfo, DocumentInfoDTO>();
         }
     }
 }

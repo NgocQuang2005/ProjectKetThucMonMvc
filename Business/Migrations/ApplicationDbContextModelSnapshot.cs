@@ -330,13 +330,6 @@ namespace Business.Migrations
                     b.Property<DateTime?>("Last_update_when")
                         .HasColumnType("datetime");
 
-                    b.Property<string>("Path")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TypeFile")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("UrlDocument")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

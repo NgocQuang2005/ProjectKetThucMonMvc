@@ -27,7 +27,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Business\Business.csproj" />
     <ProjectReference Include="..\Commons\Commons.csproj" />
-    <ProjectReference Include="..\DTO\DTO.csproj" />
     <ProjectReference Include="..\Repository\Repository.csproj" />
   </ItemGroup>
 

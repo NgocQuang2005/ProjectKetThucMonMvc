@@ -86,7 +86,7 @@ class CustomUploadAdapter {
                 const data = new FormData();
                 data.append('upload', file);
 
-                fetch('/Admin/Products/UploadImage', {
+                fetch('/Admin/DocumentInfoes/UploadImage', {
                     method: 'POST',
                     body: data,
                 })

@@ -379,8 +379,6 @@ namespace Business.Migrations
                     IdEvent = table.Column<int>(type: "int", nullable: true),
                     IdProject = table.Column<int>(type: "int", nullable: true),
                     IdArtwork = table.Column<int>(type: "int", nullable: true),
-                    TypeFile = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Path = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UrlDocument = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Created_by = table.Column<int>(type: "int", nullable: true),
                     Created_when = table.Column<DateTime>(type: "datetime", nullable: true),

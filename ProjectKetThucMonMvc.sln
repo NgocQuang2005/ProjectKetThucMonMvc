@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repository", "Repository\Re
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArtistSocialNetwork", "ArtistSocialNetwork\ArtistSocialNetwork.csproj", "{94417A38-2502-4B1F-84B0-7B4B9FB794F3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DTO", "DTO\DTO.csproj", "{05C04343-4259-473F-A643-E2D57E1D2039}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,10 +39,6 @@ Global
 		{94417A38-2502-4B1F-84B0-7B4B9FB794F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{94417A38-2502-4B1F-84B0-7B4B9FB794F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{94417A38-2502-4B1F-84B0-7B4B9FB794F3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{05C04343-4259-473F-A643-E2D57E1D2039}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{05C04343-4259-473F-A643-E2D57E1D2039}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{05C04343-4259-473F-A643-E2D57E1D2039}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{05C04343-4259-473F-A643-E2D57E1D2039}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

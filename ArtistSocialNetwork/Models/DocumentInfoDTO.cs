@@ -1,48 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Business;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.ComponentModel;
-using Microsoft.AspNetCore.Http;
 
-namespace Business
+namespace ArtistSocialNetwork.Models
 {
-    public partial class DocumentInfo
+    public class DocumentInfoDTO
     {
-        [Key]
         public int IdDcIf { get; set; }
-
-        [Required]
+        [Display(Name = "Trạng thái")]
         public bool Active { get; set; }
 
-        // Foreign Key - AccountDetail
         public int? IdAc { get; set; }
-        [ForeignKey("IdAc")]
+        [Display(Name = "Email người dùng ")]
         public virtual Account? Account { get; set; }
 
-        // Foreign Key - Event
         public int? IdEvent { get; set; }
-        [ForeignKey("IdEvent")]
+        [Display(Name = "Sự kiện ")]
         public virtual Event? IdEventNavigation { get; set; }
 
-        // Foreign Key - Project
         public int? IdProject { get; set; }
-        [ForeignKey("IdProject")]
+
+        [Display(Name = "Dự án ")]
+
         public virtual Project? IdProjectNavigation { get; set; }
 
-        // Foreign Key - Artwork
         public int? IdArtwork { get; set; }
-        [ForeignKey("IdArtwork")]
+        [Display(Name = "Tác phẩm ")]
         public virtual Artwork? IdArtworkNavigation { get; set; }
-        public string UrlDocument { get; set; }
 
-        // Foreign Key - Created By
         [NotMapped]
         [DisplayName("Upload File")]
         public IFormFile? ImageFile { get; set; } = null!;
+        [Display(Name = "Ảnh")]
+        public string UrlDocument { get; set; }
+
         public int? Created_by { get; set; }
         [ForeignKey("Created_by")]
         public virtual Account? CreatedBy { get; set; }
@@ -50,13 +42,11 @@ namespace Business
         [Column(TypeName = "datetime")]
         public DateTime? Created_when { get; set; } = DateTime.Now;
 
-        // Foreign Key - Last Updated By
         public int? Last_update_by { get; set; }
         [ForeignKey("Last_update_by")]
         public virtual Account? LastUpdatedBy { get; set; }
 
         [Column(TypeName = "datetime")]
         public DateTime? Last_update_when { get; set; } = DateTime.Now;
-
     }
 }
