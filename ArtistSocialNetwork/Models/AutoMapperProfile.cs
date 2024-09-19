@@ -9,6 +9,7 @@ namespace ArtistSocialNetwork.Models
         public AutoMapperProfile()
         {
             CreateMap<DocumentInfo, DocumentInfoDTO>();
+            CreateMap<Account, AccountDTO>();
         }
     }
 }

@@ -11,29 +11,30 @@ namespace ArtistSocialNetwork.Models
         [Display(Name = "Trạng thái")]
         public bool Active { get; set; }
 
-        public int? IdAc { get; set; }
         [Display(Name = "Email người dùng ")]
+        public int? IdAc { get; set; }
         public virtual Account? Account { get; set; }
 
-        public int? IdEvent { get; set; }
         [Display(Name = "Sự kiện ")]
+        public int? IdEvent { get; set; }
         public virtual Event? IdEventNavigation { get; set; }
 
+        [Display(Name = "Dự án ")]
         public int? IdProject { get; set; }
 
-        [Display(Name = "Dự án ")]
 
         public virtual Project? IdProjectNavigation { get; set; }
 
-        public int? IdArtwork { get; set; }
         [Display(Name = "Tác phẩm ")]
+        public int? IdArtwork { get; set; }
         public virtual Artwork? IdArtworkNavigation { get; set; }
 
         [NotMapped]
         [DisplayName("Upload File")]
-        public IFormFile? ImageFile { get; set; } = null!;
+        public IFormFile? ImageFile { get; set; }
+
         [Display(Name = "Ảnh")]
-        public string UrlDocument { get; set; }
+        public string? UrlDocument { get; set; }
 
         public int? Created_by { get; set; }
         [ForeignKey("Created_by")]

@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Business;
 using Microsoft.AspNetCore.Authorization;
 using Repository;
 using Microsoft.AspNetCore.Rewrite;
@@ -14,8 +14,11 @@ using Microsoft.CodeAnalysis;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection.Metadata;
 using AutoMapper;
+using Business;
 using DocumentInfo = Business.DocumentInfo;
 using Microsoft.AspNetCore.Hosting;
+using ArtistSocialNetwork.Models;
+using DataAccess;
 
 namespace ArtistSocialNetwork.Areas.Admin.Controllers
 {
@@ -32,7 +35,7 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
         private readonly IDocumentInfoRepository _documentInfoRepository;
         private readonly IMapper _mapper;
 
-        public DocumentInfoesController(IAccountRepository accountRepository, IArtworkRepository artworkRepository , IProjectRepository projectRepository , IDocumentInfoRepository documentInfoRepository , IEventRepository eventRepository, IWebHostEnvironment webHostEnvironment, IMapper mapper)
+        public DocumentInfoesController(IAccountRepository accountRepository, IArtworkRepository artworkRepository, IProjectRepository projectRepository, IDocumentInfoRepository documentInfoRepository, IEventRepository eventRepository, IWebHostEnvironment webHostEnvironment, IMapper mapper)
         {
             _accountRepository = accountRepository;
             _artworkRepository = artworkRepository;
@@ -41,11 +44,10 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             _webHostEnvironment = webHostEnvironment;
             _documentInfoRepository = documentInfoRepository;
             _mapper = mapper;
-
         }
 
         // GET: Admin/DocumentInfoes
-        public async Task<IActionResult> Index( int? page, int IdAccount = 0 , int IdArtwork = 0 , int IdEvent = 0 , int IdProject = 0)
+        public async Task<IActionResult> Index(int? page, int IdAccount = 0, int IdArtwork = 0, int IdEvent = 0, int IdProject = 0)
         {
             var document = await _documentInfoRepository.GetDocumentInfoAll();
             if (IdAccount != 0)
@@ -59,7 +61,6 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             if (IdEvent != 0)
             {
                 document = document.Where(u => u.IdEvent == IdEvent);
-
             }
             if (IdProject != 0)
             {
@@ -73,6 +74,7 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             ViewBag.Page = 5;
             return View(document.ToPagedList(page ?? 1, (int)ViewBag.Page));
         }
+
         // GET: Admin/DocumentInfoes/Create
         public async Task<IActionResult> Create() 
         {
@@ -88,77 +90,146 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
         }
 
         // POST: Admin/DocumentInfoes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IdDcIf,Active,IdAc,IdEvent,IdProject,IdArtwork,TypeFile,Path,UrlDocument,Created_by,Created_when,Last_update_by,Last_update_when")] Business.DocumentInfo documentInfo)
+        public async Task<IActionResult> Create([Bind("IdDcIf,Active,IdAc,IdEvent,IdProject,IdArtwork,UrlDocument,Created_by,Created_when,Last_update_by,Last_update_when,ImageFile")] DocumentInfoDTO documentInfoDTO)
         {
             if (ModelState.IsValid)
             {
-                if (documentInfo.UrlDocument != null)
+                if (documentInfoDTO.ImageFile != null)
                 {
-                    string uniqueFileName = UploadedFile(documentInfo);
-                    documentInfo.UrlDocument = uniqueFileName;
+                    string uniqueFileName = UploadedFile(documentInfoDTO);
+                    documentInfoDTO.UrlDocument = uniqueFileName;
                 }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Vui lòng tải lên một tệp hình ảnh.");
+                    return View(documentInfoDTO);
+                }
+
+                var documentInfo = new DocumentInfo
+                {
+                    IdDcIf = documentInfoDTO.IdDcIf,
+                    Active = documentInfoDTO.Active,
+                    IdAc = documentInfoDTO.IdAc,
+                    IdEvent = documentInfoDTO.IdEvent,
+                    IdProject = documentInfoDTO.IdProject,
+                    IdArtwork = documentInfoDTO.IdArtwork,
+                    UrlDocument = documentInfoDTO.UrlDocument,
+                    Created_by = documentInfoDTO.Created_by,
+                    Created_when = documentInfoDTO.Created_when,
+                    Last_update_by = documentInfoDTO.Last_update_by,
+                    Last_update_when = documentInfoDTO.Last_update_when
+                };
 
                 await _documentInfoRepository.Add(documentInfo);
                 SetAlert(Commons.Contants.Update_success, Commons.Contants.success);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdAccount"] = new SelectList(await _accountRepository.GetAccountAll(), "IdAccount", "Email", documentInfo.IdAc);
-            ViewData["IdArtwork"] = new SelectList(await _artworkRepository.GetArtworkAll(), "IdArtwork", "Title", documentInfo.IdArtwork);
-            ViewData["IdEvent"] = new SelectList(await _eventRepository.GetEventAll(), "IdEvent", "Title", documentInfo.IdEvent);
-            ViewData["IdProject"] = new SelectList(await _projectRepository.GetProjectAll(), "IdProject", "Title", documentInfo.IdProject);
+            ViewData["IdAccount"] = new SelectList(await _accountRepository.GetAccountAll(), "IdAccount", "Email", documentInfoDTO.IdAc);
+            ViewData["IdArtwork"] = new SelectList(await _artworkRepository.GetArtworkAll(), "IdArtwork", "Title", documentInfoDTO.IdArtwork);
+            ViewData["IdEvent"] = new SelectList(await _eventRepository.GetEventAll(), "IdEvent", "Title", documentInfoDTO.IdEvent);
+            ViewData["IdProject"] = new SelectList(await _projectRepository.GetProjectAll(), "IdProject", "Title", documentInfoDTO.IdProject);
 
-            return View(documentInfo);
+            return View(documentInfoDTO);
         }
 
         // GET: Admin/DocumentInfoes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
             var document = await _documentInfoRepository.GetDocumentInfoById(id.Value);
             if (document == null)
             {
                 return NotFound();
             }
+            var documentInfoDTO = new DocumentInfoDTO
+            {
+                IdDcIf = document.IdDcIf,
+                Active = document.Active,
+                IdAc = document.IdAc,
+                IdEvent = document.IdEvent,
+                IdProject = document.IdProject,
+                IdArtwork = document.IdArtwork,
+                UrlDocument = document.UrlDocument,
+                Created_by = document.Created_by,
+                Created_when = document.Created_when,
+                Last_update_by = document.Last_update_by,
+                Last_update_when = document.Last_update_when
+            };
             ViewData["IdAccount"] = new SelectList(await _accountRepository.GetAccountAll(), "IdAccount", "Email", document.IdAc);
             ViewData["IdArtwork"] = new SelectList(await _artworkRepository.GetArtworkAll(), "IdArtwork", "Title", document.IdArtwork);
             ViewData["IdEvent"] = new SelectList(await _eventRepository.GetEventAll(), "IdEvent", "Title", document.IdEvent);
             ViewData["IdProject"] = new SelectList(await _projectRepository.GetProjectAll(), "IdProject", "Title", document.IdProject);
-            return View(document);
+            return View(documentInfoDTO);
         }
 
         // POST: Admin/DocumentInfoes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IdDcIf,Active,IdAc,IdEvent,IdProject,IdArtwork,TypeFile,Path,UrlDocument,Created_by,Created_when,Last_update_by,Last_update_when")] Business.DocumentInfo documentInfo)
+        public async Task<IActionResult> Edit(int id, [Bind("IdDcIf,Active,IdAc,IdEvent,IdProject,IdArtwork,UrlDocument,Created_by,Created_when,Last_update_by,Last_update_when,ImageFile")] DocumentInfoDTO documentInfoDTO)
         {
-            if(ModelState.IsValid)
+            if (id != documentInfoDTO.IdDcIf)
             {
-                if(documentInfo.ImageFile != null)
-                {
-                    string uniqueFileName = UploadedFile(documentInfo);
-                    documentInfo.UrlDocument = uniqueFileName;
-                }
-                else
-                {
-                    // Giữ lại ImageUrl hiện có nếu không có file mới
-                    var existingDocument = await _documentInfoRepository.GetDocumentInfoById(id);
-                    documentInfo.UrlDocument = existingDocument?.UrlDocument;
-                }
-
-                await _documentInfoRepository.Update(documentInfo);
-                SetAlert(Commons.Contants.Update_success, Commons.Contants.success);
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
-            ViewData["IdAccount"] = new SelectList(await _accountRepository.GetAccountAll(), "IdAccount", "Email", documentInfo.IdAc);
-            ViewData["IdArtwork"] = new SelectList(await _artworkRepository.GetArtworkAll(), "IdArtwork", "Title", documentInfo.IdArtwork);
-            ViewData["IdEvent"] = new SelectList(await _eventRepository.GetEventAll(), "IdEvent", "Title", documentInfo.IdEvent);
-            ViewData["IdProject"] = new SelectList(await _projectRepository.GetProjectAll(), "IdProject", "Title", documentInfo.IdProject);
-            return View(documentInfo);
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    if (documentInfoDTO.ImageFile != null)
+                    {
+                        string uniqueFileName = UploadedFile(documentInfoDTO);
+                        documentInfoDTO.UrlDocument = uniqueFileName;
+                    }
+                    else
+                    {
+                        // Giữ lại UrlDocument hiện có nếu không có file mới
+                        var existingDocument = await _documentInfoRepository.GetDocumentInfoById(id);
+                        documentInfoDTO.UrlDocument = existingDocument?.UrlDocument;
+                    }
+
+                    documentInfoDTO.Last_update_when = DateTime.Now;
+                    var documentInfo = new DocumentInfo
+                    {
+                        IdDcIf = documentInfoDTO.IdDcIf,
+                        Active = documentInfoDTO.Active,
+                        IdAc = documentInfoDTO.IdAc,
+                        IdEvent = documentInfoDTO.IdEvent,
+                        IdProject = documentInfoDTO.IdProject,
+                        IdArtwork = documentInfoDTO.IdArtwork,
+                        UrlDocument = documentInfoDTO.UrlDocument,
+                        Created_by = documentInfoDTO.Created_by,
+                        Created_when = documentInfoDTO.Created_when,
+                        Last_update_by = documentInfoDTO.Last_update_by,
+                        Last_update_when = documentInfoDTO.Last_update_when
+                    };
+                    await _documentInfoRepository.Update(documentInfo);
+                    SetAlert(Commons.Contants.Update_success, Commons.Contants.success);
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!await DocumentInfoExists(documentInfoDTO.IdDcIf))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+            ViewData["IdAccount"] = new SelectList(await _accountRepository.GetAccountAll(), "IdAccount", "Email", documentInfoDTO.IdAc);
+            ViewData["IdArtwork"] = new SelectList(await _artworkRepository.GetArtworkAll(), "IdArtwork", "Title", documentInfoDTO.IdArtwork);
+            ViewData["IdEvent"] = new SelectList(await _eventRepository.GetEventAll(), "IdEvent", "Title", documentInfoDTO.IdEvent);
+            ViewData["IdProject"] = new SelectList(await _projectRepository.GetProjectAll(), "IdProject", "Title", documentInfoDTO.IdProject);
+            return View(documentInfoDTO);
         }
 
         // POST: Admin/DocumentInfoes/Delete/5
@@ -183,26 +254,29 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
         [HttpPost]
         public async Task<JsonResult> ChangeStatus(int id)
         {
             var result = await _documentInfoRepository.ChangeActive(id);
             return Json(new { status = result });
         }
-        public string UploadedFile(DocumentInfo documentInfo)
+
+        private string UploadedFile(DocumentInfoDTO documentInfoDTO)
         {
-            string wwwRootPath = _webHostEnvironment.WebRootPath;
-            string fileName = Path.GetFileNameWithoutExtension(documentInfo.ImageFile.FileName);
-            string extension = Path.GetExtension(documentInfo.ImageFile.FileName);
-            documentInfo.UrlDocument = fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
-            string path = Path.Combine(wwwRootPath + "/Upload/Images/", fileName);
+            string uniqueFileName = null;
 
-            using (var fileStream = new FileStream(path, FileMode.Create))
+            if (documentInfoDTO.ImageFile != null)
             {
-                documentInfo.ImageFile.CopyTo(fileStream);
+                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "Upload/Images");
+                uniqueFileName = Guid.NewGuid().ToString() + "_" + documentInfoDTO.ImageFile.FileName;
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    documentInfoDTO.ImageFile.CopyTo(fileStream);
+                }
             }
-
-            return fileName;
+            return uniqueFileName;
         }
 
         [HttpPost]
@@ -215,7 +289,7 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                 var month = currentDate.Month.ToString("D2");
                 var day = currentDate.Day.ToString("D2");
 
-                var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/upload/images", year, month);
+                var directoryPath = Path.Combine(_webHostEnvironment.WebRootPath, "Upload/Images", year, month);
                 Directory.CreateDirectory(directoryPath);
 
                 var fileName = $"{year}{month}{day}_{Path.GetFileName(upload.FileName)}";
@@ -226,10 +300,15 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                     await upload.CopyToAsync(stream);
                 }
 
-                return Json(new { uploaded = true, url = $"/upload/images/{year}/{month}/{fileName}" });
+                return Json(new { uploaded = true, url = $"/Upload/Images/{year}/{month}/{fileName}" });
             }
 
             return Json(new { uploaded = false, message = "Upload failed" });
+        }
+
+        private async Task<bool> DocumentInfoExists(int id)
+        {
+            return await _documentInfoRepository.GetDocumentInfoById(id) != null;
         }
     }
 }

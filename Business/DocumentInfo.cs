@@ -24,6 +24,8 @@ namespace Business
         public virtual Account? Account { get; set; }
 
         // Foreign Key - Event
+        [Display(Name = "Sự Kiện")]
+
         public int? IdEvent { get; set; }
         [ForeignKey("IdEvent")]
         public virtual Event? IdEventNavigation { get; set; }
@@ -37,12 +39,11 @@ namespace Business
         public int? IdArtwork { get; set; }
         [ForeignKey("IdArtwork")]
         public virtual Artwork? IdArtworkNavigation { get; set; }
-        public string UrlDocument { get; set; }
+        public string? UrlDocument { get; set; }
 
         // Foreign Key - Created By
         [NotMapped]
-        [DisplayName("Upload File")]
-        public IFormFile? ImageFile { get; set; } = null!;
+        public IFormFile? ImageFile { get; set; }
         public int? Created_by { get; set; }
         [ForeignKey("Created_by")]
         public virtual Account? CreatedBy { get; set; }

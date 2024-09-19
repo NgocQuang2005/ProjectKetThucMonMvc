@@ -41,6 +41,7 @@ namespace Business
         public Account? Updater { get; set; }
 
         public DateTime? LastUpdateWhen { get; set; } = DateTime.Now;
+        
         public AccountDetail? AccountDetail { get; set; }
         public ICollection<AccountDetail>? CreatedAd { get; set; }
         public ICollection<AccountDetail>? UpdatedAd { get; set; }
