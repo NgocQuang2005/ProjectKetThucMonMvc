@@ -15,35 +15,41 @@ namespace Business
         public int IdArtwork { get; set; }
 
         [Required]
+        [Display(Name ="Trạng Thái")]
         public bool Active { get; set; }
 
         [Required]
-        public int IdAc { get; set; }
+        [Display(Name = "Tài khoản")]
+        public int? IdAc { get; set; }
 
         [ForeignKey("IdAc")]
-        public Account Account { get; set; }
+        public Account? Account { get; set; }
 
         [Required]
-        public int IdTypeOfArtwork { get; set; }
+        [Display(Name = "Loại Tác Phẩm")]
+        public int? IdTypeOfArtwork { get; set; }
 
         [ForeignKey("IdTypeOfArtwork")]
-        public TypeOfArtwork TypeOfArtwork { get; set; }
+        public TypeOfArtwork? TypeOfArtwork { get; set; }
 
         [Required]
         [MaxLength(255)]
-        public string Title { get; set; }
-
-        public string Description { get; set; }
+        [Display(Name = "Tiêu đề")]
+        public string? Title { get; set; }
+        [Display(Name = "Miêu tả")]
+        public string? Description { get; set; }
 
         [Required]
         [MaxLength(255)]
-        public string Tags { get; set; }
+
+        public string? Tags { get; set; }
 
         [Required]
         [MaxLength(50)]
-        public string MediaType { get; set; }
+        public string? MediaType { get; set; }
 
         public string? MediaUrl { get; set; }
+        [Display(Name = "Lượt xem")]
 
         public int? Watched { get; set; }
 
@@ -63,7 +69,7 @@ namespace Business
 
         public ICollection<Comment>? Comments { get; set; }
         public ICollection<Reaction>? Reactions { get; set; }
-        public ICollection<DocumentInfo>? DocumentInfos { get; set; }
+        public virtual ICollection<DocumentInfo>? DocumentInfos { get; set; }
 
     }
 }

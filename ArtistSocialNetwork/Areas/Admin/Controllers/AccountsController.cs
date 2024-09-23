@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Business;
 using Microsoft.AspNetCore.Authorization;
 using Repository;
 using X.PagedList;
-using System.Data;
 
 namespace ArtistSocialNetwork.Areas.Admin.Controllers
 {
@@ -20,31 +21,38 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
     {
         private readonly IAccountRepository accountRepository;
         private readonly IRoleRepository roleRepository;
+        private readonly IDocumentInfoRepository documentInfoRepository;
 
         public AccountsController()
         {
             accountRepository = new AccountRepository();
             roleRepository = new RoleRepository();
+            documentInfoRepository = new DocumentInfoRepository();
         }
 
         // GET: Admin/Accounts
         public async Task<IActionResult> Index(string searchString, int? page, int IdRole)
         {
+            // Lấy danh sách tài khoản từ repository
             var accounts = await accountRepository.GetAccountAll();
+
+            // Lọc theo từ khoá tìm kiếm nếu có
             if (!string.IsNullOrEmpty(searchString))
             {
-                accounts = accounts.Where(c => Commons.Library.ConvertToUnSign(c.Email.ToLower()).Contains(Commons.Library.ConvertToUnSign(searchString.ToLower())));
+                accounts = accounts.Where(c => Commons.Library.ConvertToUnSign(c.Email.ToLower())
+                                    .Contains(Commons.Library.ConvertToUnSign(searchString.ToLower()))).ToList();
             }
+
+            // Lọc theo vai trò nếu được chọn
             if (IdRole != 0)
             {
-                accounts = accounts.Where(u => u.IdRole == IdRole);
+                accounts = accounts.Where(u => u.IdRole == IdRole).ToList();
             }
 
-            // Populate the SelectList for IdRole and IdAccount
+            // Trả dữ liệu cho view
             ViewData["IdRole"] = new SelectList(await roleRepository.GetRoleAll(), "IdRole", "RoleName");
-            ViewData["IdAccount"] = new SelectList(accounts, "IdAccount", "Email");
-
             ViewBag.Page = 5;
+
             return View(accounts.ToPagedList(page ?? 1, (int)ViewBag.Page));
         }
 
@@ -56,11 +64,13 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
         }
 
         // POST: Admin/Accounts/Create
+        // POST: Admin/Accounts/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IdAccount,Email,Phone,Password,IdRole,CreatedBy,CreatedWhen,LastUpdateBy,LastUpdateWhen")] Account account)
+        public async Task<IActionResult> Create([Bind("IdAccount,Email,Phone,Password,IdRole,CreatedBy,CreatedWhen,LastUpdateBy,LastUpdateWhen")] Account account, IFormFile ProfileImage)
         {
             ViewData["IdRole"] = new SelectList(await roleRepository.GetRoleAll(), "IdRole", "RoleName", account.IdRole);
+
             if (ModelState.IsValid)
             {
                 if (string.IsNullOrEmpty(account.Password))
@@ -68,8 +78,44 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                     SetAlert(Commons.Contants.PASSWORD_FAIL, Commons.Contants.FAIL);
                     return View(account);
                 }
+
                 account.Password = Commons.Library.EncryptMD5(account.Password);
+
+                // Lưu tài khoản vào database
                 await accountRepository.Add(account);
+
+                // Xử lý việc lưu ảnh nếu có
+                if (ProfileImage != null && ProfileImage.Length > 0)
+                {
+                    var fileName = Path.GetFileName(ProfileImage.FileName);
+                    var uploadFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Upload/Images");
+
+                    // Kiểm tra và tạo thư mục nếu nó chưa tồn tại
+                    if (!Directory.Exists(uploadFolderPath))
+                    {
+                        Directory.CreateDirectory(uploadFolderPath);
+                    }
+
+                    var filePath = Path.Combine(uploadFolderPath, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await ProfileImage.CopyToAsync(stream);
+                    }
+
+                    // Chỉ lưu tên file vào cơ sở dữ liệu (không bao gồm thư mục)
+                    var documentInfo = new DocumentInfo
+                    {
+                        IdAc = account.IdAccount, // Gán IdAccount mới tạo vào DocumentInfo
+                        UrlDocument = fileName,   // Chỉ lưu tên file, không lưu cả đường dẫn
+                        Created_by = account.IdAccount,
+                        Created_when = DateTime.Now,
+                        Active = true
+                    };
+
+                    await documentInfoRepository.Add(documentInfo);
+                }
+
                 SetAlert(Commons.Contants.Update_success, Commons.Contants.success);
                 return RedirectToAction(nameof(Index));
             }
@@ -79,19 +125,31 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
         // GET: Admin/Accounts/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            var account = await accountRepository.GetAccountById(Convert.ToInt32(id));
+            if (!id.HasValue)
+            {
+                return NotFound();
+            }
+
+            var account = await accountRepository.GetAccountById(id.Value);
             if (account == null)
             {
                 return NotFound();
             }
+
             ViewData["IdRole"] = new SelectList(await roleRepository.GetRoleAll(), "IdRole", "RoleName", account.IdRole);
+
+            // Lấy thông tin ảnh đại diện nếu có
+            var documentInfo = await documentInfoRepository.GetByAccountId(account.IdAccount);
+            ViewData["ProfileImageUrl"] = documentInfo?.UrlDocument; // Lưu đường dẫn ảnh vào ViewData
+
             return View(account);
         }
+
 
         // POST: Admin/Accounts/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IdAccount,Email,Phone,Password,IdRole,CreatedBy,CreatedWhen,LastUpdateBy,LastUpdateWhen")] Account account)
+        public async Task<IActionResult> Edit(int id, [Bind("IdAccount,Email,Phone,Password,IdRole,CreatedBy,CreatedWhen,LastUpdateBy,LastUpdateWhen")] Account account, IFormFile ProfileImage)
         {
             if (id != account.IdAccount)
             {
@@ -102,22 +160,68 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             {
                 if (string.IsNullOrEmpty(account.Password))
                 {
-                    var currentPassword = await accountRepository.GetAccountById(account.IdAccount);
-                    account.Password = currentPassword.Password;
+                    var currentAccount = await accountRepository.GetAccountById(account.IdAccount);
+                    account.Password = currentAccount.Password;
                 }
                 else
                 {
                     account.Password = Commons.Library.EncryptMD5(account.Password);
                 }
+
+                // Cập nhật tài khoản
                 await accountRepository.Update(account);
+
+                // Xử lý cập nhật ảnh nếu có
+                if (ProfileImage != null && ProfileImage.Length > 0)
+                {
+                    var fileName = Path.GetFileName(ProfileImage.FileName);
+                    var uploadFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Upload/Images");
+
+                    // Kiểm tra và tạo thư mục nếu nó chưa tồn tại
+                    if (!Directory.Exists(uploadFolderPath))
+                    {
+                        Directory.CreateDirectory(uploadFolderPath);
+                    }
+
+                    var filePath = Path.Combine(uploadFolderPath, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await ProfileImage.CopyToAsync(stream);
+                    }
+
+                    var documentInfo = await documentInfoRepository.GetByAccountId(account.IdAccount);
+                    if (documentInfo == null)
+                    {
+                        // Tạo mới DocumentInfo nếu chưa có
+                        documentInfo = new DocumentInfo
+                        {
+                            IdAc = account.IdAccount,
+                            UrlDocument = fileName,   // Chỉ lưu tên file
+                            Created_by = account.IdAccount,
+                            Created_when = DateTime.Now,
+                            Active = true
+                        };
+                        await documentInfoRepository.Add(documentInfo);
+                    }
+                    else
+                    {
+                        // Cập nhật DocumentInfo nếu đã có
+                        documentInfo.UrlDocument = fileName;   // Chỉ lưu tên file
+                        documentInfo.Last_update_by = account.IdAccount;
+                        documentInfo.Last_update_when = DateTime.Now;
+                        await documentInfoRepository.Update(documentInfo);
+                    }
+                }
+
                 SetAlert(Commons.Contants.Update_success, Commons.Contants.success);
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["IdRole"] = new SelectList(await roleRepository.GetRoleAll(), "IdRole", "RoleName", account.IdRole);
             return View(account);
         }
 
-        // POST: Admin/Accounts/Delete/5
         public async Task<JsonResult> DeleteId(int id)
         {
             try
@@ -127,12 +231,18 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                 {
                     return Json(new { success = false, message = "Không tìm thấy bản ghi" });
                 }
+
+                // Xóa DocumentInfo nếu có
+                var documentInfo = await documentInfoRepository.GetByAccountId(id);
+                if (documentInfo != null)
+                {
+                    await documentInfoRepository.Delete(documentInfo.IdDcIf);
+                }
+
+                // Xóa Account
                 await accountRepository.Delete(id);
                 SetAlert(Commons.Contants.Delete_success, Commons.Contants.success);
-                return Json(new
-                {
-                    status = true
-                });
+                return Json(new { status = true });
             }
             catch (Exception ex)
             {

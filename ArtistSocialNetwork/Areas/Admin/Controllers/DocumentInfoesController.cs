@@ -1,24 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Repository;
-using Microsoft.AspNetCore.Rewrite;
-using X.PagedList;
-using Microsoft.CodeAnalysis;
-using Microsoft.IdentityModel.Tokens;
-using System.Reflection.Metadata;
+using Microsoft.AspNetCore.Hosting;
 using AutoMapper;
+using ArtistSocialNetwork.Models;
 using Business;
 using DocumentInfo = Business.DocumentInfo;
-using Microsoft.AspNetCore.Hosting;
-using ArtistSocialNetwork.Models;
-using DataAccess;
+using X.PagedList;
+using Microsoft.AspNetCore.Http; // For session handling
 
 namespace ArtistSocialNetwork.Areas.Admin.Controllers
 {
@@ -49,43 +45,57 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
         // GET: Admin/DocumentInfoes
         public async Task<IActionResult> Index(int? page, int IdAccount = 0, int IdArtwork = 0, int IdEvent = 0, int IdProject = 0)
         {
-            var document = await _documentInfoRepository.GetDocumentInfoAll();
-            if (IdAccount != 0)
+            var documents = await _documentInfoRepository.GetDocumentInfoAll();
+
+            if (IdAccount != 0) documents = documents.Where(u => u.IdAc == IdAccount);
+            if (IdArtwork != 0) documents = documents.Where(u => u.IdArtwork == IdArtwork);
+            if (IdEvent != 0) documents = documents.Where(u => u.IdEvent == IdEvent);
+            if (IdProject != 0) documents = documents.Where(u => u.IdProject == IdProject);
+
+            var documentDTOs = documents.Select(doc => new DocumentInfoDTO
             {
-                document = document.Where(u => u.IdAc == IdAccount);
-            }
-            if (IdArtwork != 0)
-            {
-                document = document.Where(u => u.IdArtwork == IdArtwork);
-            }
-            if (IdEvent != 0)
-            {
-                document = document.Where(u => u.IdEvent == IdEvent);
-            }
-            if (IdProject != 0)
-            {
-                document = document.Where(u => u.IdProject == IdProject);
-            }
-            // Populate the SelectList for IdRole and IdAccount
+                IdDcIf = doc.IdDcIf,
+                Active = doc.Active,
+                IdAc = doc.IdAc,
+                Account = doc.Account,
+                IdEvent = doc.IdEvent,
+                IdEventNavigation = doc.IdEventNavigation,
+                IdProject = doc.IdProject,
+                IdProjectNavigation = doc.IdProjectNavigation,
+                IdArtwork = doc.IdArtwork,
+                IdArtworkNavigation = doc.IdArtworkNavigation,
+                UrlDocument = doc.UrlDocument,
+                Created_by = doc.Created_by,
+                Created_when = doc.Created_when,
+                Last_update_by = doc.Last_update_by,
+                Last_update_when = doc.Last_update_when
+            }).ToList();
+
+            var pagedDocuments = documentDTOs.ToPagedList(page ?? 1, 5); // Đặt giá trị mặc định cho page nếu null
+
+            ViewBag.Page = 5; // Đảm bảo ViewBag.Page có giá trị
+
             ViewData["IdAccount"] = new SelectList(await _accountRepository.GetAccountAll(), "IdAccount", "Email");
             ViewData["IdArtwork"] = new SelectList(await _artworkRepository.GetArtworkAll(), "IdArtwork", "Title");
             ViewData["IdEvent"] = new SelectList(await _eventRepository.GetEventAll(), "IdEvent", "Title");
             ViewData["IdProject"] = new SelectList(await _projectRepository.GetProjectAll(), "IdProject", "Title");
-            ViewBag.Page = 5;
-            return View(document.ToPagedList(page ?? 1, (int)ViewBag.Page));
+
+            return View(pagedDocuments);
         }
 
         // GET: Admin/DocumentInfoes/Create
-        public async Task<IActionResult> Create() 
+        public async Task<IActionResult> Create()
         {
-            var model = new DocumentInfo
+            var model = new DocumentInfoDTO
             {
-                Created_when = Commons.Library.GetServerDateTime() // Ngày tạo mặc định
+                Created_when = Commons.Library.GetServerDateTime() // Default creation date
             };
+
             ViewData["IdAccount"] = new SelectList(await _accountRepository.GetAccountAll(), "IdAccount", "Email");
             ViewData["IdArtwork"] = new SelectList(await _artworkRepository.GetArtworkAll(), "IdArtwork", "Title");
             ViewData["IdEvent"] = new SelectList(await _eventRepository.GetEventAll(), "IdEvent", "Title");
             ViewData["IdProject"] = new SelectList(await _projectRepository.GetProjectAll(), "IdProject", "Title");
+
             return View(model);
         }
 
@@ -96,36 +106,37 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (documentInfoDTO.ImageFile != null)
+                // Retrieve the current user ID from the session
+                var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
+
+                if (currentUserId == null)
                 {
-                    string uniqueFileName = UploadedFile(documentInfoDTO);
-                    documentInfoDTO.UrlDocument = uniqueFileName;
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Vui lòng tải lên một tệp hình ảnh.");
+                    ModelState.AddModelError("", "Unable to determine the current user.");
                     return View(documentInfoDTO);
                 }
 
-                var documentInfo = new DocumentInfo
+                if (documentInfoDTO.ImageFile != null)
                 {
-                    IdDcIf = documentInfoDTO.IdDcIf,
-                    Active = documentInfoDTO.Active,
-                    IdAc = documentInfoDTO.IdAc,
-                    IdEvent = documentInfoDTO.IdEvent,
-                    IdProject = documentInfoDTO.IdProject,
-                    IdArtwork = documentInfoDTO.IdArtwork,
-                    UrlDocument = documentInfoDTO.UrlDocument,
-                    Created_by = documentInfoDTO.Created_by,
-                    Created_when = documentInfoDTO.Created_when,
-                    Last_update_by = documentInfoDTO.Last_update_by,
-                    Last_update_when = documentInfoDTO.Last_update_when
-                };
+                    string uniqueFileName = UploadedFile(documentInfoDTO);
+                    documentInfoDTO.UrlDocument = "/Upload/Images/" + uniqueFileName;
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Please upload an image file.");
+                    return View(documentInfoDTO);
+                }
+
+                // Set Created_by and Last_update_by fields to the current user ID from session
+                documentInfoDTO.Created_by = currentUserId.Value;
+                documentInfoDTO.Created_when = DateTime.Now;
+
+                var documentInfo = _mapper.Map<DocumentInfo>(documentInfoDTO);
 
                 await _documentInfoRepository.Add(documentInfo);
                 SetAlert(Commons.Contants.Update_success, Commons.Contants.success);
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["IdAccount"] = new SelectList(await _accountRepository.GetAccountAll(), "IdAccount", "Email", documentInfoDTO.IdAc);
             ViewData["IdArtwork"] = new SelectList(await _artworkRepository.GetArtworkAll(), "IdArtwork", "Title", documentInfoDTO.IdArtwork);
             ViewData["IdEvent"] = new SelectList(await _eventRepository.GetEventAll(), "IdEvent", "Title", documentInfoDTO.IdEvent);
@@ -147,24 +158,14 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            var documentInfoDTO = new DocumentInfoDTO
-            {
-                IdDcIf = document.IdDcIf,
-                Active = document.Active,
-                IdAc = document.IdAc,
-                IdEvent = document.IdEvent,
-                IdProject = document.IdProject,
-                IdArtwork = document.IdArtwork,
-                UrlDocument = document.UrlDocument,
-                Created_by = document.Created_by,
-                Created_when = document.Created_when,
-                Last_update_by = document.Last_update_by,
-                Last_update_when = document.Last_update_when
-            };
+
+            var documentInfoDTO = _mapper.Map<DocumentInfoDTO>(document);
+
             ViewData["IdAccount"] = new SelectList(await _accountRepository.GetAccountAll(), "IdAccount", "Email", document.IdAc);
             ViewData["IdArtwork"] = new SelectList(await _artworkRepository.GetArtworkAll(), "IdArtwork", "Title", document.IdArtwork);
             ViewData["IdEvent"] = new SelectList(await _eventRepository.GetEventAll(), "IdEvent", "Title", document.IdEvent);
             ViewData["IdProject"] = new SelectList(await _projectRepository.GetProjectAll(), "IdProject", "Title", document.IdProject);
+
             return View(documentInfoDTO);
         }
 
@@ -182,33 +183,31 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             {
                 try
                 {
+                    // Retrieve the current user ID from the session
+                    var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
+
+                    if (currentUserId == null)
+                    {
+                        ModelState.AddModelError("", "Unable to determine the current user.");
+                        return View(documentInfoDTO);
+                    }
+
                     if (documentInfoDTO.ImageFile != null)
                     {
                         string uniqueFileName = UploadedFile(documentInfoDTO);
-                        documentInfoDTO.UrlDocument = uniqueFileName;
+                        documentInfoDTO.UrlDocument = "/Upload/Images/" + uniqueFileName;
                     }
                     else
                     {
-                        // Giữ lại UrlDocument hiện có nếu không có file mới
                         var existingDocument = await _documentInfoRepository.GetDocumentInfoById(id);
                         documentInfoDTO.UrlDocument = existingDocument?.UrlDocument;
                     }
 
+                    // Update Last_update_by and Last_update_when fields
+                    documentInfoDTO.Last_update_by = currentUserId.Value;
                     documentInfoDTO.Last_update_when = DateTime.Now;
-                    var documentInfo = new DocumentInfo
-                    {
-                        IdDcIf = documentInfoDTO.IdDcIf,
-                        Active = documentInfoDTO.Active,
-                        IdAc = documentInfoDTO.IdAc,
-                        IdEvent = documentInfoDTO.IdEvent,
-                        IdProject = documentInfoDTO.IdProject,
-                        IdArtwork = documentInfoDTO.IdArtwork,
-                        UrlDocument = documentInfoDTO.UrlDocument,
-                        Created_by = documentInfoDTO.Created_by,
-                        Created_when = documentInfoDTO.Created_when,
-                        Last_update_by = documentInfoDTO.Last_update_by,
-                        Last_update_when = documentInfoDTO.Last_update_when
-                    };
+
+                    var documentInfo = _mapper.Map<DocumentInfo>(documentInfoDTO);
                     await _documentInfoRepository.Update(documentInfo);
                     SetAlert(Commons.Contants.Update_success, Commons.Contants.success);
                     return RedirectToAction(nameof(Index));
@@ -225,10 +224,12 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                     }
                 }
             }
+
             ViewData["IdAccount"] = new SelectList(await _accountRepository.GetAccountAll(), "IdAccount", "Email", documentInfoDTO.IdAc);
             ViewData["IdArtwork"] = new SelectList(await _artworkRepository.GetArtworkAll(), "IdArtwork", "Title", documentInfoDTO.IdArtwork);
             ViewData["IdEvent"] = new SelectList(await _eventRepository.GetEventAll(), "IdEvent", "Title", documentInfoDTO.IdEvent);
             ViewData["IdProject"] = new SelectList(await _projectRepository.GetProjectAll(), "IdProject", "Title", documentInfoDTO.IdProject);
+
             return View(documentInfoDTO);
         }
 
@@ -240,14 +241,11 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                 var document = await _documentInfoRepository.GetDocumentInfoById(id);
                 if (document == null)
                 {
-                    return Json(new { success = false, message = "Không tìm thấy bản ghi" });
+                    return Json(new { success = false, message = "Record not found" });
                 }
                 await _documentInfoRepository.Delete(id);
                 SetAlert(Commons.Contants.Delete_success, Commons.Contants.success);
-                return Json(new
-                {
-                    status = true
-                });
+                return Json(new { status = true });
             }
             catch (Exception ex)
             {
@@ -256,7 +254,7 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> ChangeStatus(int id)
+        public async Task<JsonResult> ChangeActive(int id)
         {
             var result = await _documentInfoRepository.ChangeActive(id);
             return Json(new { status = result });
@@ -277,33 +275,6 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                 }
             }
             return uniqueFileName;
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> UploadImage(IFormFile upload)
-        {
-            if (upload != null && upload.Length > 0)
-            {
-                var currentDate = DateTime.Now;
-                var year = currentDate.Year.ToString();
-                var month = currentDate.Month.ToString("D2");
-                var day = currentDate.Day.ToString("D2");
-
-                var directoryPath = Path.Combine(_webHostEnvironment.WebRootPath, "Upload/Images", year, month);
-                Directory.CreateDirectory(directoryPath);
-
-                var fileName = $"{year}{month}{day}_{Path.GetFileName(upload.FileName)}";
-                var filePath = Path.Combine(directoryPath, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await upload.CopyToAsync(stream);
-                }
-
-                return Json(new { uploaded = true, url = $"/Upload/Images/{year}/{month}/{fileName}" });
-            }
-
-            return Json(new { uploaded = false, message = "Upload failed" });
         }
 
         private async Task<bool> DocumentInfoExists(int id)

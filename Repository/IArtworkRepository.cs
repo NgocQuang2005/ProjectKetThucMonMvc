@@ -1,18 +1,16 @@
 ﻿using Business;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Repository
 {
     public interface IArtworkRepository
     {
-        Task<IEnumerable<Artwork>> GetArtworkAll();
-        Task<Artwork> GetArtworkById(int id);
-        Task Add(Artwork artwork);
-        Task Update(Artwork artwork);
-        Task Delete(int id);
+        Task<IEnumerable<Artwork>> GetArtworkAll(); // Danh sách tất cả Artwork
+        Task<Artwork?> GetArtworkById(int id); // Artwork theo ID (nullable)
+        Task Add(Artwork artwork); // Thêm mới Artwork
+        Task Update(Artwork artwork); // Cập nhật Artwork
+        Task Delete(int id); // Xóa Artwork
+        Task<bool> ChangeActive(int id);
     }
 }

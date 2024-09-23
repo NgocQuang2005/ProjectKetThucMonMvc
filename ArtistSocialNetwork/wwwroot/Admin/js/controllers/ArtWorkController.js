@@ -18,13 +18,13 @@
             var id = $(this).data("id");
             //if (confirm($(this).data("confirm"))) {
             $.ajax({
-                url: "/Admin/AccountDetails/DeleteId/" + id,
+                url: "/Admin/Artworks/DeleteId/" + id,
                 dataType: "json",
                 type: "POST",
                 contentType: "application/json;charset=UTF-8",
                 success: function (res) {
                     if (res.status == true) {
-                        window.location.href = '/Admin/AccountDetails';
+                        window.location.href = '/Admin/Artworks';
                         //$("#getCodeModal").modal("toggle");
                     }
                 },
@@ -46,7 +46,7 @@
             var btn = $(this);
             var id = btn.data('id');
             $.ajax({
-                url: "/Admin/AccountDetails/ChangeActive",
+                url: "/Admin/Artworks/ChangeActive",
                 data: { id: id },
                 datatype: "json",
                 type: "POST",

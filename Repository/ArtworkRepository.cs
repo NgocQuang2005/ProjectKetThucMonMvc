@@ -1,9 +1,6 @@
 ﻿using Business;
 using DataAccess;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Repository
@@ -29,9 +26,14 @@ namespace Repository
         {
             return await ArtworkDAO.Instance.GetArtworkById(id);
         }
+
         public async Task Update(Artwork artwork)
         {
             await ArtworkDAO.Instance.Update(artwork);
+        }
+        public async Task<bool> ChangeActive(int id)
+        {
+            return await ArtworkDAO.Instance.ChangeActive(id);
         }
     }
 }

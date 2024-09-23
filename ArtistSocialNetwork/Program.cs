@@ -15,20 +15,32 @@ namespace ArtistSocialNetwork
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+            // Cấu hình authentication với cookie
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+                    options.SlidingExpiration = true;
+                    options.AccessDeniedPath = "/Forbidden/";
+                    options.LoginPath = "/Admin/Login/Index";
+                    options.ReturnUrlParameter = "returnUrl";
+                })
+                .AddCookie("Admin", options =>
+                {
+                    options.LoginPath = new PathString("/Admin/Login/Index");
+                });
+
+            // Cấu hình Session
+            builder.Services.AddSession(options =>
             {
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
-                options.SlidingExpiration = true;
-                options.AccessDeniedPath = "/Forbidden/";
-                options.LoginPath = "/Admin/Login/Index";
-                options.ReturnUrlParameter = "returnUrl";
-            }).AddCookie("Admin", options =>
-            {
-                options.LoginPath = new PathString("/Admin/Login/Index");
+                options.IdleTimeout = TimeSpan.FromMinutes(30); // Thời gian session hết hạn
+                options.Cookie.HttpOnly = true; // Chỉ truy cập qua HTTP, bảo mật hơn
+                options.Cookie.IsEssential = true; // Cần thiết để session hoạt động
             });
+
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-
+            // Thêm các DAO và repository vào Dependency Injection (DI)
             builder.Services.AddScoped(typeof(ApplicationDbContext));
             builder.Services.AddScoped<AccountDAO>();
             builder.Services.AddScoped<AccountDetailDAO>();
@@ -44,7 +56,6 @@ namespace ArtistSocialNetwork
             builder.Services.AddScoped<FollowDAO>();
             builder.Services.AddScoped<DocumentInfoDAO>();
 
-
             builder.Services.AddScoped<IAccountRepository, AccountRepository>();
             builder.Services.AddScoped<IRoleRepository, RoleRepository>();
             builder.Services.AddScoped<IAccountDetailRepository, AccountDetailRepository>();
@@ -58,6 +69,7 @@ namespace ArtistSocialNetwork
             builder.Services.AddScoped<IReactionRepository, ReactionRepository>();
             builder.Services.AddScoped<IDocumentInfoRepository, DocumentInfoRepository>();
             builder.Services.AddScoped<IFollowRepository, FollowRepository>();
+
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
@@ -74,7 +86,7 @@ namespace ArtistSocialNetwork
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                // The default HSTS value is 30 days.
                 app.UseHsts();
             }
             else
@@ -96,9 +108,15 @@ namespace ArtistSocialNetwork
                     ctx.Context.Response.Headers.Append("Strict-Transport-Security", "max-age=31536000");
                 }
             });
+
             app.UseRouting();
+
+            // Sử dụng Session
+            app.UseSession();
+
             app.UseAuthentication();
             app.UseAuthorization();
+
             app.MapControllerRoute(
                 name: "areas",
                 pattern: "{area:exists}/{controller=Login}/{action=Index}/{id?}");
@@ -106,6 +124,7 @@ namespace ArtistSocialNetwork
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Login}/{action=Index}/{id?}");
+
             app.Run();
         }
     }

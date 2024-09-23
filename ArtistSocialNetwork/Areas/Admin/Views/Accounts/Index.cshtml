@@ -1,7 +1,9 @@
-﻿@model IEnumerable<Business.Account>
+﻿
+@model IEnumerable<Business.Account>
 @using X.PagedList;
 @using X.PagedList.Mvc.Core;
 @using X.PagedList.Web.Common;
+
 @{
     ViewData["Title"] = "Index";
 }
@@ -28,14 +30,13 @@
                 <a asp-action="Create" class="whiteCl">Tạo mới</a>
             </p>
         </div>
-        @{
-            if (TempData["AlertMessage"] != null)
-            {
-                <div id="alert-message" class="alert success @TempData["AlertType"]">
-                    @TempData["AlertMessage"]
-                </div>
-            }
+        @if (TempData["AlertMessage"] != null)
+        {
+            <div id="alert-message" class="alert success @TempData["AlertType"]">
+                @TempData["AlertMessage"]
+            </div>
         }
+
         @using (Html.BeginForm("Index", "Accounts", FormMethod.Post, new { id = "form-search" }))
         {
             <div class="row mb-3">
@@ -46,21 +47,16 @@
                     <button class="btn btn-danger"><i class="fa fa-search"></i> Tìm kiếm</button>
                 </div>
             </div>
-
         }
+
         <table class="table">
             <thead>
                 <tr>
-                    <th align="center">#</th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Email)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Phone)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.AccountRole)
-                    </th>
+                    <th>#</th>
+                    <th>@Html.DisplayNameFor(model => model.Email)</th>
+                    <th>@Html.DisplayNameFor(model => model.Phone)</th>
+                    <th>@Html.DisplayNameFor(model => model.AccountRole)</th>
+                    <th>Ảnh đại diện</th>
                     <th>Hành động</th>
                 </tr>
             </thead>
@@ -77,53 +73,65 @@
                 {
                     <tr>
                         <td class="text-center">@dem</td>
+                        <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Phone)</td>
+                        <td>@Html.DisplayFor(modelItem => item.AccountRole.RoleName)</td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.Email)
+                            @if (item.DocumentInfos == null)
+                            {
+                                <p>Không có dữ liệu ảnh.</p>
+                            }
+                            else
+                            {
+                                @if (item.DocumentInfos.FirstOrDefault()?.UrlDocument != null)
+                                {
+                                    <!-- Hiển thị ảnh nếu có -->
+                                    <img src="@Url.Content("~/Upload/Images/" + item.DocumentInfos.FirstOrDefault().UrlDocument)" alt="Profile Image" class="img-thumbnail" style="max-width: 50px;" />
+                                }
+                                else
+                                {
+                                    <!-- Hiển thị ảnh mặc định nếu không có ảnh -->
+                                    <img src="~/Admin/img/avatars/01.png" class="img-thumbnail" style="max-width: 50px;" />
+                                }
+                            }
+
                         </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Phone)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.AccountRole.RoleName)
-                        </td>
+
                         <td>
                             <a asp-action="Edit" asp-route-id="@item.IdAccount" class="btn btn-outline-primary">Chỉnh sửa</a>
                             <a href="#" title="Xoá" class="delete-link btn btn-danger" data-id="@item.IdAccount" data-confirm="Bạn có thật sự muốn xoá?" data-toggle="modal" data-target="#confirmModal"> Xoá</a>
                         </td>
                     </tr>
-                    dem = dem + 1;
+                    dem++;
                 }
             </tbody>
         </table>
+
         <div class="row mb-3">
             @Html.PagedListPager((IPagedList)Model, page => Url.Action("Index", "Accounts", new { ViewBag.SearchName, page, SearchString = @Context.Request.Query["SearchString"] }),
             PagedListRenderOptions.EnableUnobtrusiveAjaxReplacing(new AjaxOptions()
             {
-            HttpMethod = "POST",
-            UpdateTargetId = "targetElement",
-            OnSuccess = "onAjaxSuccess",
-            OnFailure = "onAjaxFailure"
+                HttpMethod = "POST",
+                UpdateTargetId = "targetElement",
+                OnSuccess = "onAjaxSuccess",
+                OnFailure = "onAjaxFailure"
             }))
         </div>
     </div>
 </div>
+
 <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel1">Xác nhận xóa</h5>
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <p id="confirmMessage">Bạn có đồng ý thực hiện việc xoá không?</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                    Hủy
-                </button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
             </div>
         </div>
@@ -134,7 +142,7 @@
 <div class="modal" id="loadingModal" tabindex="-1" role="dialog" aria-labelledby="loadingModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="modal-body  text-center">
+            <div class="modal-body text-center">
                 <div class="spinner-border text-primary" role="status">
                     <span class="sr-only"></span>
                 </div>
@@ -143,6 +151,7 @@
         </div>
     </div>
 </div>
+
 @section Scripts {
     @{
         DateTime currentDate = DateTime.Now;

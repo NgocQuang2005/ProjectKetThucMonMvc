@@ -1,4 +1,4 @@
-﻿@model Business.DocumentInfo
+﻿@model ArtistSocialNetwork.Models.DocumentInfoDTO
 
 @{
     ViewData["Title"] = "Edit";
@@ -57,26 +57,6 @@
                     <input asp-for="ImageFile" class="form-control" type="file" />
                     <span asp-validation-for="ImageFile" class="text-danger"></span>
                     <img id="preview" src="@Url.Content(Model.UrlDocument==null?"~/Admin/img/avatars/01.png":"~/Upload/images/"+Model.UrlDocument)" class="rounded-circle" height="40" width="40" />
-                </div>
-                <div class="form-group col-md-6">
-                    <label asp-for="Created_by" class="control-label"></label>
-                    <select asp-for="Created_by" class="form-control" asp-items="ViewBag.IdAccount"></select>
-                    <span asp-validation-for="Created_by" class="text-danger"></span>
-                </div>
-                <div class="form-group col-md-6">
-                    <label asp-for="Created_when" class="control-label"></label>
-                    <input asp-for="Created_when" class="form-control" />
-                    <span asp-validation-for="Created_when" class="text-danger"></span>
-                </div>
-                <div class="form-group col-md-6">
-                    <label asp-for="Last_update_by" class="control-label"></label>
-                    <select asp-for="Last_update_by" class="form-control" asp-items="ViewBag.IdAccount"></select>
-                    <span asp-validation-for="Last_update_by" class="text-danger"></span>
-                </div>
-                <div class="form-group col-md-6">
-                    <label asp-for="Last_update_when" class="control-label"></label>
-                    <input asp-for="Last_update_when" class="form-control" />
-                    <span asp-validation-for="Last_update_when" class="text-danger"></span>
                 </div>
                 <div class="form-group btnGround">
                     <input type="submit" value="Save" class="btn btn-primary" />

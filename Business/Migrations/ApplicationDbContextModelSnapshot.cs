@@ -40,8 +40,9 @@ namespace Business.Migrations
                     b.Property<DateTime?>("Birthday")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CCCD")
-                        .HasColumnType("int");
+                    b.Property<long?>("CCCD")
+                        .IsRequired()
+                        .HasColumnType("bigint");
 
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
@@ -58,7 +59,6 @@ namespace Business.Migrations
                         .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Gender")
-                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
@@ -66,7 +66,6 @@ namespace Business.Migrations
                         .HasColumnType("int");
 
                     b.Property<int?>("LastUpdateBy")
-                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("LastUpdateWhen")
@@ -93,30 +92,30 @@ namespace Business.Migrations
                         {
                             IdAccountDt = 1,
                             Active = true,
-                            CCCD = 123456789,
+                            CCCD = 123456789L,
                             CreatedBy = 1,
-                            CreatedWhen = new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7424),
+                            CreatedWhen = new DateTime(2024, 9, 21, 16, 51, 44, 572, DateTimeKind.Local).AddTicks(1857),
                             Description = "Admin account",
                             Fullname = "Nguyễn Ngọc Quang",
                             Gender = "Nam",
                             IdAccount = 1,
                             LastUpdateBy = 1,
-                            LastUpdateWhen = new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7425),
+                            LastUpdateWhen = new DateTime(2024, 9, 21, 16, 51, 44, 572, DateTimeKind.Local).AddTicks(1858),
                             Nationality = "Vietnam"
                         },
                         new
                         {
                             IdAccountDt = 2,
                             Active = true,
-                            CCCD = 987654321,
+                            CCCD = 987654321L,
                             CreatedBy = 2,
-                            CreatedWhen = new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7430),
+                            CreatedWhen = new DateTime(2024, 9, 21, 16, 51, 44, 572, DateTimeKind.Local).AddTicks(1861),
                             Description = "User account",
                             Fullname = "Minh Khang",
                             Gender = "Nam",
                             IdAccount = 2,
                             LastUpdateBy = 1,
-                            LastUpdateWhen = new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7431),
+                            LastUpdateWhen = new DateTime(2024, 9, 21, 16, 51, 44, 572, DateTimeKind.Local).AddTicks(1862),
                             Nationality = "Vietnam"
                         });
                 });
@@ -172,19 +171,19 @@ namespace Business.Migrations
                         new
                         {
                             IdAccount = 1,
-                            CreatedWhen = new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7376),
+                            CreatedWhen = new DateTime(2024, 9, 21, 16, 51, 44, 572, DateTimeKind.Local).AddTicks(1817),
                             Email = "Quang111420@gmail.com",
                             IdRole = 1,
-                            LastUpdateWhen = new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7377),
+                            LastUpdateWhen = new DateTime(2024, 9, 21, 16, 51, 44, 572, DateTimeKind.Local).AddTicks(1818),
                             Password = "quang111420"
                         },
                         new
                         {
                             IdAccount = 2,
-                            CreatedWhen = new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7381),
+                            CreatedWhen = new DateTime(2024, 9, 21, 16, 51, 44, 572, DateTimeKind.Local).AddTicks(1821),
                             Email = "khang2007@gmail.com",
                             IdRole = 2,
-                            LastUpdateWhen = new DateTime(2024, 9, 13, 16, 50, 22, 125, DateTimeKind.Local).AddTicks(7382),
+                            LastUpdateWhen = new DateTime(2024, 9, 21, 16, 51, 44, 572, DateTimeKind.Local).AddTicks(1821),
                             Password = "khang2007"
                         });
                 });
@@ -331,7 +330,6 @@ namespace Business.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<string>("UrlDocument")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("IdDcIf");
@@ -656,8 +654,7 @@ namespace Business.Migrations
                     b.HasOne("Business.Account", "Updator")
                         .WithMany("UpdatedAd")
                         .HasForeignKey("LastUpdateBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Creator");
 

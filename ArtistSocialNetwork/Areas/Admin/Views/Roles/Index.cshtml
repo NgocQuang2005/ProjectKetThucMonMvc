@@ -132,5 +132,30 @@
     @{
         DateTime currentDate = DateTime.Now;
     }
+    <script>
+        $(document).on('click', '.btn-active', function (e) {
+            e.preventDefault();
+            var btn = $(this);
+            var id = btn.data('id');
+
+            $.ajax({
+                url: "/Admin/Roles/ChangeActive",
+                data: { id: id },
+                datatype: "json",
+                type: "POST",
+                success: function (response) {
+                    if (response.status === true) {
+                        btn.text('Bật').removeClass("btn-danger").addClass('btn-primary');
+                    } else {
+                        btn.text('Tắt').removeClass('btn-primary').addClass('btn-danger');
+                    }
+                },
+                error: function (err) {
+                    console.error("Error changing status: ", err.responseText);
+                }
+            });
+        });
+
+    </script>
     <script src="~/controllers/RolesController.js?@currentDate"></script>
 }

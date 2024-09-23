@@ -1,8 +1,9 @@
 ﻿var common = {
     init: function () {
-        common.registerEvent();
+        this.registerEvent();
     },
     registerEvent: function () {
+        // Xử lý sự kiện click nút Xóa
         $(document).on("click", ".delete-link", function (e) {
             e.preventDefault();
             var id = $(this).data("id");
@@ -13,63 +14,57 @@
 
             $("#confirmModal").modal("show");
         });
+
+        // Xử lý sự kiện xác nhận xóa
         $(document).on("click", "#confirmDelete", function (e) {
             e.preventDefault();
             var id = $(this).data("id");
-            //if (confirm($(this).data("confirm"))) {
+
             $.ajax({
-                url: "/Admin/DocumentInfo/DeleteId/" + id,
+                url: "/Admin/TypeOfArtworks/DeleteId/" + id,
                 dataType: "json",
                 type: "POST",
                 contentType: "application/json;charset=UTF-8",
                 success: function (res) {
-                    if (res.status == true) {
-                        window.location.href = '/Admin/DocumentInfo';
-                        //$("#getCodeModal").modal("toggle");
+                    if (res.status === true) {
+                        window.location.href = '/Admin/TypeOfArtworks';
                     }
                 },
                 error: function (errormessage) {
                     alert(errormessage.responseText);
                 }
             });
-            //}
         });
 
-
-        $(function () {
-            $('#alertBox').removeClass('hide');
-            $('#alertBox').delay(3000).slideUp(500);
-        })
-        $('.btn-active').off('click').on('click', function (e) {
+        // Xử lý sự kiện thay đổi trạng thái Active
+        $(document).on('click', '.btn-active', function (e) {
             e.preventDefault();
             var btn = $(this);
             var id = btn.data('id');
+
             $.ajax({
-                url: "/Admin/DocumentInfo/ChangeActive",
+                url: "/Admin/TypeOfArtworks/ChangeStatus",
                 data: { id: id },
                 datatype: "json",
                 type: "POST",
                 success: function (response) {
-                    if (response.status == true) {
-                        console.log(`Active is true`);
-                        btn.text('Bật');
-                        btn.removeClass("btn-danger");
-                        btn.addClass('btn-primary');
+                    if (response.status === true) {
+                        btn.text('Bật').removeClass("btn-danger").addClass('btn-primary');
+                    } else {
+                        btn.text('Tắt').removeClass('btn-primary').addClass('btn-danger');
                     }
-                    else {
-                        btn.text('Tắt');
-                        btn.removeClass('btn-primary').addClass('btn-danger');
-                    }
+                },
+                error: function (err) {
+                    console.error("Error changing status: ", err.responseText);
                 }
             });
         });
-        
+
+        // Tự động ẩn thông báo sau 3 giây
+        $('#alertBox').delay(3000).slideUp(500);
     }
-}
-common.init();
-function callIndexAction(select) {
-    $("#loadingModal").modal('show');
-    setTimeout(function () {
-        $("#form-search").submit();
-    }, 1000);
-}
+};
+
+$(document).ready(function () {
+    common.init();
+});

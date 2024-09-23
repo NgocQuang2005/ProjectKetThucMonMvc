@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Business;
 using Microsoft.AspNetCore.Authorization;
 using Repository;
 using X.PagedList;
-using System.Data;
+using Microsoft.AspNetCore.Http; // Để sử dụng Session
 
 namespace ArtistSocialNetwork.Areas.Admin.Controllers
 {
@@ -33,55 +30,79 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             var accountDetails = await accountDetailRepository.GetAccountDetailAll();
             if (!string.IsNullOrEmpty(searchString))
             {
-                accountDetails = accountDetails.Where(c => Commons.Library.ConvertToUnSign(c.Fullname.ToLower()).Contains(Commons.Library.ConvertToUnSign(searchString.ToLower())));
+                accountDetails = accountDetails
+                    .Where(c => Commons.Library.ConvertToUnSign(c.Fullname.ToLower())
+                    .Contains(Commons.Library.ConvertToUnSign(searchString.ToLower())))
+                    .ToList();
             }
 
             ViewBag.Page = 5;
             return View(accountDetails.ToPagedList(page ?? 1, (int)ViewBag.Page));
         }
 
-        // GET: Admin/AccountDetails/Details/5
-        
-
         // GET: Admin/AccountDetails/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-           return View();
+            // Lấy danh sách tài khoản để gán vào SelectList cho dropdown
+            ViewData["IdAccount"] = new SelectList(await accountRepository.GetAccountAll(), "IdAccount", "Email");
+            return View();
         }
 
         // POST: Admin/AccountDetails/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IdAccountDt,Active,Fullname,IdAccount,CCCD,Description,Birthday,Nationality,Gender,Address,CreatedBy,CreatedWhen,LastUpdateBy,LastUpdateWhen")] AccountDetail accountDetail)
+        public async Task<IActionResult> Create([Bind("IdAccountDt,Active,Fullname,IdAccount,CCCD,Description,Birthday,Nationality,Gender,Address")] AccountDetail accountDetail)
         {
             if (ModelState.IsValid)
             {
+                // Lấy ID người dùng hiện tại từ Session
+                var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
+
+                if (currentUserId == null)
+                {
+                    ModelState.AddModelError("", "Không thể xác định người dùng hiện tại.");
+                    return View(accountDetail);
+                }
+
+                // Gán CreatedBy và LastUpdateBy là người dùng hiện tại
+                accountDetail.CreatedBy = currentUserId.Value;
+                accountDetail.LastUpdateBy = currentUserId.Value;
+                accountDetail.CreatedWhen = DateTime.Now;
+                accountDetail.LastUpdateWhen = DateTime.Now;
+
                 await accountDetailRepository.Add(accountDetail);
                 SetAlert(Commons.Contants.Update_success, Commons.Contants.success);
                 return RedirectToAction(nameof(Index));
             }
+
+            // Nếu ModelState không hợp lệ, vẫn cần lấy lại danh sách tài khoản
+            ViewData["IdAccount"] = new SelectList(await accountRepository.GetAccountAll(), "IdAccount", "Email", accountDetail.IdAccount);
             return View(accountDetail);
         }
 
         // GET: Admin/AccountDetails/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
             var accountDetail = await accountDetailRepository.GetAccountDetailById(Convert.ToInt32(id));
             if (accountDetail == null)
             {
                 return NotFound();
             }
+
+            // Lấy danh sách tài khoản để gán vào SelectList
+            ViewData["IdAccount"] = new SelectList(await accountRepository.GetAccountAll(), "IdAccount", "Email", accountDetail.IdAccount);
             return View(accountDetail);
         }
 
         // POST: Admin/AccountDetails/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IdAccountDt,Active,Fullname,IdAccount,CCCD,Description,Birthday,Nationality,Gender,Address,CreatedBy,CreatedWhen,LastUpdateBy,LastUpdateWhen")] AccountDetail accountDetail)
+        public async Task<IActionResult> Edit(int id, [Bind("IdAccountDt,Active,Fullname,IdAccount,CCCD,Description,Birthday,Nationality,Gender,Address,CreatedBy,CreatedWhen")] AccountDetail accountDetail)
         {
             if (id != accountDetail.IdAccountDt)
             {
@@ -90,14 +111,30 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
+                // Lấy ID người dùng hiện tại từ Session
+                var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
+
+                if (currentUserId == null)
+                {
+                    ModelState.AddModelError("", "Không thể xác định người dùng hiện tại.");
+                    return View(accountDetail);
+                }
+
+                // Cập nhật LastUpdateBy là người dùng hiện tại
+                accountDetail.LastUpdateBy = currentUserId.Value;
+                accountDetail.LastUpdateWhen = DateTime.Now;
+
                 await accountDetailRepository.Update(accountDetail);
                 SetAlert(Commons.Contants.Update_success, Commons.Contants.success);
                 return RedirectToAction(nameof(Index));
             }
+
+            // Nếu ModelState không hợp lệ, vẫn cần lấy lại danh sách tài khoản
+            ViewData["IdAccount"] = new SelectList(await accountRepository.GetAccountAll(), "IdAccount", "Email", accountDetail.IdAccount);
             return View(accountDetail);
         }
 
-        // GET: Admin/AccountDetails/Delete/5
+        // POST: Admin/AccountDetails/Delete/5
         [HttpPost]
         public async Task<JsonResult> DeleteId(int id)
         {
@@ -108,26 +145,22 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                 {
                     return Json(new { success = false, message = "Không tìm thấy bản ghi" });
                 }
+
                 await accountDetailRepository.Delete(id);
                 SetAlert(Commons.Contants.Delete_success, Commons.Contants.success);
-                return Json(new
-                {
-                    status = true
-                });
+                return Json(new { status = true });
             }
             catch (Exception ex)
             {
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
         [HttpPost]
         public async Task<JsonResult> ChangeActive(int id)
         {
             var result = await accountDetailRepository.ChangeActive(id);
-            return Json(new
-            {
-                status = result
-            });
+            return Json(new { status = result });
         }
     }
 }

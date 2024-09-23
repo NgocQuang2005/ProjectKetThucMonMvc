@@ -1,0 +1,185 @@
+﻿@model Business.Artwork
+
+@{
+    ViewData["Title"] = "Thêm tác phẩm mới";
+}
+@section Style {
+    <style>
+        .form-check .form-check-input {
+            margin-left: 0px !important;
+        }
+    </style>
+}
+<div class="bdlayout">
+    <h2 class="h2-title bg7 text-white">Thêm tác phẩm mới</h2>
+
+    @if (TempData["AlertMessage"] != null)
+    {
+        <div id="alert-message" class="alert @TempData["AlertType"]">
+            @TempData["AlertMessage"]
+        </div>
+    }
+
+    <div class="container my-4">
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div class="row">
+                
+                @* <div class="form-group">
+                <label asp-for="IdAc" class="control-label"></label>
+                <select asp-for="IdAc" class="form-control" asp-items="ViewBag.Accounts"></select>
+                <span asp-validation-for="IdAc" class="text-danger"></span>
+                </div> *@
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group form-check col-md-6">
+                    <label class="form-check-label">
+                        @Html.DisplayNameFor(model => model.Active) <br />
+                        <input class="form-check-input" asp-for="Active" />
+                    </label>
+                </div>
+                <div class="form-group col-md-6">
+                    <label asp-for="IdAc" class="control-label"></label>
+                    <select asp-for="IdAc" class="form-control" asp-items="ViewBag.IdAccount"></select>
+                    <span asp-validation-for="IdAc" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6">
+                    <label asp-for="IdTypeOfArtwork" class="control-label"></label>
+                    <select asp-for="IdTypeOfArtwork" class="form-control" asp-items="ViewBag.IdTypeOfArtwork"></select>
+                    <span asp-validation-for="IdTypeOfArtwork" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="Title" class="control-label"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="Description" class="control-label"></label>
+                    <div id="editfont"></div>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="Tags" class="control-label"></label>
+                    <input asp-for="Tags" class="form-control" />
+                    <span asp-validation-for="Tags" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="MediaType" class="control-label"></label>
+                    <input asp-for="MediaType" class="form-control" />
+                    <span asp-validation-for="MediaType" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="Watched" class="control-label"></label>
+                    <input asp-for="Watched" class="form-control" />
+                    <span asp-validation-for="Watched" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label>Tải lên ảnh:</label>
+                    <input type="file" name="ImageFiles" multiple class="form-control" id="imageInput" />
+                </div>
+
+                <!-- Preview uploaded images -->
+                <div class="form-group col-md-6">
+                    <label>Preview hình ảnh đã chọn:</label>
+                    <div id="imagePreview" class="row"></div>
+                </div>
+
+                <div class="form-group btnGround">
+                    <input type="submit" value="Tạo mới" class="btn btn-primary" />
+                    <a asp-action="Index" class="btn btn-secondary">Trở về</a>
+                </div> 
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        DateTime currentDate = DateTime.Now;
+    }
+    <script src="
+https://cdn.jsdelivr.net/npm/ckeditor5-classic-free-full-feature@35.4.1/build/ckeditor.min.js
+        "></script>
+    <script src="~/admin/controllers/ckeditorArtwork.js?@currentDate"></script>
+    @* <script src="~/admin/controllers/ArtWorkController.js?@currentDate"></script> *@
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#editfont'), {
+                extraPlugins: [CustomUploadAdapterPlugin],
+                toolbar: ['Essentials',
+                    'Paragraph',
+                    'Heading', '|',
+                    'Bold',
+                    'Italic',
+                    'Underline',
+                    'Strikethrough', '|',
+                    'SourceEditing',
+                    'Subscript',
+                    'Superscript',
+                    'Alignment',
+                    'Indent',
+                    'IndentBlock',
+                    'BlockQuote', '|',
+                    'Link',
+                    'Image',
+                    'ImageCaption',
+                    'ImageStyle',
+                    'ImageToolbar',
+                    'ImageUpload',
+                    'List',
+                    'MediaEmbed', '|',
+                    'PasteFromOffice',
+                    'insertTable',
+                    'Highlight',
+                    'FontFamily',
+                    'FontSize',
+                    'FontColor',
+                    'FontBackgroundColor', 'GeneralHtmlSupport', /* ... */]
+                ,
+            })
+            .then(editor => {
+                const initialData = document.querySelector('#hiddenNcontent').value;
+                editor.setData(initialData);
+                editor.model.document.on('change:data', () => {
+                    document.querySelector('#hiddenNcontent').value = editor.getData();
+                });
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+
+
+
+
+
+        document.getElementById("imageInput").addEventListener("change", function (event) {
+            var imagePreview = document.getElementById("imagePreview");
+            imagePreview.innerHTML = ""; // Clear the preview container
+
+            const files = event.target.files;
+            if (files) {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        // Create an image element
+                        const img = document.createElement("img");
+                        img.src = e.target.result;
+                        img.width = 100; // Set width for preview image
+                        img.classList.add("col-md-2"); // Add some styling
+                        imagePreview.appendChild(img);
+                    };
+
+                    reader.readAsDataURL(file); // Read file as Data URL
+                }
+            }
+        });
+    </script>
+    
+}

@@ -1,10 +1,12 @@
-﻿@model IEnumerable<Business.DocumentInfo>
+﻿@model IEnumerable<ArtistSocialNetwork.Models.DocumentInfoDTO>
 @using X.PagedList;
 @using X.PagedList.Mvc.Core;
 @using X.PagedList.Web.Common;
+
 @{
     ViewData["Title"] = "Index";
 }
+
 @section Style {
     <style>
         p {
@@ -20,23 +22,23 @@
         }
     </style>
 }
+
 <div class="bdlayout">
     <div class="row">
         <div class="title-index bg1">
-            <h2>Danh sách tài khoản</h2>
+            <h2>Danh sách ảnh</h2>
             <p class="btn btn-primary ">
                 <a asp-action="Create" class="whiteCl">Tạo mới</a>
             </p>
         </div>
-        @{
-            if (TempData["AlertMessage"] != null)
-            {
-                <div id="alert-message" class="alert success @TempData["AlertType"]">
-                    @TempData["AlertMessage"]
-                </div>
-            }
+        @if (TempData["AlertMessage"] != null)
+        {
+            <div id="alert-message" class="alert success @TempData["AlertType"]">
+                @TempData["AlertMessage"]
+            </div>
         }
-        @using (Html.BeginForm("Index", "Accounts", FormMethod.Post, new { id = "form-search" }))
+
+        @using (Html.BeginForm("Index", "DocumentInfoes", FormMethod.Post, new { id = "form-search" }))
         {
             <div class="row mb-3">
                 <div class="col-sm-6 col-form-label">
@@ -46,67 +48,47 @@
                     <button class="btn btn-danger"><i class="fa fa-search"></i> Tìm kiếm</button>
                 </div>
             </div>
-
         }
+
         <table class="table">
             <thead>
                 <tr>
-                    <th align="center">#</th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Active)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Account)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.IdEventNavigation)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.IdProjectNavigation)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.IdArtworkNavigation)
-                    </th>
+                    <th>#</th>
+                    <th>@Html.DisplayNameFor(model => model.Active)</th>
+                    <th>@Html.DisplayNameFor(model => model.IdAc)</th>
+                    <th>@Html.DisplayNameFor(model => model.IdEvent)</th>
+                    <th>@Html.DisplayNameFor(model => model.IdProject)</th>
+                    <th>@Html.DisplayNameFor(model => model.IdArtwork)</th>
                     <th>Hành động</th>
                 </tr>
             </thead>
             <tbody>
                 @{
-                    int dem = 1;
-                    int page = Convert.ToInt32(Context.Request.Query["page"]);
-                    if (page > 1)
-                    {
-                        dem = (page - 1) * ViewBag.Page + 1;
-                    }
+                    int page = string.IsNullOrEmpty(Context.Request.Query["page"]) ? 1 : Convert.ToInt32(Context.Request.Query["page"]);
+                    int dem = (page - 1) * ViewBag.Page + 1;
                 }
+
                 @foreach (var item in Model)
                 {
                     <tr>
                         <td class="text-center">@dem</td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.Active)
+                            <a href="#" class="btn @(item.Active ? "btn-primary":"btn-danger") btn-active" data-id="@item.IdDcIf">@(item.Active ? "Bật" : "Tắt")</a>
                         </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Account.Email)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.IdEventNavigation.Description)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.IdProjectNavigation.Description)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.IdArtworkNavigation.Description)
-                        </td>
+                        <td>@Html.DisplayFor(modelItem => item.Account.Email)</td>
+                        <td>@Html.DisplayFor(modelItem => item.IdEventNavigation.Description)</td>
+                        <td>@Html.DisplayFor(modelItem => item.IdProjectNavigation.Description)</td>
+                        <td>@Html.DisplayFor(modelItem => item.IdArtworkNavigation.Description)</td>
                         <td>
                             <a asp-action="Edit" asp-route-id="@item.IdDcIf" class="btn btn-outline-primary">Chỉnh sửa</a>
                             <a href="#" title="Xoá" class="delete-link btn btn-danger" data-id="@item.IdDcIf" data-confirm="Bạn có thật sự muốn xoá?" data-toggle="modal" data-target="#confirmModal"> Xoá</a>
                         </td>
                     </tr>
-                    dem = dem + 1;
+                    dem++;
                 }
             </tbody>
         </table>
+
         <div class="row mb-3">
             @Html.PagedListPager((IPagedList)Model, page => Url.Action("Index", "DocumentInfoes", new { ViewBag.SearchName, page, SearchString = @Context.Request.Query["SearchString"] }),
             PagedListRenderOptions.EnableUnobtrusiveAjaxReplacing(new AjaxOptions()
@@ -119,23 +101,19 @@
         </div>
     </div>
 </div>
+
 <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel1">Xác nhận xóa</h5>
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <p id="confirmMessage">Bạn có đồng ý thực hiện việc xoá không?</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                    Hủy
-                </button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
             </div>
         </div>
@@ -155,9 +133,35 @@
         </div>
     </div>
 </div>
+
 @section Scripts {
     @{
         DateTime currentDate = DateTime.Now;
     }
+    <script>
+        $('.btn-active').off('click').on('click', function (e) {
+            e.preventDefault();
+            var btn = $(this);
+            var id = btn.data('id');
+            $.ajax({
+                url: "/Admin/DocumentInfoes/ChangeActive",
+                data: { id: id },
+                datatype: "json",
+                type: "POST",
+                success: function (response) {
+                    if (response.status == true) {
+                        console.log(`Active is true`);
+                        btn.text('Bật');
+                        btn.removeClass("btn-danger");
+                        btn.addClass('btn-primary');
+                    }
+                    else {
+                        btn.text('Tắt');
+                        btn.removeClass('btn-primary').addClass('btn-danger');
+                    }
+                }
+            });
+        });
+    </script>
     <script src="~/controllers/DocumentController.js?@currentDate"></script>
 }

@@ -1,0 +1,219 @@
+.bdlayout {
+  border-color: #d9dee3;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 6px 0 rgba(67, 89, 113, 0.12);
+  background-color: #fff;
+}
+
+.flexI {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.title-index {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 22px;
+  border-radius: 10px 10px 0px 0px;
+}
+
+.h2-title {
+  padding: 10px 20px;
+  border-radius: 10px 10px 0px 0px;
+  font-size: 25px;
+}
+
+.bg1 {
+  background-image: linear-gradient(to right, #decba4, #3e5151) !important;
+}
+
+.bg2 {
+  background-image: linear-gradient(to right, #8e2de2, #4a00e0) !important;
+}
+
+.bg3 {
+  background-image: linear-gradient(to right, #fffbd5, #b20a2c) !important;
+}
+
+.bg4 {
+  background-image: linear-gradient(to right, #fc5c7d, #6a82fb) !important;
+}
+
+.bg5 {
+  background-image: linear-gradient(
+    to right,
+    #c6ffdd,
+    #fbd786,
+    #f7797d
+  ) !important;
+}
+
+.bg6 {
+  background-image: linear-gradient(to right, #870000, #190a05) !important;
+}
+
+.bg7 {
+  background-image: linear-gradient(
+    to right,
+    rgb(242, 112, 156),
+    rgb(255, 148, 114)
+  ) !important;
+}
+
+.bg8 {
+  background-image: linear-gradient(
+    109.6deg,
+    rgba(156, 252, 248, 1) 11.2%,
+    rgba(110, 123, 251, 1) 91.1%
+  ) !important;
+}
+
+.bg9 {
+  background-image: linear-gradient(25deg, #d64c7f, #ee4758 50%) !important;
+}
+
+.bg10 {
+  background-image: linear-gradient(
+    95.2deg,
+    rgba(173, 252, 234, 1) 26.8%,
+    rgba(192, 229, 246, 1) 64%
+  ) !important;
+}
+
+.bg11 {
+  background-image: linear-gradient(to right, #8360c3, #2ebf91) !important;
+}
+
+.btnGround {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+
+.btnGround input:first-child {
+  margin-right: 15px;
+}
+.alert {
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.success {
+  background-color: #dff0d8;
+  color: #3c763d;
+}
+
+.fail {
+  background-color: #f2dede;
+  color: #a94442;
+}
+@section Style {
+  p {
+    margin: 0;
+  }
+
+  .title-index h2 {
+    color: #fff;
+  }
+
+  .whiteCl {
+    color: white !important;
+  }
+
+  /* Điều chỉnh để bảng cuộn ngang trên màn hình nhỏ */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Đảm bảo ảnh có kích thước phù hợp và không làm vỡ layout */
+  .img-thumbnail {
+    max-width: 100px;
+    height: auto;
+  }
+
+  /* Media query để điều chỉnh kích thước trên màn hình nhỏ */
+  @media (max-width: 768px) {
+    .form-search {
+      flex-direction: column;
+    }
+
+    /* Căn chỉnh lại các nút và tiêu đề trên màn hình nhỏ */
+    .title-index h2 {
+      font-size: 24px;
+    }
+
+    .btn-primary {
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .table {
+      font-size: 14px;
+    }
+
+    .table th,
+    .table td {
+      white-space: nowrap;
+    }
+
+    /* Thu gọn kích thước ảnh trên màn hình nhỏ */
+    .img-thumbnail {
+      max-width: 50px;
+    }
+  }
+
+  /* Media query cho màn hình rất nhỏ (điện thoại) */
+  @media (max-width: 576px) {
+    .table-responsive {
+      display: block;
+      overflow-x: auto;
+    }
+
+    .table th,
+    .table td {
+      padding: 8px;
+      font-size: 12px;
+    }
+
+    .btn {
+      width: 100%;
+      margin-top: 5px;
+    }
+
+    .img-thumbnail {
+      max-width: 40px;
+    }
+  }
+}
+@media (max-width: 768px) {
+  .table {
+    font-size: 14px;
+  }
+
+  .table th,
+  .table td {
+    white-space: normal; /* Cho phép xuống dòng khi cần trên màn hình nhỏ */
+    max-width: none;
+  }
+
+  .table td a.btn {
+    margin-bottom: 5px;
+    display: block;
+    width: 100%; /* Nút sẽ chiếm toàn bộ chiều ngang */
+  }
+}
+.pagination li {
+  border: 1px solid green;
+  padding: 5px 10px;
+  margin-right: 10px;
+  border-radius: 6px;
+}
+.pagination li.active {
+  background-color: green;
+  color: white;
+}

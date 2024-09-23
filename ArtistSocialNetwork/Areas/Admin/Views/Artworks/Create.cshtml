@@ -1,9 +1,8 @@
 ﻿@model Business.Artwork
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Thêm tác phẩm mới";
 }
-
 @section Style {
     <style>
         .form-check .form-check-input {
@@ -11,77 +10,126 @@
         }
     </style>
 }
-<div class="bdlayout p-0">
-    <h2 class="h2-title bg7 text-white ">Thêm tài khoản mới</h2>
-    @{
-        if (TempData["AlertMessage"] != null)
-        {
-            <div id="alert-message" class="alert @TempData["AlertType"]">
-                @TempData["AlertMessage"]
-            </div>
-        }
+<div class="bdlayout">
+    <h2 class="h2-title bg7 text-white">Thêm tác phẩm mới</h2>
+
+    @if (TempData["AlertMessage"] != null)
+    {
+        <div id="alert-message" class="alert @TempData["AlertType"]">
+            @TempData["AlertMessage"]
+        </div>
     }
-    <div class="col-md-4">
-        <form asp-action="Create">
+
+    <div class="container my-4">
+        <form asp-action="Create" enctype="multipart/form-data">
             <div class="row">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="form-group form-check">
+
+                <div class="form-group form-check col-md-6">
                     <label class="form-check-label">
                         @Html.DisplayNameFor(model => model.Active) <br />
                         <input class="form-check-input" asp-for="Active" />
                     </label>
                 </div>
+
                 <div class="form-group col-md-6">
                     <label asp-for="IdAc" class="control-label"></label>
-                    <select asp-for="IdAc" class="form-control" asp-items="ViewBag.IdAc"></select>
+                    <select asp-for="IdAc" class="form-control" asp-items="ViewBag.IdAccount"></select>
+                    <span asp-validation-for="IdAc" class="text-danger"></span>
                 </div>
+
                 <div class="form-group col-md-6">
                     <label asp-for="IdTypeOfArtwork" class="control-label"></label>
                     <select asp-for="IdTypeOfArtwork" class="form-control" asp-items="ViewBag.IdTypeOfArtwork"></select>
+                    <span asp-validation-for="IdTypeOfArtwork" class="text-danger"></span>
                 </div>
+
                 <div class="form-group col-md-6">
                     <label asp-for="Title" class="control-label"></label>
                     <input asp-for="Title" class="form-control" />
                     <span asp-validation-for="Title" class="text-danger"></span>
                 </div>
+
                 <div class="form-group col-md-6">
                     <label asp-for="Description" class="control-label"></label>
-                    <input asp-for="Description" class="form-control" />
+                    <!-- Chuyển đổi div thành textarea để CKEditor có thể hoạt động -->
+                    <textarea id="editor" asp-for="Description" class="form-control"></textarea>
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
+
                 <div class="form-group col-md-6">
                     <label asp-for="Tags" class="control-label"></label>
                     <input asp-for="Tags" class="form-control" />
                     <span asp-validation-for="Tags" class="text-danger"></span>
                 </div>
+
                 <div class="form-group col-md-6">
                     <label asp-for="MediaType" class="control-label"></label>
                     <input asp-for="MediaType" class="form-control" />
                     <span asp-validation-for="MediaType" class="text-danger"></span>
                 </div>
-                <div class="form-group col-md-6">
-                    <label asp-for="MediaUrl" class="control-label"></label>
-                    <input asp-for="MediaUrl" class="form-control" />
-                    <span asp-validation-for="MediaUrl" class="text-danger"></span>
-                </div>
+
                 <div class="form-group col-md-6">
                     <label asp-for="Watched" class="control-label"></label>
                     <input asp-for="Watched" class="form-control" />
                     <span asp-validation-for="Watched" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <input type="submit" value="Thêm" class="btn btn-primary" />
-                    <a asp-action="Index" class="btn btn-dark">Trở lại</a>
+
+                <div class="form-group col-md-6">
+                    <label>Tải lên ảnh:</label>
+                    <input type="file" name="ImageFiles" multiple class="form-control" id="imageInput" />
+                </div>
+
+                <!-- Preview uploaded images -->
+                <div class="form-group col-md-6">
+                    <label>Preview hình ảnh đã chọn:</label>
+                    <div id="imagePreview" class="row"></div>
+                </div>
+
+                <div class="form-group btnGround">
+                    <input type="submit" value="Tạo mới" class="btn btn-primary" />
+                    <a asp-action="Index" class="btn btn-secondary">Trở về</a>
                 </div>
             </div>
         </form>
     </div>
 </div>
 
-
-
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        DateTime currentDate = DateTime.Now;
     }
+    @* Tải thư viện CKEditor từ CDN *@
+    <script src="https://cdn.ckeditor.com/ckeditor5/35.4.1/classic/ckeditor.js"></script>
+
+    @* Script khởi tạo CKEditor *@
+    <script src="~/admin/controllers/ArtWorkController.js?@currentDate"></script>
+    <script src="~/Admin/controllers/ckeditorDocumentInfo.js?@currentDate"></script>
+
+    @* Script xử lý preview ảnh *@
+    <script>
+        document.getElementById("imageInput").addEventListener("change", function (event) {
+            var imagePreview = document.getElementById("imagePreview");
+            imagePreview.innerHTML = ""; // Clear the preview container
+
+            const files = event.target.files;
+            if (files) {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        const img = document.createElement("img");
+                        img.src = e.target.result;
+                        img.width = 100; // Set width for preview image
+                        img.classList.add("col-md-2"); // Add some styling
+                        imagePreview.appendChild(img);
+                    };
+
+                    reader.readAsDataURL(file); // Read file as Data URL
+                }
+            }
+        });
+    </script>
 }

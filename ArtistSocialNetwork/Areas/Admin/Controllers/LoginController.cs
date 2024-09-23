@@ -9,56 +9,55 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
     [Area("Admin")]
     public class LoginController : BaseController
     {
-        public IAccountRepository AccountReponsitory = null;
+        public IAccountRepository AccountRepository = null;
         private readonly IRoleRepository roleRepository = null;
+
         public LoginController()
         {
-            AccountReponsitory = new AccountRepository();
+            AccountRepository = new AccountRepository();
             roleRepository = new RoleRepository();
         }
+
         public async Task<IActionResult> Index(string ReturnUrl = null)
         {
             TempData["ReturnUrl"] = ReturnUrl;
             return View();
         }
-        [HttpPost]
-        public async Task<IActionResult> Index(AccountSignIn userlogin)
-        {
 
+        [HttpPost]
+        public async Task<IActionResult> Index(AccountSignIn userLogin)
+        {
             if (ModelState.IsValid)
             {
-                var email = userlogin.Email;
-                var passWord = Commons.Library.EncryptMD5(userlogin.Password);
-                var user = await AccountReponsitory.GetAccountEmailPassWord(email, passWord);
-                if (user != null && user.IdRole == 1)
+                var email = userLogin.Email;
+                var password = Commons.Library.EncryptMD5(userLogin.Password);
+                var user = await AccountRepository.GetAccountEmailPassWord(email, password);
+
+                if (user != null && user.IdRole == 1) // Check quyền Admin
                 {
-                    // A claim is a statement about a subject by an issuer and
-                    //represent attributes of the subject that are useful in the context of authentication and authorization operations.
-                    var claims = new List<Claim>() {
+                    // Lưu thông tin người dùng vào session
+                    HttpContext.Session.SetInt32("CurrentUserId", user.IdAccount);
+
+                    // Tạo claims để xác thực người dùng
+                    var claims = new List<Claim>
+                    {
                         new Claim(ClaimTypes.Name, email),
                         new Claim("Email", user.Email),
                         new Claim(ClaimTypes.Role, "Admin"),
                     };
-                    //Initialize a new instance of the ClaimsIdentity with the claims and authentication scheme    
+
                     var identity = new ClaimsIdentity(claims, "Admin");
-                    //Initialize a new instance of the ClaimsPrincipal with ClaimsIdentity    
                     var principal = new ClaimsPrincipal(identity);
-                    //SignInAsync is a Extension method for Sign in a principal for the specified scheme.    
-                    HttpContext.SignInAsync("Admin", principal, new AuthenticationProperties()
+                    await HttpContext.SignInAsync("Admin", principal, new AuthenticationProperties()
                     {
                         IsPersistent = true
                     });
-                    var routeValues = new RouteValueDictionary
-                    {
-                        {"area","Admin" },
-                        {"returnURL",Request.Query["ReturnUrl"] },
-                        {"claimValue","true" }
-                    };
+
                     if (TempData["ReturnUrl"] != null)
                     {
                         return Redirect(TempData["ReturnUrl"].ToString());
                     }
-                    return RedirectToAction("Index", "Home", routeValues);
+                    return RedirectToAction("Index", "Home", new { area = "Admin" });
                 }
                 else
                 {
@@ -68,14 +67,14 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             }
             return View(nameof(Index));
         }
+
         public IActionResult Logout()
         {
-            // Đăng xuất người dùng
+            // Đăng xuất và xóa session
             HttpContext.SignOutAsync("Admin");
+            HttpContext.Session.Clear();
             SetAlert("Đăng xuất thành công!", "success");
-            // Chuyển hướng đến trang đăng nhập hoặc trang chính
             return RedirectToAction("Index", "Login", new { area = "Admin" });
-            // Thay thế bằng tên trang đăng nhập hoặc trang chính của bạn
         }
     }
 }

@@ -14,5 +14,7 @@ namespace Repository
         Task Add(Event events);
         Task Update(Event events);
         Task Delete(int id);
+        Task<bool> ChangeActive(int id);
+
     }
 }

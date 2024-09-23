@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Library / Plugin Css Build -->
     <link rel="stylesheet" href="~/Admin/css/core/libs.min.css" />
+
     <!-- Aos Animation Css -->
     <link rel="stylesheet" href="~/Admin/vendor/aos/dist/aos.css" />
     <!-- Hope Ui Design System Css -->
@@ -22,105 +23,8 @@
     <link rel="stylesheet" href="~/Admin/css/customizer.min.css" />
     <!-- RTL Css -->
     <link rel="stylesheet" href="~/Admin/css/rtl.min.css" />
-    <style>
-        .bdlayout {
-            border-color: #d9dee3;
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 6px 0 rgba(67, 89, 113, 0.12);
-            background-color: #fff;
-        }
-
-        .flexI {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .title-index {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 22px;
-            border-radius: 10px 10px 0px 0px;
-        }
-
-        .h2-title {
-            padding: 10px 20px;
-            border-radius: 10px 10px 0px 0px;
-            font-size: 25px;
-        }
-
-        .bg1 {
-            background-image: linear-gradient( to right, #decba4, #3e5151 ) !important;
-        }
-
-        .bg2 {
-            background-image: linear-gradient( to right, #8e2de2, #4a00e0 ) !important;
-        }
-
-        .bg3 {
-            background-image: linear-gradient( to right, #fffbd5, #b20a2c ) !important;
-        }
-
-        .bg4 {
-            background-image: linear-gradient( to right, #fc5c7d, #6a82fb ) !important;
-        }
-
-        .bg5 {
-            background-image: linear-gradient( to right, #c6ffdd, #fbd786, #f7797d ) !important;
-        }
-
-        .bg6 {
-            background-image: linear-gradient( to right, #870000, #190a05 ) !important;
-        }
-
-        .bg7 {
-            background-image: linear-gradient( to right, rgb(242, 112, 156), rgb(255, 148, 114) ) !important;
-        }
-
-        .bg8 {
-            background-image: linear-gradient( 109.6deg, rgba(156, 252, 248, 1) 11.2%, rgba(110, 123, 251, 1) 91.1% ) !important;
-        }
-
-        .bg9 {
-            background-image: linear-gradient( 25deg, #d64c7f, #ee4758 50% ) !important;
-        }
-
-        .bg10 {
-            background-image: linear-gradient( 95.2deg, rgba(173, 252, 234, 1) 26.8%, rgba(192, 229, 246, 1) 64% ) !important;
-        }
-
-        .bg11 {
-            background-image: linear-gradient( to right, #8360c3, #2ebf91 ) !important;
-        }
-
-        .btnGround {
-            display: flex;
-            justify-content: end;
-            align-items: center;
-        }
-
-            .btnGround input:first-child{
-                margin-right: 15px;
-            }
-        .alert {
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-
-        .success {
-            background-color: #dff0d8;
-            color: #3c763d;
-        }
-
-        .fail {
-            background-color: #f2dede;
-            color: #a94442;
-        }
-
-    </style>
+    <link rel="stylesheet" href="~/Admin/css/app.css" />
+    
     @RenderSection("Style", required: false)
 
 </head>
@@ -195,7 +99,6 @@
                         <ul class="mb-2 navbar-nav ms-auto align-items-center navbar-list mb-lg-0">
                             <li class="nav-item dropdown">
                                 <a href="#" class="search-toggle nav-link" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <img src="~/Admin/images/Flag/flag001.png" class="img-fluid rounded-circle" alt="user" style="height: 30px; min-width: 30px; width: 30px;">
                                     <span class="bg-primary"></span>
                                 </a>
                                 <div class="p-0 sub-drop dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton2">
@@ -359,14 +262,26 @@
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="py-0 nav-link d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="~/Admin/images/avatars/01.png" alt="User-Profile" class="theme-color-default-img img-fluid avatar avatar-50 avatar-rounded">
-                                    <img src="~/Admin/images/avatars/avtar_1.png" alt="User-Profile" class="theme-color-purple-img img-fluid avatar avatar-50 avatar-rounded">
-                                    <img src="~/Admin/images/avatars/avtar_2.png" alt="User-Profile" class="theme-color-blue-img img-fluid avatar avatar-50 avatar-rounded">
-                                    <img src="~/Admin/images/avatars/avtar_4.png" alt="User-Profile" class="theme-color-green-img img-fluid avatar avatar-50 avatar-rounded">
-                                    <img src="~/Admin/images/avatars/avtar_5.png" alt="User-Profile" class="theme-color-yellow-img img-fluid avatar avatar-50 avatar-rounded">
-                                    <img src="~/Admin/images/avatars/avtar_3.png" alt="User-Profile" class="theme-color-pink-img img-fluid avatar avatar-50 avatar-rounded">
+                                    @{
+                                        // Truy xuất ảnh người dùng hoặc dùng ảnh mặc định
+                                        var profileImageClaim = User.Claims.FirstOrDefault(c => c.Type == "ProfileImageUrl");
+                                        string profileImageUrl = profileImageClaim?.Value;
+
+                                        if (string.IsNullOrEmpty(profileImageUrl))
+                                        {
+                                            profileImageUrl = Url.Content("~/Admin/images/avatars/avtar_1.png"); // Sử dụng ảnh mặc định
+                                        }
+                                        else
+                                        {
+                                            profileImageUrl = Url.Content(profileImageUrl); // Đảm bảo đường dẫn đúng
+                                        }
+                                    }
+
+                                    <img src="@profileImageUrl" alt="User-Profile" class="theme-color-default-img img-fluid avatar avatar-50 avatar-rounded">
+
                                     <div class="caption ms-3 d-none d-md-block ">
                                         @{
+                                            // Lấy tên đầy đủ từ claim hoặc fallback về tên người dùng
                                             var fullNameClaim = User.Claims.FirstOrDefault(c => c.Type == "FullName");
                                             string fullName = fullNameClaim?.Value;
 
@@ -388,6 +303,7 @@
                                         }
                                     </div>
                                 </a>
+
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                     <li><a class="dropdown-item" href="#">Quản lý thông tin</a></li>
                                     <li><a class="dropdown-item" href="#">Quản lý tài khoản</a></li>
@@ -395,6 +311,7 @@
                                     <li><a class="dropdown-item" href="@Url.Action("Logout","Login")">Đăng Xuất</a></li>
                                 </ul>
                             </li>
+
                         </ul>
                     </div>
                 </div>
@@ -584,6 +501,7 @@
         </div>
     </div>
 
+    
     <script>
         // Ẩn thông báo sau 5 giây
         setTimeout(function () {
@@ -593,8 +511,9 @@
             }
         }, 5000);
     </script>
-
     <!-- Library Bundle Script -->
+    <script src="~/Admin/vendor/jquery/jquery.js"></script>
+
     <script src="~/Admin/js/core/libs.min.js"></script>
 
     <!-- External Library Bundle Script -->
@@ -624,6 +543,7 @@
 
     <!-- App Script -->
     <script src="~/Admin/js/hope-ui.js" defer></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

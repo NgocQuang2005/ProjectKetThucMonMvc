@@ -18,9 +18,39 @@
         .whiteCl {
             color: white !important;
         }
+
+        /* Cài đặt kích thước tối đa cho các cột */
+        .table th, .table td {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Giới hạn kích thước các cột */
+        .table th:nth-child(1),
+        .table td:nth-child(1) {
+            max-width: 50px; /* Cột số thứ tự */
+        }
+
+        .table th:nth-child(2),
+        .table td:nth-child(2) {
+            max-width: 140px; /* Cột trạng thái (Active) */
+        }
+
+        .table th:nth-child(3),
+        .table td:nth-child(3) {
+            max-width: 200px; /* Cột Tên loại tác phẩm */
+        }
+
+        .table th:nth-child(4),
+        .table td:nth-child(4) {
+            max-width: 300px; /* Cột Mô tả */
+        }
+
+        /* Tạo responsive cho bảng */
+        
     </style>
 }
-
 <div class="bdlayout">
     <div class="row">
         <div class="title-index bg1">
@@ -136,5 +166,30 @@
     @{
         DateTime currentDate = DateTime.Now;
     }
+    <script>
+        $(document).on('click', '.btn-active', function (e) {
+            e.preventDefault();
+            var btn = $(this);
+            var id = btn.data('id');
+
+            $.ajax({
+                url: "/Admin/TypeOfArtworks/ChangeActive",
+                data: { id: id },
+                datatype: "json",
+                type: "POST",
+                success: function (response) {
+                    if (response.status === true) {
+                        btn.text('Bật').removeClass("btn-danger").addClass('btn-primary');
+                    } else {
+                        btn.text('Tắt').removeClass('btn-primary').addClass('btn-danger');
+                    }
+                },
+                error: function (err) {
+                    console.error("Error changing status: ", err.responseText);
+                }
+            });
+        });
+       
+    </script>
     <script src="~/controllers/TypeOfArtworkController.js?@currentDate"></script>
 }

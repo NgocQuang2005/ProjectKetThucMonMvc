@@ -18,13 +18,13 @@
             var id = $(this).data("id");
             //if (confirm($(this).data("confirm"))) {
             $.ajax({
-                url: "/Admin/TypeOfArtworks/DeleteId/" + id,
+                url: "/Admin/DocumentInfo/DeleteId/" + id,
                 dataType: "json",
                 type: "POST",
                 contentType: "application/json;charset=UTF-8",
                 success: function (res) {
                     if (res.status == true) {
-                        window.location.href = '/Admin/TypeOfArtworks';
+                        window.location.href = '/Admin/DocumentInfo';
                         //$("#getCodeModal").modal("toggle");
                     }
                 },
@@ -40,19 +40,18 @@
             $('#alertBox').removeClass('hide');
             $('#alertBox').delay(3000).slideUp(500);
         })
-
         $('.btn-active').off('click').on('click', function (e) {
             e.preventDefault();
             var btn = $(this);
             var id = btn.data('id');
             $.ajax({
-                url: "/Admin/TypeOfArtworks/ChangeStatus",
+                url: "/Admin/DocumentInfoes/ChangeActive",
                 data: { id: id },
                 datatype: "json",
                 type: "POST",
                 success: function (response) {
                     if (response.status == true) {
-                        console.log(`Status is true`);
+                        console.log(`Active is true`);
                         btn.text('Bật');
                         btn.removeClass("btn-danger");
                         btn.addClass('btn-primary');
@@ -64,6 +63,7 @@
                 }
             });
         });
+        
     }
 }
 common.init();

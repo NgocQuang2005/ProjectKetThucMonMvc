@@ -46,7 +46,7 @@
                 </div>
                 <div class="form-group col-md-6">
                     <label asp-for="CCCD" class="control-label"></label>
-                    <input asp-for="CCCD" class="form-control" />
+                    <input asp-for="CCCD" type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" />
                     <span asp-validation-for="CCCD" class="text-danger"></span>
                 </div>
                 <div class="form-group col-md-6">
@@ -82,11 +82,21 @@
         </form>
     </div>
 </div>
-
-
-
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        $(function () {
+            // Kiểm tra CCCD phải là số
+            $("form").on("submit", function () {
+                var cccd = $("#CCCD").val();
+                if (!/^\d{12}$/.test(cccd)) {
+                    alert("CCCD phải là dãy 12 chữ số.");
+                    return false;
+                }
+            });
+        });
+    </script>
 }
+

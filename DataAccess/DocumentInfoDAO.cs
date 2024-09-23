@@ -77,6 +77,15 @@ namespace DataAccess
             }
             return false; // Nếu không tìm thấy documentInfo, trả về false
         }
+        // Thêm phương thức này để lấy DocumentInfo theo IdAccount
+        public async Task<DocumentInfo> GetDocumentInfoByAccountId(int accountId)
+        {
+            using (var context = new ApplicationDbContext())
+            {
+                return await context.DocumentInfos.FirstOrDefaultAsync(di => di.IdAc == accountId);
+            }
+        }
+
 
         // Thêm các phương thức lấy dữ liệu từ các bảng liên quan nếu cần
         public async Task<IEnumerable<AccountDetail>> GetAccountDetailAll()
@@ -98,5 +107,12 @@ namespace DataAccess
         {
             return await _context.Events.ToListAsync();
         }
+        public async Task<IEnumerable<DocumentInfo>> GetDocumentInfosByArtworkId(int artworkId)
+        {
+            return await _context.DocumentInfos
+                                 .Where(d => d.IdArtwork == artworkId)
+                                 .ToListAsync();
+        }
+
     }
 }

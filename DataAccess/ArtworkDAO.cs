@@ -1,9 +1,6 @@
 ﻿using Business;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DataAccess
@@ -12,41 +9,47 @@ namespace DataAccess
     {
         public async Task<IEnumerable<Artwork>> GetArtworkAll()
         {
-            var artwork = await _context.Artworks.ToListAsync();
-            return artwork;
+            return await _context.Artworks.ToListAsync();
         }
+
         public async Task<Artwork> GetArtworkById(int id)
         {
-            var artwork = await _context.Artworks.FirstOrDefaultAsync(a => a.IdArtwork == id);
-            if (artwork == null) return null;
-
-            return artwork;
+            return await _context.Artworks.FirstOrDefaultAsync(a => a.IdArtwork == id);
         }
+
         public async Task Add(Artwork artwork)
         {
             _context.Artworks.Add(artwork);
             await _context.SaveChangesAsync();
         }
+
         public async Task Update(Artwork artwork)
         {
-
             var existingItem = await GetArtworkById(artwork.IdArtwork);
-            if (existingItem != null)
+            if (existingItem == null)
             {
-                // Cập nhật các thuộc tính cần thiết
-                _context.Entry(existingItem).CurrentValues.SetValues(artwork);
-                await _context.SaveChangesAsync();
+                throw new Exception("Artwork không tồn tại.");
             }
 
+            _context.Entry(existingItem).CurrentValues.SetValues(artwork);
+            await _context.SaveChangesAsync();
         }
+
         public async Task Delete(int id)
         {
-            var Artwork = await GetArtworkById(id);
-            if (Artwork != null)
+            var artwork = await GetArtworkById(id);
+            if (artwork != null)
             {
-                _context.Artworks.Remove(Artwork);
+                _context.Artworks.Remove(artwork);
                 await _context.SaveChangesAsync();
             }
+        }
+        public async Task<bool> ChangeActive(int id)
+        {
+            var artwork = await GetArtworkById(id);
+            artwork.Active = !artwork.Active;
+            await _context.SaveChangesAsync();
+            return artwork.Active;
         }
     }
 }

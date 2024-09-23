@@ -48,5 +48,12 @@ namespace DataAccess
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task<bool> ChangeActive(int id)
+        {
+            var events = await GetEventById(id);
+            events.Active = !events.Active;
+            await _context.SaveChangesAsync();
+            return events.Active;
+        }
     }
 }

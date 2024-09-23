@@ -37,5 +37,14 @@ namespace Repository
         {
             return await DocumentInfoDAO.Instance.ChangeActive(id);
         }
+        public async Task<DocumentInfo> GetByAccountId(int accountId)
+        {
+            return await DocumentInfoDAO.Instance.GetDocumentInfoByAccountId(accountId);
+        }
+        public async Task<IEnumerable<DocumentInfo>> GetDocumentInfosByArtworkId(int artworkId)
+        {
+            return await DocumentInfoDAO.Instance.GetDocumentInfosByArtworkId(artworkId);
+        }
+
     }
 }
