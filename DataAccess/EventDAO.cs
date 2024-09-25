@@ -17,7 +17,11 @@ namespace DataAccess
         }
         public async Task<Event> GetEventById(int id)
         {
-            var events = await _context.Events.FirstOrDefaultAsync(e => e.IdEvent == id);
+            // Sử dụng Include để lấy cả thông tin ảnh (DocumentInfos)
+            var events = await _context.Events
+                .Include(e => e.DocumentInfos) // Bao gồm danh sách DocumentInfos
+                .FirstOrDefaultAsync(e => e.IdEvent == id);
+
             if (events == null) return null;
 
             return events;

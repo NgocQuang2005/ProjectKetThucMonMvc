@@ -44,9 +44,16 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             {
                 artworks = artworks.Where(c => c.Title.Contains(searchString)).ToList();
             }
-
+            var accountList = await _accountRepository.GetAccountAll();
+            var accountEmails = accountList.ToDictionary(a => a.IdAccount, a => a.Email);
+            ViewBag.AccountEmails = accountEmails;  // Truyền danh sách email qua ViewBag
+            ViewData["IdAc"] = new SelectList(accountList, "IdAccount", "Email");
+            var typeOfArtworkList = await _typeOfArtworkRepository.GetTypeOfArtworkAll();
+            var typeOfArtworkName = typeOfArtworkList.ToDictionary(t => t.IdTypeOfArtwork, t => t.NameTypeOfArtwork);
+            ViewBag.TypeOfArtworkName = typeOfArtworkName;  // Truyền danh sách email qua ViewBag
+            ViewData["IdTypeOfArtwork"] = new SelectList(typeOfArtworkList, "IdTypeOfArtwork", "NameTypeOfArtwork");
             ViewBag.Page = 5;
-            return View(artworks.ToPagedList(page ?? 1, (int)ViewBag.Page)); // Trả về đối tượng IPagedList cho View
+            return View(artworks.ToPagedList(page ?? 1, (int)ViewBag.Page));
         }
 
         // GET: Admin/Artworks/Create
@@ -65,7 +72,6 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Lấy ID người dùng hiện tại từ Session
                 var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
 
                 if (currentUserId == null)
@@ -74,7 +80,7 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                     return View(artwork);
                 }
 
-                // Gán giá trị cho CreatedBy và LastUpdateBy
+                // Assign creation metadata
                 artwork.CreatedBy = currentUserId.Value;
                 artwork.LastUpdateBy = currentUserId.Value;
                 artwork.CreatedWhen = DateTime.Now;
@@ -82,6 +88,7 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
 
                 await _artworkRepository.Add(artwork);
 
+                // Process Image Upload
                 if (ImageFiles != null && ImageFiles.Count > 0)
                 {
                     foreach (var file in ImageFiles)
@@ -125,7 +132,6 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
         }
 
         // GET: Admin/Artworks/Edit/5
-        // GET: Admin/Artworks/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -139,7 +145,6 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            // Lấy các DocumentInfos liên quan đến Artwork
             artwork.DocumentInfos = (ICollection<DocumentInfo>?)await _documentInfoRepository.GetDocumentInfosByArtworkId(id.Value);
 
             ViewData["IdAccount"] = new SelectList(await _accountRepository.GetAccountAll(), "IdAccount", "Email", artwork.IdAc);
@@ -148,11 +153,10 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             return View(artwork);
         }
 
-
         // POST: Admin/Artworks/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IdArtwork,Active,IdAc,IdTypeOfArtwork,Title,Description,Tags,MediaType,MediaUrl,Watched")] Artwork artwork, List<IFormFile> ImageFiles)
+        public async Task<IActionResult> Edit(int id, [Bind("IdArtwork,Active,IdAc,IdTypeOfArtwork,Title,Description,Tags,MediaType,MediaUrl,Watched")] Artwork artwork, List<IFormFile> ImageFiles, string DeletedImages = "")
         {
             if (id != artwork.IdArtwork)
             {
@@ -163,7 +167,6 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             {
                 try
                 {
-                    // Lấy ID người dùng hiện tại từ Session
                     var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
 
                     if (currentUserId == null)
@@ -172,17 +175,37 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                         return View(artwork);
                     }
 
-                    // Cập nhật LastUpdateBy
                     artwork.LastUpdateBy = currentUserId.Value;
                     artwork.LastUpdateWhen = DateTime.Now;
 
                     await _artworkRepository.Update(artwork);
 
+                    // Handle deleted images
+                    if (!string.IsNullOrEmpty(DeletedImages))
+                    {
+                        var deletedImageIds = DeletedImages.Split(',');
+                        foreach (var imageId in deletedImageIds)
+                        {
+                            var documentInfo = await _documentInfoRepository.GetDocumentInfoById(int.Parse(imageId));
+                            if (documentInfo != null)
+                            {
+                                var filePath = Path.Combine("wwwroot/Upload/Images", documentInfo.UrlDocument);
+                                if (System.IO.File.Exists(filePath))
+                                {
+                                    System.IO.File.Delete(filePath);
+                                }
+                                await _documentInfoRepository.Delete(documentInfo.IdDcIf);
+                            }
+                        }
+                    }
+
+                    // Handle new image uploads
                     if (ImageFiles != null && ImageFiles.Count > 0)
                     {
                         foreach (var file in ImageFiles)
                         {
-                            var fileName = Path.GetFileName(file.FileName);
+                            var fileExtension = Path.GetExtension(file.FileName);
+                            var newFileName = $"{Guid.NewGuid()}{fileExtension}";
                             var uploadFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Upload/Images");
 
                             if (!Directory.Exists(uploadFolderPath))
@@ -190,7 +213,7 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                                 Directory.CreateDirectory(uploadFolderPath);
                             }
 
-                            var filePath = Path.Combine(uploadFolderPath, fileName);
+                            var filePath = Path.Combine(uploadFolderPath, newFileName);
 
                             using (var stream = new FileStream(filePath, FileMode.Create))
                             {
@@ -200,7 +223,7 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                             var documentInfo = new DocumentInfo
                             {
                                 IdArtwork = artwork.IdArtwork,
-                                UrlDocument = fileName,
+                                UrlDocument = newFileName,
                                 Created_by = currentUserId.Value,
                                 Created_when = DateTime.Now,
                                 Active = true
@@ -231,6 +254,7 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
 
             return View(artwork);
         }
+
 
         // POST: Admin/Artworks/Delete/5
         [HttpPost]

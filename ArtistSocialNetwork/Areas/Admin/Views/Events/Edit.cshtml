@@ -1,7 +1,7 @@
-﻿@model Business.Artwork
-
+﻿@using Business
+@model Business.Event
 @{
-    ViewData["Title"] = "Edit Artwork";
+    ViewData["Title"] = "Edit";
 }
 
 @section Style {
@@ -19,12 +19,13 @@
 }
 
 <div class="bdlayout">
-    <h2 class="h2-title bg4 text-white">Edit Artwork</h2>
+    <h2 class="h2-title bg4 text-white">Edit Event</h2>
 
     <div class="container my-4">
         <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="IdArtwork" />
+            <input type="hidden" asp-for="IdEvent" />
+            <!-- Hidden field for deleted images -->
             <input type="hidden" id="deletedImages" name="DeletedImages" value="" />
 
             <div class="row">
@@ -43,14 +44,8 @@
 
                 <div class="form-group col-md-6">
                     <label asp-for="IdAc" class="control-label"></label>
-                    <select asp-for="IdAc" class="form-control" asp-items="ViewBag.IdAccount"></select>
+                    <select asp-for="IdAc" class="form-control" asp-items="ViewBag.IdAc"></select>
                     <span asp-validation-for="IdAc" class="text-danger"></span>
-                </div>
-
-                <div class="form-group col-md-6">
-                    <label asp-for="IdTypeOfArtwork" class="control-label"></label>
-                    <select asp-for="IdTypeOfArtwork" class="form-control" asp-items="ViewBag.IdTypeOfArtwork"></select>
-                    <span asp-validation-for="IdTypeOfArtwork" class="text-danger"></span>
                 </div>
 
                 <div class="form-group col-md-6">
@@ -59,13 +54,31 @@
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
 
+                <div class="form-group col-md-6">
+                    <label asp-for="StartDate" class="control-label"></label>
+                    <input asp-for="StartDate" class="form-control" />
+                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="EndDate" class="control-label"></label>
+                    <input asp-for="EndDate" class="form-control" />
+                    <span asp-validation-for="EndDate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="NumberOfPeople" class="control-label"></label>
+                    <input asp-for="NumberOfPeople" class="form-control" />
+                    <span asp-validation-for="NumberOfPeople" class="text-danger"></span>
+                </div>
+
                 <!-- Display existing images -->
                 <div class="form-group col-md-6">
                     <label>Hình ảnh hiện tại:</label>
                     <div class="row">
-                        @if (Model.DocumentInfos != null && Model.DocumentInfos.Any())
+                        @if (ViewBag.EventImages != null && ((List<DocumentInfo>)ViewBag.EventImages).Any())
                         {
-                            foreach (var image in Model.DocumentInfos)
+                            foreach (var image in (List<DocumentInfo>)ViewBag.EventImages)
                             {
                                 <div class="col-md-3 image-wrapper position-relative">
                                     <img src="@Url.Content("~/Upload/Images/" + image.UrlDocument)" width="100" class="img-thumbnail" />
@@ -88,7 +101,7 @@
 
                 <!-- Preview newly uploaded images -->
                 <div class="form-group col-md-6">
-                    <label>Preview ảnh đã chọn:</label>
+                    <label>Hiển thị ảnh vừa thêm:</label>
                     <div id="imagePreview" class="row"></div>
                 </div>
 
@@ -122,7 +135,7 @@
 
             document.getElementById("imageInput").addEventListener("change", function (event) {
                 var imagePreview = document.getElementById("imagePreview");
-                imagePreview.innerHTML = ""; // Clear previous previews
+                imagePreview.innerHTML = "";
 
                 const files = event.target.files;
                 let newFileList = new DataTransfer();

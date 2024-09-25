@@ -45,6 +45,10 @@ namespace Repository
         {
             return await DocumentInfoDAO.Instance.GetDocumentInfosByArtworkId(artworkId);
         }
+        public async Task<IEnumerable<DocumentInfo>> GetDocumentInfoByEventId(int eventId)
+        {
+            return await DocumentInfoDAO.Instance.GetDocumentInfoByEventId(eventId);
+        }
 
     }
 }

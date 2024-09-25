@@ -11,11 +11,13 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
     {
         public IAccountRepository AccountRepository = null;
         private readonly IRoleRepository roleRepository = null;
+        private readonly IDocumentInfoRepository documentInfoRepository = null;
 
         public LoginController()
         {
             AccountRepository = new AccountRepository();
             roleRepository = new RoleRepository();
+            documentInfoRepository = new DocumentInfoRepository();
         }
 
         public async Task<IActionResult> Index(string ReturnUrl = null)
@@ -38,12 +40,17 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                     // Lưu thông tin người dùng vào session
                     HttpContext.Session.SetInt32("CurrentUserId", user.IdAccount);
 
+                    // Lấy ảnh profile từ DocumentInfo theo Id của người dùng
+                    var documentInfo = await documentInfoRepository.GetDocumentInfoById(user.IdAccount);
+                    var profileImageUrl = documentInfo?.UrlDocument; // Trích xuất đường dẫn ảnh từ UrlDocument nếu documentInfo không null
+
                     // Tạo claims để xác thực người dùng
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, email),
                         new Claim("Email", user.Email),
                         new Claim(ClaimTypes.Role, "Admin"),
+                        new Claim("ProfileImageUrl", !string.IsNullOrEmpty(profileImageUrl) ? profileImageUrl : "~/Admin/images/avatars/avtar_1.png"), // Nếu profileImageUrl null, dùng ảnh mặc định
                     };
 
                     var identity = new ClaimsIdentity(claims, "Admin");

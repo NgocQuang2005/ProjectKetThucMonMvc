@@ -12,11 +12,13 @@ namespace ArtistSocialNetwork.Controllers
     {
         private readonly IAccountRepository _accountRepository;
         private readonly IRoleRepository _roleRepository;
+        private readonly IDocumentInfoRepository _documentInfoRepository;
 
-        public LoginController(IAccountRepository accountRepository, IRoleRepository roleRepository)
+        public LoginController(IAccountRepository accountRepository, IRoleRepository roleRepository, IDocumentInfoRepository documentInfoRepository)
         {
             _accountRepository = accountRepository;
             _roleRepository = roleRepository;
+            _documentInfoRepository = documentInfoRepository;
         }
 
         [HttpGet]
@@ -37,7 +39,14 @@ namespace ArtistSocialNetwork.Controllers
 
                 if (user != null)
                 {
-                    // Create claims for the authenticated user
+                    // Lấy ảnh đại diện từ bảng DocumentInfo
+                    var documentInfo = await _documentInfoRepository.GetByAccountId(user.IdAccount);
+                    var profileImageUrl = documentInfo?.UrlDocument ?? "default-profile.png"; // Dùng ảnh mặc định nếu không có ảnh đại diện
+
+                    // Lưu URL ảnh vào session
+                    HttpContext.Session.SetString("ProfileImageUrl", profileImageUrl);
+
+                    // Tạo các claims cho người dùng đã xác thực
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, email),
@@ -45,17 +54,17 @@ namespace ArtistSocialNetwork.Controllers
                         new Claim(ClaimTypes.Role, "User"),
                     };
 
-                    // Create an identity and principal
+                    // Tạo danh tính và thông tin người dùng
                     var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     var principal = new ClaimsPrincipal(identity);
 
-                    // Sign in the user
+                    // Đăng nhập người dùng
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties
                     {
                         IsPersistent = true
                     });
 
-                    // Redirect to the return URL if available
+                    // Chuyển hướng về trang trước đó nếu có
                     if (TempData["ReturnUrl"] != null)
                     {
                         return Redirect(TempData["ReturnUrl"].ToString());
@@ -65,7 +74,7 @@ namespace ArtistSocialNetwork.Controllers
                 }
                 else
                 {
-                    TempData["Message"] = "Login failed. Please check your email and password, or your access rights.";
+                    TempData["Message"] = "Đăng nhập thất bại. Vui lòng kiểm tra email và mật khẩu của bạn, hoặc quyền truy cập.";
                     TempData["AlertType"] = "danger";
                 }
             }
@@ -73,13 +82,13 @@ namespace ArtistSocialNetwork.Controllers
             return View(nameof(Index));
         }
 
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
-            // Sign out the user
-            HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            SetAlert("Successfully logged out!", "success");
+            // Đăng xuất người dùng
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            SetAlert("Đăng xuất thành công!", "success");
 
-            // Redirect to the login page or the home page
+            // Chuyển hướng về trang đăng nhập hoặc trang chủ
             return RedirectToAction("Index", "Login");
         }
     }

@@ -113,6 +113,10 @@ namespace DataAccess
                                  .Where(d => d.IdArtwork == artworkId)
                                  .ToListAsync();
         }
+        public async Task<IEnumerable<DocumentInfo>> GetDocumentInfoByEventId(int eventId)
+        {
+            return await _context.DocumentInfos.Where(di => di.IdEvent == eventId).ToListAsync();
+        }
 
     }
 }

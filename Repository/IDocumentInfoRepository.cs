@@ -14,6 +14,7 @@ namespace Repository
         Task<bool> ChangeActive(int id); // Thay đổi trạng thái Active
         Task<DocumentInfo?> GetByAccountId(int accountId); // Lấy DocumentInfo theo IdAccount
         Task<IEnumerable<DocumentInfo>> GetDocumentInfosByArtworkId(int artworkId);
+        Task<IEnumerable<DocumentInfo>> GetDocumentInfoByEventId(int eventId);
 
     }
 }
