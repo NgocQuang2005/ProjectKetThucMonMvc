@@ -1,0 +1,130 @@
+﻿@model IEnumerable<Business.Reaction>
+@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+@using X.PagedList.Web.Common;
+@{
+    ViewData["Title"] = "Danh sách phản ứng";
+}
+@section Style {
+    <style>
+        p {
+            margin: 0;
+        }
+
+        .title-index h2 {
+            color: #fff;
+        }
+
+        .whiteCl {
+            color: white !important;
+        }
+    </style>
+}
+
+<div class="bdlayout">
+    <div class="row">
+        <div class="title-index bg1">
+            <h2>Danh sách phản ứng</h2>
+            <p class="btn btn-primary">
+                <a asp-action="Create" class="whiteCl">Tạo mới</a>
+            </p>
+        </div>
+        @if (TempData["AlertMessage"] != null)
+        {
+            <div id="alert-message" class="alert success @TempData["AlertType"]">
+                @TempData["AlertMessage"]
+            </div>
+        }
+        @using (Html.BeginForm("Index", "Reactions", FormMethod.Post, new { id = "form-search" }))
+        {
+            <div class="row mb-3">
+                <div class="col-sm-6 col-form-label">
+                    @Html.TextBox("SearchString", TempData["searchString"], null, new { @class = "form-control", @placeholder = "Nhập từ khoá cần tìm kiếm" })
+                </div>
+                <div class="col-sm-3" style="margin: auto">
+                    @Html.DropDownList("IdAccount", (SelectList)ViewBag.IdAccount, "Tất Cả Người Dùng", new { @class = "form-control", @onchange = "callIndexAction(this)" })
+                </div>
+                <div class="col-sm-3" style="margin: auto">
+                    @Html.DropDownList("IdArtwork", (SelectList)ViewBag.IdArtwork, "Tất Cả Tác Phẩm", new { @class = "form-control", @onchange = "callIndexAction(this)" })
+                </div>
+                <div class="col-sm-3 flexI mt-2">
+                    <button class="btn btn-danger"><i class="fa fa-search"></i> Tìm kiếm</button>
+                </div>
+            </div>
+        }
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>@Html.DisplayNameFor(model => model.Artwork.Title)</th>
+                    <th>@Html.DisplayNameFor(model => model.Account.Email)</th>
+                    <th>@Html.DisplayNameFor(model => model.Action)</th>
+                    <th>@Html.DisplayNameFor(model => model.CreatedAt)</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int dem = 1;
+                    int page = ViewBag.CurrentPage ?? 1;
+                    if (page > 1)
+                    {
+                        dem = (page - 1) * ViewBag.PageSize + 1;
+                    }
+                }
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-center">@dem</td>
+                        <td>@Html.DisplayFor(modelItem => item.Artwork.Title)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Account.Email)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Action)</td>
+                        <td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.IdReaction" class="btn btn-outline-primary">Chỉnh sửa</a>
+                            <a href="#" title="Xoá" class="delete-link btn btn-danger" data-id="@item.IdReaction" data-toggle="modal" data-target="#confirmModal">Xoá</a>
+                        </td>
+                    </tr>
+                    dem++;
+                }
+            </tbody>
+        </table>
+
+        <!-- Pagination similar to Roles view -->
+        <div class="row mb-3">
+            @Html.PagedListPager((IPagedList)Model, page => Url.Action("Index", new { page, searchString = ViewBag.SearchString }),
+            PagedListRenderOptions.EnableUnobtrusiveAjaxReplacing(new AjaxOptions()
+            {
+            HttpMethod = "POST",
+            UpdateTargetId = "targetElement",
+            OnSuccess = "onAjaxSuccess",
+            OnFailure = "onAjaxFailure"
+            }))
+        </div>
+    </div>
+</div>
+
+<!-- Deletion confirmation modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có đồng ý thực hiện việc xoá không?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{
+        DateTime currentDate = DateTime.Now;
+    }
+    <script src="~/Admin/js/controllers/ReactionController.js?@currentDate"></script>
+}

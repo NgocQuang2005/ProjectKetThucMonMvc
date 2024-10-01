@@ -31,7 +31,7 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
         }
 
         // GET: Admin/Events
-        public async Task<IActionResult> Index(string searchString, int? page)
+        public async Task<IActionResult> Index(string searchString, int? page, int IdAccount)
         {
             // Truy vấn sự kiện và liên kết với tài khoản để lấy email
             var events = await eventRepository.GetEventAll();
@@ -43,16 +43,95 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                     .Contains(Commons.Library.ConvertToUnSign(searchString.ToLower())))
                     .ToList();
             }
+            if (IdAccount != 0)
+            {
+                events = events.Where(a => a.IdAc == IdAccount).ToList();
+            }
 
             // Lấy danh sách tài khoản (Account) và tạo từ điển để lấy Email dựa trên IdAc
             var accountList = await accountRepository.GetAccountAll();
             var accountEmails = accountList.ToDictionary(a => a.IdAccount, a => a.Email);
 
             ViewBag.AccountEmails = accountEmails;  // Truyền danh sách email qua ViewBag
-            ViewData["IdAc"] = new SelectList(accountList, "IdAccount", "Email");
+            ViewBag.IdAccount = new SelectList(accountList, "IdAccount", "Email");
             ViewBag.Page = 5;
 
             return View(events.ToPagedList(page ?? 1, (int)ViewBag.Page));
+        }
+
+        // GET: Admin/Events/Create
+        public async Task<IActionResult> Create()
+        {
+            ViewData["IdAc"] = new SelectList(await accountRepository.GetAccountAll(), "IdAccount", "Email");
+            return View();
+        }
+
+        // POST: Admin/Events/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("IdEvent,Active,Title,IdAc,Description,StartDate,EndDate,NumberOfPeople")] Event @event, List<IFormFile> ImageFiles)
+        {
+            if (ModelState.IsValid)
+            {
+                var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
+
+                if (currentUserId == null)
+                {
+                    ModelState.AddModelError("", "Không thể xác định người dùng hiện tại.");
+                    ViewData["IdAc"] = new SelectList(await accountRepository.GetAccountAll(), "IdAccount", "Email", @event.IdAc);
+                    return View(@event);
+                }
+
+                @event.CreatedBy = currentUserId.Value;
+                @event.CreatedWhen = DateTime.Now;
+                @event.LastUpdateBy = currentUserId.Value;
+                @event.LastUpdateWhen = DateTime.Now;
+
+                // Thêm sự kiện vào cơ sở dữ liệu
+                await eventRepository.Add(@event);
+
+                // Xử lý thêm ảnh mới
+                if (ImageFiles != null && ImageFiles.Count > 0)
+                {
+                    foreach (var file in ImageFiles)
+                    {
+                        var fileExtension = Path.GetExtension(file.FileName);
+                        var newFileName = $"{Guid.NewGuid()}{fileExtension}";
+                        var uploadFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Upload/Images");
+
+                        if (!Directory.Exists(uploadFolderPath))
+                        {
+                            Directory.CreateDirectory(uploadFolderPath);
+                        }
+
+                        var filePath = Path.Combine(uploadFolderPath, newFileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        var documentInfo = new DocumentInfo
+                        {
+                            Active = true,
+                            UrlDocument = newFileName,
+                            IdEvent = @event.IdEvent,
+                            Created_by = currentUserId.Value,
+                            Created_when = DateTime.Now,
+                            Last_update_by = currentUserId.Value,
+                            Last_update_when = DateTime.Now
+                        };
+
+                        await documentInfoRepository.Add(documentInfo);
+                    }
+                }
+
+                SetAlert(Commons.Contants.success, Commons.Contants.success);
+                return RedirectToAction(nameof(Index));
+            }
+
+            ViewData["IdAc"] = new SelectList(await accountRepository.GetAccountAll(), "IdAccount", "Email", @event.IdAc);
+            return View(@event);
         }
 
         // GET: Admin/Events/Edit/5

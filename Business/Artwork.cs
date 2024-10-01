@@ -2,10 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Collections.Specialized.BitVector32;
 
 namespace Business
 {
@@ -15,17 +11,15 @@ namespace Business
         public int IdArtwork { get; set; }
 
         [Required]
-        [Display(Name ="Trạng Thái")]
+        [Display(Name = "Trạng Thái")]
         public bool Active { get; set; }
 
-        [Required]
         [Display(Name = "Tài khoản")]
         public int? IdAc { get; set; }
 
         [ForeignKey("IdAc")]
         public Account? Account { get; set; }
 
-        [Required]
         [Display(Name = "Loại Tác Phẩm")]
         public int? IdTypeOfArtwork { get; set; }
 
@@ -36,21 +30,19 @@ namespace Business
         [MaxLength(255)]
         [Display(Name = "Tiêu đề")]
         public string? Title { get; set; }
+
         [Display(Name = "Miêu tả")]
         public string? Description { get; set; }
 
-        [Required]
         [MaxLength(255)]
+        public string? Tags { get; set; } // Cho phép null
 
-        public string? Tags { get; set; }
-
-        [Required]
         [MaxLength(50)]
-        public string? MediaType { get; set; }
+        public string? MediaType { get; set; } // Cho phép null
 
-        public string? MediaUrl { get; set; }
+        public string? MediaUrl { get; set; } // Cho phép null
+
         [Display(Name = "Lượt xem")]
-
         public int? Watched { get; set; }
 
         public int? CreatedBy { get; set; }
@@ -70,6 +62,5 @@ namespace Business
         public ICollection<Comment>? Comments { get; set; }
         public ICollection<Reaction>? Reactions { get; set; }
         public virtual ICollection<DocumentInfo>? DocumentInfos { get; set; }
-
     }
 }

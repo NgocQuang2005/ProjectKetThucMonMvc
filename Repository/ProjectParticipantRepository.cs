@@ -33,5 +33,9 @@ namespace Repository
         {
             await ProjectParticipantDAO.Instance.Update(projectParticipant);
         }
+        public async Task<bool> ChangeActive(int id)
+        {
+            return await ProjectParticipantDAO.Instance.ChangeActive(id);
+        }
     }
 }

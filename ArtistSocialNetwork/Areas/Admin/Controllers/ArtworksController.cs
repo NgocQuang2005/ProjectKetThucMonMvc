@@ -10,6 +10,7 @@ using Business;
 using Microsoft.AspNetCore.Authorization;
 using Repository;
 using X.PagedList;
+using Microsoft.AspNetCore.Rewrite;
 
 namespace ArtistSocialNetwork.Areas.Admin.Controllers
 {
@@ -36,7 +37,7 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
         }
 
         // GET: Admin/Artworks
-        public async Task<IActionResult> Index(string searchString, int? page)
+        public async Task<IActionResult> Index(string searchString, int? page, int IdAccount, int IdTypeOfArtwork)
         {
             var artworks = await _artworkRepository.GetArtworkAll();
 
@@ -44,14 +45,25 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             {
                 artworks = artworks.Where(c => c.Title.Contains(searchString)).ToList();
             }
+            if (IdAccount != 0)
+            {
+                artworks = artworks.Where(a => a.IdAc == IdAccount).ToList();
+            }
+            if (IdTypeOfArtwork != 0)
+            {
+                artworks = artworks.Where(taw => taw.IdTypeOfArtwork == IdTypeOfArtwork).ToList();
+            }
+
             var accountList = await _accountRepository.GetAccountAll();
             var accountEmails = accountList.ToDictionary(a => a.IdAccount, a => a.Email);
             ViewBag.AccountEmails = accountEmails;  // Truyền danh sách email qua ViewBag
-            ViewData["IdAc"] = new SelectList(accountList, "IdAccount", "Email");
+            ViewBag.IdAccount = new SelectList(accountList, "IdAccount", "Email");
+
             var typeOfArtworkList = await _typeOfArtworkRepository.GetTypeOfArtworkAll();
             var typeOfArtworkName = typeOfArtworkList.ToDictionary(t => t.IdTypeOfArtwork, t => t.NameTypeOfArtwork);
-            ViewBag.TypeOfArtworkName = typeOfArtworkName;  // Truyền danh sách email qua ViewBag
-            ViewData["IdTypeOfArtwork"] = new SelectList(typeOfArtworkList, "IdTypeOfArtwork", "NameTypeOfArtwork");
+            ViewBag.TypeOfArtworkName = typeOfArtworkName;  // Truyền danh sách loại tác phẩm qua ViewBag
+            ViewBag.IdTypeOfArtwork = new SelectList(typeOfArtworkList, "IdTypeOfArtwork", "NameTypeOfArtwork");
+
             ViewBag.Page = 5;
             return View(artworks.ToPagedList(page ?? 1, (int)ViewBag.Page));
         }
@@ -123,6 +135,22 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
 
                 SetAlert(Commons.Contants.success, Commons.Contants.success);
                 return RedirectToAction(nameof(Index));
+            }
+            if (!ModelState.IsValid)
+            {
+                // Ghi lại chi tiết lỗi trong ModelState
+                foreach (var modelState in ModelState.Values)
+                {
+                    foreach (var error in modelState.Errors)
+                    {
+                        ModelState.AddModelError("", error.ErrorMessage);
+                    }
+                }
+
+                ViewData["IdAccount"] = new SelectList(await _accountRepository.GetAccountAll(), "IdAccount", "Email", artwork.IdAc);
+                ViewData["IdTypeOfArtwork"] = new SelectList(await _typeOfArtworkRepository.GetTypeOfArtworkAll(), "IdTypeOfArtwork", "NameTypeOfArtwork", artwork.IdTypeOfArtwork);
+
+                return View(artwork);
             }
 
             ViewData["IdAccount"] = new SelectList(await _accountRepository.GetAccountAll(), "IdAccount", "Email", artwork.IdAc);

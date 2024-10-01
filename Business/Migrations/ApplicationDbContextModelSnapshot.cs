@@ -500,11 +500,8 @@ namespace Business.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdReaction"));
 
-                    b.Property<string>("Action")
+                    b.Property<bool>("Action")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Active")
                         .HasColumnType("bit");
 
                     b.Property<DateTime?>("CreatedAt")

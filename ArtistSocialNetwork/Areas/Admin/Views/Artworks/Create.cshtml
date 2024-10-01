@@ -1,7 +1,7 @@
 ﻿@model Business.Artwork
 
 @{
-    ViewData["Title"] = "Create New Artwork";
+    ViewData["Title"] = "Tạo mới tác phẩm";
 }
 
 @section Style {
@@ -24,7 +24,7 @@
 }
 
 <div class="bdlayout">
-    <h2 class="h2-title bg4 text-white">Create New Artwork</h2>
+    <h2 class="h2-title bg4 text-white">Thêm mới tác phẩm</h2>
 
     <div class="container my-4">
         <form asp-action="Create" enctype="multipart/form-data">
@@ -43,23 +43,36 @@
                     <input asp-for="Title" class="form-control" />
                     <span asp-validation-for="Title" class="text-danger"></span>
                 </div>
+                <div class="form-group col-md-6">
+                    <label asp-for="Tags" class="control-label"></label>
+                    <input asp-for="Tags" class="form-control" />
+                    <span asp-validation-for="Tags" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6">
+                    <label asp-for="MediaType" class="control-label"></label>
+                    <input asp-for="MediaType" class="form-control" />
+                    <span asp-validation-for="MediaType" class="text-danger"></span>
+                </div>
 
                 <div class="form-group col-md-6">
                     <label asp-for="IdAc" class="control-label"></label>
-                    <select asp-for="IdAc" class="form-control" asp-items="ViewBag.IdAccount"></select>
+                    <select asp-for="IdAc" class="form-control" asp-items="ViewBag.IdAccount">
+                        <option value="">Chọn Người Dùng</option>
+                    </select>
                     <span asp-validation-for="IdAc" class="text-danger"></span>
                 </div>
 
                 <div class="form-group col-md-6">
                     <label asp-for="IdTypeOfArtwork" class="control-label"></label>
-                    <select asp-for="IdTypeOfArtwork" class="form-control" asp-items="ViewBag.IdTypeOfArtwork"></select>
+                    <select asp-for="IdTypeOfArtwork" class="form-control" asp-items="ViewBag.IdTypeOfArtwork">
+                        <option value="">Chọn Loại Tác Phẩm</option>
+                    </select>
                     <span asp-validation-for="IdTypeOfArtwork" class="text-danger"></span>
                 </div>
 
                 <div class="form-group col-md-6">
                     <label asp-for="Description" class="control-label"></label>
-                    <textarea id="editor" asp-for="Description" class="form-control"></textarea>
-                    <span asp-validation-for="Description" class="text-danger"></span>
+                    <div id="editor"></div>
                 </div>
 
                 <div class="form-group col-md-6">
@@ -83,7 +96,16 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdn.ckeditor.com/ckeditor5/35.4.1/classic/ckeditor.js"></script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        DateTime currentDate = DateTime.Now;
+
+    }
+    <script src="
+https://cdn.jsdelivr.net/npm/ckeditor5-classic-free-full-feature@35.4.1/build/ckeditor.min.js
+            "></script>
+   
+    <script src="~/Admin/js/controllers/ckeditorArtwork.js?@currentDate"></script>
     <script>
         document.getElementById("imageInput").addEventListener("change", function (event) {
             var imagePreview = document.getElementById("imagePreview");

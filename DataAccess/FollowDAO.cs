@@ -12,20 +12,55 @@ namespace DataAccess
     {
         public async Task<IEnumerable<Follow>> GetFollowAll()
         {
-            var follows = await _context.Follows.ToListAsync();
-            return follows;
-        }
-        public async Task<Follow> GetFollowById(int id)
-        {
-            var follows = await _context.Follows.FirstOrDefaultAsync(f => f.IdFollow == id);
-            if (follows == null) return null;
+            var follows = await _context.Follows
+                .Select(f => new Follow
+                {
+                    IdFollow = f.IdFollow,
+                    IdFollower = f.IdFollower,
+                    IdFollowing = f.IdFollowing,
+                    // Lấy thông tin từ bảng Account
+                    Follower = _context.Accounts.FirstOrDefault(a => a.IdAccount == f.IdFollower),
+                    Following = _context.Accounts.FirstOrDefault(a => a.IdAccount == f.IdFollowing),
+                    Active = f.Active,
+                    CreatedWhen = f.CreatedWhen,
+                    LastUpdateWhen = f.LastUpdateWhen
+                }).ToListAsync();
 
             return follows;
         }
+
+        public async Task<Follow> GetFollowById(int id)
+        {
+            var follow = await _context.Follows
+                .Where(f => f.IdFollow == id)
+                .Select(f => new Follow
+                {
+                    IdFollow = f.IdFollow,
+                    IdFollower = f.IdFollower,
+                    IdFollowing = f.IdFollowing,
+                    // Lấy thông tin từ bảng Account
+                    Follower = _context.Accounts.FirstOrDefault(a => a.IdAccount == f.IdFollower),
+                    Following = _context.Accounts.FirstOrDefault(a => a.IdAccount == f.IdFollowing),
+                    Active = f.Active,
+                    CreatedWhen = f.CreatedWhen,
+                    LastUpdateWhen = f.LastUpdateWhen
+                })
+                .FirstOrDefaultAsync();
+
+            return follow;
+        }
+
         public async Task Add(Follow follows)
         {
+            try { 
             _context.Follows.Add(follows);
             await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                throw;
+            }
         }
         public async Task Update(Follow follows)
         {
@@ -48,5 +83,23 @@ namespace DataAccess
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task<bool> ChangeActive(int id)
+        {
+            var follows = await _context.Follows.FirstOrDefaultAsync(f => f.IdFollow == id);
+            if (follows != null)
+            {
+                // Thay đổi trạng thái của thuộc tính Active
+                follows.Active = !follows.Active;
+
+                // Cập nhật đối tượng Follow
+                _context.Follows.Update(follows);
+                await _context.SaveChangesAsync();
+
+                return follows.Active;
+            }
+
+            return false; // Trả về false nếu không tìm thấy đối tượng Follow
+        }
+
     }
 }

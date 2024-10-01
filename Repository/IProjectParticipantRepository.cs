@@ -14,5 +14,7 @@ namespace Repository
         Task Add(ProjectParticipant projectParticipant);
         Task Update(ProjectParticipant projectParticipant);
         Task Delete(int id);
+        Task<bool> ChangeActive(int id);
+
     }
 }

@@ -101,7 +101,7 @@
                         </td>
                         <td>
                             <a asp-action="Edit" asp-route-id="@item.IdAccountDt" class="btn btn-outline-primary">Chỉnh sửa</a>
-                            <a href="#" title="Xoá" class="delete-link btn btn-danger" data-id="@item.IdAccountDt" data-confirm="Bạn có thật sự muốn xoá?" data-toggle="modal" data-target="#confirmModal"> Xoá</a>
+                            <a href="#" title="Xoá" class="delete-link btn btn-danger" data-id="@item.IdAccountDt" data-confirm="Bạn có thật sự muốn xoá?" data-toggle="modal" data-target="#confirmModal">Xoá</a>
                         </td>
                     </tr>
                     dem = dem + 1;
@@ -119,77 +119,46 @@
             }))
         </div>
     </div>
-</div>
-<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel1">Xác nhận xóa</h5>
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel1">Xác nhận xóa</h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmMessage">Bạn có đồng ý thực hiện việc xoá không?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Hủy
+                    </button>
+                    <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
+                </div>
             </div>
-            <div class="modal-body">
-                <p id="confirmMessage">Bạn có đồng ý thực hiện việc xoá không?</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                    Hủy
-                </button>
-                <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
+        </div>
+    </div>
+    <div class="modal" id="loadingModal" tabindex="-1" role="dialog" aria-labelledby="loadingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body  text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only"></span>
+                    </div>
+                    <p class="mt-2">Đang xử lý, vui lòng đợi...</p>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal Loading for BS 5 -->
-<div class="modal" id="loadingModal" tabindex="-1" role="dialog" aria-labelledby="loadingModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-body  text-center">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="sr-only"></span>
-                </div>
-                <p class="mt-2">Đang xử lý, vui lòng đợi...</p>
-            </div>
-        </div>
-    </div>
-</div>
 @section Scripts {
     @{
         DateTime currentDate = DateTime.Now;
     }
-    <script>
-
-        $(document).ready(function () {
-            $('.btn-active').on('click', function (e) {
-                e.preventDefault();
-                var btn = $(this);
-                var id = btn.data('id');
-                console.log(`Clicked button with ID: ${id}`);
-
-                $.ajax({
-                    url: "/Admin/AccountDetails/ChangeActive",
-                    data: { id: id },
-                    dataType: "json",
-                    type: "POST",
-                    success: function (response) {
-                        console.log(response);
-                        if (response.status == true) {
-                            btn.text('Bật');
-                            btn.removeClass("btn-danger");
-                            btn.addClass('btn-primary');
-                        } else {
-                            btn.text('Tắt');
-                            btn.removeClass('btn-primary').addClass('btn-danger');
-                        }
-                    },
-                    error: function (error) {
-                        console.log("Error in AJAX call:", error);
-                    }
-                });
-            });
-        });
-    </script>
+    <script src="~/Admin/js/controllers/AccountDetailsController.js?@currentDate"></script>
+    
 }

@@ -40,11 +40,21 @@
 
         @using (Html.BeginForm("Index", "DocumentInfoes", FormMethod.Post, new { id = "form-search" }))
         {
-            <div class="row mb-3">
-                <div class="col-sm-6 col-form-label">
-                    @Html.TextBox("SearchString", TempData["searchString"], null, new { @class = "form-control", @placeholder = "Nhập từ khoá cần tìm kiếm" })
+            <div class="row my-3">
+                <div class="col-sm-3" style="margin: auto">
+                    @Html.DropDownList("IdAccount", (SelectList)ViewBag.IdAccount, "Tất Cả Người Dùng", new { @class = "form-control", @onchange = "callIndexAction(this)" })
                 </div>
-                <div class="col-sm-3 flexI">
+                <div class="col-sm-3" style="margin: auto">
+                    @Html.DropDownList("IdArtwork", (SelectList)ViewBag.IdArtwork, "Tất Cả Tác Phẩm", new { @class = "form-control", @onchange = "callIndexAction(this)" })
+                </div>
+                <div class="col-sm-3" style="margin: auto">
+                    @Html.DropDownList("IdEvent", (SelectList)ViewBag.IdEvent, "Tất Cả Sự Kiện", new { @class = "form-control", @onchange = "callIndexAction(this)" })
+                </div>
+                <div class="col-sm-3" style="margin: auto">
+                    @Html.DropDownList("IdProject", (SelectList)ViewBag.IdProject, "Tất Cả Dự Án", new { @class = "form-control", @onchange = "callIndexAction(this)" })
+                </div>
+                
+                <div class="col-sm-3 flexI mt-2">
                     <button class="btn btn-danger"><i class="fa fa-search"></i> Tìm kiếm</button>
                 </div>
             </div>
@@ -138,6 +148,7 @@
     @{
         DateTime currentDate = DateTime.Now;
     }
+    <script src="~/Admin/js/controllers/DocumentController.js?@currentDate"></script>
     <script>
         $('.btn-active').off('click').on('click', function (e) {
             e.preventDefault();
@@ -163,5 +174,4 @@
             });
         });
     </script>
-    <script src="~/controllers/DocumentController.js?@currentDate"></script>
 }

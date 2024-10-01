@@ -48,6 +48,9 @@ namespace Repository
         public async Task<IEnumerable<DocumentInfo>> GetDocumentInfoByEventId(int eventId)
         {
             return await DocumentInfoDAO.Instance.GetDocumentInfoByEventId(eventId);
+        }public async Task<IEnumerable<DocumentInfo>> GetDocumentInfoByProjectId(int projectId)
+        {
+            return await DocumentInfoDAO.Instance.GetDocumentInfoByProjectId(projectId);
         }
 
     }

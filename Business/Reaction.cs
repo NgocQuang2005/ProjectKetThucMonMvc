@@ -13,24 +13,21 @@ namespace Business
         [Key]
         public int IdReaction { get; set; }
 
-        [Required]
-        public bool Active { get; set; }
-
-        [Required]
+        [Display(Name = "Tác Phẩm")]
         public int IdArtwork { get; set; }
 
         [ForeignKey("IdArtwork")]
-        public Artwork Artwork { get; set; }
+        public Artwork? Artwork { get; set; }
 
-        [Required]
+        [Display(Name = "Nguời Dùng")]
         public int IdAc { get; set; }
 
         [ForeignKey("IdAc")]
-        public Account Account { get; set; }
+        public Account? Account { get; set; }
 
-        public string Action { get; set; }
-
+        public bool Action { get; set; }
         public DateTime? CreatedAt { get; set; } = DateTime.Now;
+
 
     }
 }

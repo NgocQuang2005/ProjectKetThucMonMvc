@@ -43,7 +43,7 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
         }
 
         // GET: Admin/DocumentInfoes
-        public async Task<IActionResult> Index(int? page, int IdAccount = 0, int IdArtwork = 0, int IdEvent = 0, int IdProject = 0)
+        public async Task<IActionResult> Index(int? page, int IdAccount, int IdArtwork , int IdEvent , int IdProject )
         {
             var documents = await _documentInfoRepository.GetDocumentInfoAll();
 

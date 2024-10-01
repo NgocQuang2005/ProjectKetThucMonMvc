@@ -166,6 +166,8 @@
     @{
         DateTime currentDate = DateTime.Now;
     }
+    <script src="~/Admin/js/controllers/TypeOfArtworkController.js?@currentDate"></script>
+
     <script>
         $(document).on('click', '.btn-active', function (e) {
             e.preventDefault();
@@ -191,5 +193,4 @@
         });
        
     </script>
-    <script src="~/controllers/TypeOfArtworkController.js?@currentDate"></script>
 }

@@ -14,5 +14,7 @@ namespace Repository
         Task Add(Follow follow);
         Task Update(Follow follow);
         Task Delete(int id);
+        Task<bool> ChangeActive(int id);
+
     }
 }

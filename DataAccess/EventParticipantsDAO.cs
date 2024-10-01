@@ -12,16 +12,22 @@ namespace DataAccess
     {
         public async Task<IEnumerable<EventParticipants>> GetEventParticipantsAll()
         {
-            var eventParticipants = await _context.EventParticipants.ToListAsync();
+            var eventParticipants = await _context.EventParticipants
+                .Include(ep => ep.Event)   // Nạp dữ liệu liên quan từ bảng Event
+                .Include(ep => ep.Account) // Nạp dữ liệu liên quan từ bảng Account
+                .ToListAsync();
             return eventParticipants;
         }
+
         public async Task<EventParticipants> GetEventParticipantsById(int id)
         {
-            var eventParticipants = await _context.EventParticipants.FirstOrDefaultAsync(ep => ep.IdEventParticipant == id);
-            if (eventParticipants == null) return null;
-
-            return eventParticipants;
+            var eventParticipant = await _context.EventParticipants
+                .Include(ep => ep.Event)
+                .Include(ep => ep.Account)
+                .FirstOrDefaultAsync(ep => ep.IdEventParticipant == id);
+            return eventParticipant;
         }
+
         public async Task Add(EventParticipants eventParticipants)
         {
             _context.EventParticipants.Add(eventParticipants);

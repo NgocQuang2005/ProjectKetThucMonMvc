@@ -14,19 +14,23 @@ namespace Business
         public int IdEventParticipant { get; set; }
 
         [Required]
+        [Display(Name = "Trạng Thái")]
         public bool Active { get; set; }
 
         [Required]
+        [Display(Name ="Sự Kiện")]
         public int IdEvent { get; set; }
 
         [ForeignKey("IdEvent")]
-        public Event Event { get; set; }
+        public Event? Event { get; set; }
 
         [Required]
+        [Display(Name = "Người Đăng")]
         public int IdAc { get; set; }
 
         [ForeignKey("IdAc")]
-        public Account Account { get; set; }
+        public Account? Account { get; set; }
+        [Display(Name = "Thời Gian Đăng Ký")]
         public DateTime RegistrationTime { get; set; }
     }
 }

@@ -25,6 +25,7 @@ namespace Repository
             return await FollowDAO.Instance.GetFollowAll();
         }
 
+
         public async Task<Follow> GetFollowById(int id)
         {
             return await FollowDAO.Instance.GetFollowById(id);
@@ -32,6 +33,10 @@ namespace Repository
         public async Task Update(Follow follow)
         {
             await FollowDAO.Instance.Update(follow);
+        }
+        public async Task<bool> ChangeActive(int id)
+        {
+            return await FollowDAO.Instance.ChangeActive(id);
         }
     }
 }

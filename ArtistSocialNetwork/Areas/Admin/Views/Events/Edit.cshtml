@@ -44,7 +44,9 @@
 
                 <div class="form-group col-md-6">
                     <label asp-for="IdAc" class="control-label"></label>
-                    <select asp-for="IdAc" class="form-control" asp-items="ViewBag.IdAc"></select>
+                    <select asp-for="IdAc" class="form-control" asp-items="ViewBag.IdAc">
+                        <option value="">Chọn Người Dùng</option>
+                    </select>
                     <span asp-validation-for="IdAc" class="text-danger"></span>
                 </div>
 

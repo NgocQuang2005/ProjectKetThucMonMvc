@@ -1,0 +1,183 @@
+﻿@using Business
+@model Business.Project
+
+@{
+    ViewData["Title"] = "Edit Project";
+}
+
+@section Style {
+    <style>
+        .form-check .form-check-input {
+            margin-left: 0px !important;
+        }
+
+        .btn-closeImg {
+            padding: 1px 4px !important;
+            font-size: 13px !important;
+            right: 30px;
+        }
+    </style>
+}
+
+<div class="bdlayout">
+    <h2 class="h2-title bg4 text-white">Edit Project</h2>
+
+    <div class="container my-4">
+        <form asp-action="Edit" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="IdProject" />
+            <!-- Hidden field for deleted images -->
+            <input type="hidden" id="deletedImages" name="DeletedImages" value="" />
+
+            <div class="row">
+                <div class="form-group form-check col-md-6">
+                    <label class="form-check-label">
+                        @Html.DisplayNameFor(model => model.Active) <br />
+                        <input class="form-check-input" asp-for="Active" />
+                    </label>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="Title" class="control-label"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="IdAc" class="control-label"></label>
+                    <select asp-for="IdAc" class="form-control" asp-items="ViewBag.IdAc">
+                        <option value="">Chọn Người Dùng</option>
+                    </select>
+                    <span asp-validation-for="IdAc" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="Description" class="control-label"></label>
+                    <textarea id="editor" asp-for="Description" class="form-control"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="StartDate" class="control-label"></label>
+                    <input asp-for="StartDate" class="form-control" />
+                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="EndDate" class="control-label"></label>
+                    <input asp-for="EndDate" class="form-control" />
+                    <span asp-validation-for="EndDate" class="text-danger"></span>
+                </div>
+
+                <!-- Display existing images -->
+                <!-- Display existing images -->
+                <div class="form-group col-md-6">
+                    <label>Existing Images:</label>
+                    <div class="row">
+                        @if (ViewBag.ProjectImages != null && ((IEnumerable<DocumentInfo>)ViewBag.ProjectImages).Any())
+                        {
+                            foreach (var image in (IEnumerable<DocumentInfo>)ViewBag.ProjectImages)
+                            {
+                                <div class="col-md-3 image-wrapper position-relative">
+                                    <img src="@Url.Content("~/Upload/Images/" + image.UrlDocument)" width="100" class="img-thumbnail" />
+                                    <button type="button" class="btn btn-closeImg btn-danger btn-sm position-absolute top-0 right-0 remove-existing-image" data-id="@image.IdDcIf">X</button>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p>Không có ảnh upload.</p>
+                        }
+                    </div>
+                </div>
+
+
+                <!-- Upload new images -->
+                <div class="form-group col-md-6">
+                    <label>Add New Images:</label>
+                    <input type="file" name="ImageFiles" multiple class="form-control" id="imageInput" />
+                </div>
+
+                <!-- Preview newly uploaded images -->
+                <div class="form-group col-md-6">
+                    <label>Preview Selected Images:</label>
+                    <div id="imagePreview" class="row"></div>
+                </div>
+
+                <div class="form-group btnGround">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.ckeditor.com/ckeditor5/35.4.1/classic/ckeditor.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const deletedImagesField = document.getElementById("deletedImages");
+
+            document.querySelectorAll(".remove-existing-image").forEach(button => {
+                button.addEventListener("click", function () {
+                    const imageWrapper = this.closest(".image-wrapper");
+                    const imageId = this.getAttribute("data-id");
+
+                    let deletedImages = deletedImagesField.value ? deletedImagesField.value.split(",") : [];
+                    deletedImages.push(imageId);
+                    deletedImagesField.value = deletedImages.join(",");
+
+                    imageWrapper.remove();
+                });
+            });
+
+            document.getElementById("imageInput").addEventListener("change", function (event) {
+                var imagePreview = document.getElementById("imagePreview");
+                imagePreview.innerHTML = "";
+
+                const files = event.target.files;
+                let newFileList = new DataTransfer();
+
+                if (files) {
+                    Array.from(files).forEach((file, index) => {
+                        const reader = new FileReader();
+
+                        reader.onload = function (e) {
+                            const imgWrapper = document.createElement("div");
+                            imgWrapper.classList.add("col-md-3", "image-wrapper", "position-relative");
+
+                            const img = document.createElement("img");
+                            img.src = e.target.result;
+                            img.width = 100;
+                            img.classList.add("img-thumbnail");
+
+                            const removeBtn = document.createElement("button");
+                            removeBtn.innerHTML = "X";
+                            removeBtn.classList.add("btn", "btn-danger", "btn-sm", "btn-closeImg", "position-absolute", "top-0", "right-0");
+                            removeBtn.style.zIndex = 10;
+
+                            removeBtn.addEventListener("click", function () {
+                                imgWrapper.remove();
+                                const updatedFiles = Array.from(newFileList.files).filter((_, i) => i !== index);
+                                newFileList = new DataTransfer();
+                                updatedFiles.forEach(f => newFileList.items.add(f));
+
+                                document.getElementById("imageInput").files = newFileList.files;
+                            });
+
+                            imgWrapper.appendChild(img);
+                            imgWrapper.appendChild(removeBtn);
+                            imagePreview.appendChild(imgWrapper);
+                        };
+
+                        reader.readAsDataURL(file);
+                        newFileList.items.add(file);
+                    });
+
+                    document.getElementById("imageInput").files = newFileList.files;
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,172 @@
+﻿@using Business
+@model Business.Project
+
+@{
+    ViewData["Title"] = "Create New Project";
+}
+
+@section Style {
+    <style>
+        .form-check .form-check-input {
+            margin-left: 0px !important;
+        }
+
+        .image-wrapper {
+            margin-bottom: 10px;
+            max-width: 155px;
+            width: 100%
+        }
+
+            .image-wrapper .btn {
+                padding: 0.1rem 0.4rem;
+                font-size: 0.8rem;
+            }
+    </style>
+}
+
+<div class="bdlayout">
+    <h2 class="h2-title bg2 text-white">Thêm mới dự án</h2>
+
+    <div class="container my-4">
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="row">
+                <div class="form-group form-check col-md-6">
+                    <label class="form-check-label">
+                        @Html.DisplayNameFor(model => model.Active) <br />
+                        <input class="form-check-input" asp-for="Active" />
+                    </label>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="Title" class="control-label"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="IdAc" class="control-label"></label>
+                    <select asp-for="IdAc" class="form-control" asp-items="ViewBag.IdAc">
+                        <option value="">Chọn Người Dùng</option>
+                    </select>
+                    <span asp-validation-for="IdAc" class="text-danger"></span>
+                </div>
+
+                <!-- Sử dụng textarea thay vì div để liên kết với model -->
+                <div class="form-group col-md-6">
+                    <label asp-for="Description" class="control-label"></label>
+                    <textarea asp-for="Description" class="form-control" id="editor"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="StartDate" class="control-label"></label>
+                    <input asp-for="StartDate" class="form-control" />
+                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="EndDate" class="control-label"></label>
+                    <input asp-for="EndDate" class="form-control" />
+                    <span asp-validation-for="EndDate" class="text-danger"></span>
+                </div>
+
+                <!-- Upload multiple images -->
+                <div class="form-group col-md-6">
+                    <label>Tải ảnh lên:</label>
+                    <input type="file" name="ImageFiles" multiple class="form-control" id="imageInput" />
+                </div>
+
+                <!-- Preview uploaded images -->
+                <div class="form-group col-md-6">
+                    <label>Preview ảnh đã chọn:</label>
+                    <div id="imagePreview" class="row"></div>
+                </div>
+
+                <div class="form-group btnGround">
+                    <input type="submit" value="Thêm mới" class="btn btn-primary" />
+                    <a asp-action="Index" class="btn btn-secondary">Trở về</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        DateTime currentDate = DateTime.Now;
+    }
+
+    <script src="https://cdn.jsdelivr.net/npm/ckeditor5-classic-free-full-feature@35.4.1/build/ckeditor.min.js"></script>
+    <script>
+        // Khởi tạo CKEditor
+        ClassicEditor.create(document.querySelector('#editor'))
+            .then(editor => {
+                // Lấy giá trị từ CKEditor vào textarea khi submit form
+                const form = document.querySelector('form');
+                form.onsubmit = () => {
+                    document.querySelector('textarea[name="Description"]').value = editor.getData();
+                };
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+        // Xử lý ảnh tải lên
+        document.getElementById("imageInput").addEventListener("change", function (event) {
+            var imagePreview = document.getElementById("imagePreview");
+            imagePreview.innerHTML = ""; // Clear previous previews
+
+            const files = event.target.files;
+            const fileArray = Array.from(files); // Convert file list to an array for easier manipulation
+            let newFileList = new DataTransfer(); // To store new files when some are removed
+
+            if (fileArray) {
+                fileArray.forEach((file, index) => {
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        const imgWrapper = document.createElement("div");
+                        imgWrapper.classList.add("col-md-2", "image-wrapper", "position-relative");
+
+                        const img = document.createElement("img");
+                        img.src = e.target.result;
+                        img.width = 100;
+                        img.classList.add("img-thumbnail");
+
+                        const removeBtn = document.createElement("button");
+                        removeBtn.innerHTML = "X";
+                        removeBtn.classList.add("btn", "btn-danger", "btn-sm", "position-absolute", "top-0", "right-0");
+                        removeBtn.style.zIndex = 10;
+
+                        removeBtn.addEventListener("click", function () {
+                            imgWrapper.remove();
+                            fileArray.splice(index, 1); // Remove from array
+                            newFileList.items.clear(); // Clear all previously added files
+
+                            // Add all remaining files to the new FileList
+                            fileArray.forEach(f => newFileList.items.add(f));
+
+                            // Set the new FileList back to the input
+                            document.getElementById("imageInput").files = newFileList.files;
+                        });
+
+                        imgWrapper.appendChild(img);
+                        imgWrapper.appendChild(removeBtn);
+                        imagePreview.appendChild(imgWrapper);
+                    };
+
+                    reader.readAsDataURL(file); // Read file as Data URL
+
+                    // Add to DataTransfer object, which will hold the files
+                    newFileList.items.add(file);
+                });
+
+                // Assign the updated file list back to the input field
+                document.getElementById("imageInput").files = newFileList.files;
+            }
+        });
+    </script>
+}

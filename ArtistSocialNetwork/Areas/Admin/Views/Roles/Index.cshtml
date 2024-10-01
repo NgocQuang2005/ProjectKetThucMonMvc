@@ -132,6 +132,8 @@
     @{
         DateTime currentDate = DateTime.Now;
     }
+    <script src="~/Admin/js/controllers/RolesController.js?@currentDate"></script>
+
     <script>
         $(document).on('click', '.btn-active', function (e) {
             e.preventDefault();
@@ -157,5 +159,4 @@
         });
 
     </script>
-    <script src="~/controllers/RolesController.js?@currentDate"></script>
 }

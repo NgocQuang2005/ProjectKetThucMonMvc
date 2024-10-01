@@ -1,0 +1,74 @@
+﻿@model Business.Reaction
+
+@{
+    ViewData["Title"] = "Chỉnh sửa phản ứng";
+}
+
+@section Style {
+    <style>
+        .form-check .form-check-input {
+            margin-left: 0px !important;
+        }
+    </style>
+}
+
+<div class="bdlayout p-0">
+    <h2 class="h2-title bg4 text-white">Chỉnh sửa phản ứng</h2>
+    @{
+        if (TempData["AlertMessage"] != null)
+        {
+            <div id="alert-message" class="alert @TempData["AlertType"]">
+                @TempData["AlertMessage"]
+            </div>
+        }
+    }
+
+    <div class="container my-4">
+        <form asp-action="Edit">
+            <div class="row">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="IdReaction" />
+
+                <div class="form-group col-md-6">
+                    <label asp-for="IdArtwork" class="control-label"></label>
+                    <select asp-for="IdArtwork" class="form-control" asp-items="ViewBag.IdArtwork">
+                        <option value="">Chọn Tác Phẩm</option> <!-- Giá trị rỗng để không làm ảnh hưởng đến việc chọn -->
+                    </select>
+                    <span asp-validation-for="IdArtwork" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="IdAc" class="control-label"></label>
+                    <select asp-for="IdAc" class="form-control" asp-items="ViewBag.IdAc">
+                        <option value="">Chọn Người Dùng</option> <!-- Giá trị rỗng để không làm ảnh hưởng đến việc chọn -->
+                    </select>
+                    <span asp-validation-for="IdAc" class="text-danger"></span>
+                </div>
+
+                <div class="form-group form-check col-md-6">
+                    <label class="form-check-label">
+                        @Html.DisplayNameFor(model => model.Action) <br />
+                        <input class="form-check-input" asp-for="Action" />
+                    </label>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="CreatedAt" class="control-label"></label>
+                    <input asp-for="CreatedAt" class="form-control" />
+                    <span asp-validation-for="CreatedAt" class="text-danger"></span>
+                </div>
+
+                <div class="form-group btnGround">
+                    <input type="submit" value="Sửa" class="btn btn-primary" />
+                    <a asp-action="Index" class="btn btn-dark">Trở về</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

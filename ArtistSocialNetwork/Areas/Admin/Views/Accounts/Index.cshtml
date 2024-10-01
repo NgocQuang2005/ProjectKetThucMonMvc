@@ -43,6 +43,9 @@
                 <div class="col-sm-6 col-form-label">
                     @Html.TextBox("SearchString", TempData["searchString"], null, new { @class = "form-control", @placeholder = "Nhập từ khoá cần tìm kiếm" })
                 </div>
+                <div class="col-sm-3" style="margin: auto">
+                    @Html.DropDownList("idRole", (IEnumerable<SelectListItem>)ViewBag.IdRole, "Tất Cả Vai Trò", new { @class = "form-control", @id = "cboSearchRoleId", @onchange = "callIndexAction(this)" })
+                </div>
                 <div class="col-sm-3 flexI">
                     <button class="btn btn-danger"><i class="fa fa-search"></i> Tìm kiếm</button>
                 </div>
@@ -156,5 +159,5 @@
     @{
         DateTime currentDate = DateTime.Now;
     }
-    <script src="~/controllers/AccountController.js?@currentDate"></script>
+    <script src="~/Admin/js/controllers/AccountController.js?@currentDate"></script>
 }

@@ -117,6 +117,9 @@ namespace DataAccess
         {
             return await _context.DocumentInfos.Where(di => di.IdEvent == eventId).ToListAsync();
         }
-
+        public async Task<IEnumerable<DocumentInfo>> GetDocumentInfoByProjectId(int eventId)
+        {
+            return await _context.DocumentInfos.Where(di => di.IdProject == eventId).ToListAsync();
+        }
     }
 }

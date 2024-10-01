@@ -12,21 +12,37 @@ namespace DataAccess
     {
         public async Task<IEnumerable<ProjectParticipant>> GetProjectParticipantAll()
         {
-            var projectParticipant = await _context.ProjectParticipants.ToListAsync();
-            return projectParticipant;
+            var projectParticipants = await _context.ProjectParticipants
+                .Include(pp => pp.Account)  // Nạp dữ liệu liên quan từ bảng Account
+                .Include(pp => pp.Project)  // Nạp dữ liệu liên quan từ bảng Project
+                .ToListAsync();
+            return projectParticipants;
         }
+
         public async Task<ProjectParticipant> GetProjectParticipantById(int id)
         {
-            var projectParticipant = await _context.ProjectParticipants.FirstOrDefaultAsync(pp => pp.IdProjectParticipant == id);
-            if (projectParticipant == null) return null;
+            var projectParticipant = await _context.ProjectParticipants
+                .Include(pp => pp.Project)   // Nạp dữ liệu từ bảng Project
+                .Include(pp => pp.Account)   // Nạp dữ liệu từ bảng Account
+                .FirstOrDefaultAsync(pp => pp.IdProjectParticipant == id);
 
             return projectParticipant;
         }
+
         public async Task Add(ProjectParticipant projectParticipant)
         {
-            _context.ProjectParticipants.Add(projectParticipant);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.ProjectParticipants.Add(projectParticipant);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi khi lưu dữ liệu: " + ex.Message);
+                throw;
+            }
         }
+
         public async Task Update(ProjectParticipant projectParticipant)
         {
 
@@ -47,6 +63,13 @@ namespace DataAccess
                 _context.ProjectParticipants.Remove(projectParticipant);
                 await _context.SaveChangesAsync();
             }
+        }
+        public async Task<bool> ChangeActive(int id)
+        {
+            var projectParticipant = await GetProjectParticipantById(id);
+            projectParticipant.Active = !projectParticipant.Active;
+            await _context.SaveChangesAsync();
+            return projectParticipant.Active;
         }
     }
 }

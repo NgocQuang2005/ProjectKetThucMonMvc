@@ -1,9 +1,9 @@
-﻿ImageFile.onchange = evt => {
-    const [file] = ImageFile.files
-    if (file) {
-        preview.src = URL.createObjectURL(file);
-    }
-}
+﻿//ImageFile.onchange = evt => {
+//    const [file] = ImageFile.files
+//    if (file) {
+//        preview.src = URL.createObjectURL(file);
+//    }
+//}
 ClassicEditor
     .create(document.querySelector('#editor'), {
         extraPlugins: [CustomUploadAdapterPlugin],

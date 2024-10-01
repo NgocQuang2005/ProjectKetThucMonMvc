@@ -221,3 +221,65 @@
     display: flex;
     justify-content: end;
 }
+/* Điều chỉnh kích thước của bảng để tương thích với các thiết bị */
+.table-responsive {
+    overflow-x: auto;
+}
+
+/* Tối ưu hóa cho các thiết bị nhỏ hơn */
+@media (max-width: 768px) {
+    .btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .form-control {
+        width: 100%;
+    }
+
+    .flexI {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .bdlayout {
+        padding: 10px;
+    }
+
+    .title-index h2 {
+        font-size: 1.5rem;
+    }
+}
+@media (max-width: 768px) {
+    .title-index h2 {
+        font-size: 1.5rem;
+    }
+
+    .btn {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    .table th, .table td {
+        padding: 5px;
+    }
+
+    .bdlayout {
+        padding: 10px;
+    }
+
+    .table th, .table td {
+        white-space: nowrap;
+    }
+
+    /* Hide certain columns on smaller screens for better readability */
+    th:nth-child(4),
+    td:nth-child(4),
+    th:nth-child(5),
+    td:nth-child(5),
+    th:nth-child(6),
+    td:nth-child(6) {
+        display: none;
+    }
+}

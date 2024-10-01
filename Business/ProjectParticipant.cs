@@ -14,19 +14,22 @@ namespace Business
         public int IdProjectParticipant { get; set; }
 
         [Required]
+        [Display(Name = "Trạng Thái")]
         public bool Active { get; set; }
 
         [Required]
+        [Display(Name = "Dự Án")]
         public int IdProject { get; set; }
 
         [ForeignKey("IdProject")]
-        public Project Project { get; set; }
+        public Project? Project { get; set; }
 
         [Required]
+        [Display(Name = "Người Tham Gia")]
         public int IdAc { get; set; }
 
         [ForeignKey("IdAc")]
-        public Account Account { get; set; }
+        public Account? Account { get; set; }
 
     }
 }

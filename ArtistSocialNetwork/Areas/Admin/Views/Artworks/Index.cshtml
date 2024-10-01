@@ -21,9 +21,10 @@
         }
     </style>
 }
-<div class="bdlayout">
+
+<div class="container bdlayout">
     <div class="row">
-        <div class="title-index bg1">
+        <div class="title-index bg1 col-12">
             <h2>Danh sách tác phẩm</h2>
             <p class="btn btn-primary">
                 <a asp-action="Create" class="whiteCl">Tạo mới</a>
@@ -32,92 +33,99 @@
 
         @if (TempData["AlertMessage"] != null)
         {
-            <div id="alert-message" class="alert success @TempData["AlertType"]">
+            <div id="alert-message" class="alert success @TempData["AlertType"] col-12">
                 @TempData["AlertMessage"]
             </div>
         }
+
         @using (Html.BeginForm("Index", "Artworks", FormMethod.Post, new { id = "form-search" }))
         {
-            <div class="row mb-3">
-                <div class="col-sm-6 col-form-label">
+            <div class="row my-3">
+                <div class="col-sm-6 col-12">
                     @Html.TextBox("SearchString", TempData["searchString"], null, new { @class = "form-control", @placeholder = "Nhập từ khoá cần tìm kiếm" })
                 </div>
-                <div class="col-sm-3 flexI">
+                <div class="col-sm-3" style="margin: auto">
+                    @Html.DropDownList("IdAccount", (SelectList)ViewBag.IdAccount, "Tất Cả Người Dùng", new { @class = "form-control", @onchange = "callIndexAction(this)" })
+                </div>
+                <div class="col-sm-3" style="margin: auto">
+                    @Html.DropDownList("IdTypeOfArtwork", (SelectList)ViewBag.IdTypeOfArtwork, "Tất Cả Loại Tác Phẩm", new { @class = "form-control", @onchange = "callIndexAction(this)" })
+                </div>
+                <div class="col-sm-3 mt-2">
                     <button class="btn btn-danger"><i class="fa fa-search"></i> Tìm kiếm</button>
                 </div>
             </div>
-
         }
-        <table class="table">
-            <thead>
-                <tr>
-                    <th align="center">#</th>
-                    <th>Ảnh</th>
-                    <th>@Html.DisplayNameFor(model => model.Active)</th>
-                    <th>@Html.DisplayNameFor(model => model.IdAc)</th>
-                    <th>@Html.DisplayNameFor(model => model.IdTypeOfArtwork)</th>
-                    <th>@Html.DisplayNameFor(model => model.Title)</th>
-                    <th>Hành động</th>
-                </tr>
-            </thead>
-            <tbody>
-                @{
-                    int dem = 1;
-                    int page = Convert.ToInt32(Context.Request.Query["page"]);
-                    if (page > 1)
-                    {
-                        dem = (page - 1) * ViewBag.Page + 1;
-                    }
-                }
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td class="text-center">@dem</td>
-                        <td>
-                            <a href="#" class="btn @(item.Active ? "btn-primary":"btn-danger") btn-active" data-id="@item.IdArtwork">@(item.Active ? "Bật" : "Tắt")</a>
-                        </td>
-                        <td>
-                            @if (item.DocumentInfos != null && item.DocumentInfos.Any())
-                            {
-                                <img src="@Url.Content("~/Upload/Images/" + item.DocumentInfos.FirstOrDefault().UrlDocument)" width="100" />
-                            }
-                            else
-                            {
-                                <p>Không có ảnh.</p>
-                            }
-                        </td>
-                        <td>
-                            @if (item.IdAc.HasValue && ViewBag.AccountEmails.ContainsKey(item.IdAc.Value))
-                            {
-                                @ViewBag.AccountEmails[item.IdAc.Value]
-                            }
-                            else
-                            {
-                                <p>Email không xác định</p>
-                            }
-                        </td>
-                        <td>
-                            @if (item.IdTypeOfArtwork.HasValue && ViewBag.TypeOfArtworkName.ContainsKey(item.IdTypeOfArtwork.Value))
-                            {
-                                @ViewBag.TypeOfArtworkName[item.IdTypeOfArtwork.Value]
-                            }
-                            else
-                            {
-                                <p>Loại tác phẩm không xác định</p>
-                            }
-                        </td>
 
-                        <td>@Html.DisplayFor(modelItem => item.Title)</td>
-                        
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@item.IdArtwork" class="btn btn-outline-primary">Chỉnh sửa</a>
-                            <a href="#" class="delete-link btn btn-danger" data-id="@item.IdArtwork" data-confirm="Bạn có thật sự muốn xoá?" data-toggle="modal" data-target="#confirmModal"> Xoá</a>
-                        </td>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th align="center">#</th>
+                        <th>Ảnh</th>
+                        <th>@Html.DisplayNameFor(model => model.Active)</th>
+                        <th>@Html.DisplayNameFor(model => model.IdAc)</th>
+                        <th>@Html.DisplayNameFor(model => model.IdTypeOfArtwork)</th>
+                        <th>@Html.DisplayNameFor(model => model.Title)</th>
+                        <th>Hành động</th>
                     </tr>
-                    dem = dem + 1;
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @{
+                        int dem = 1;
+                        int page = Convert.ToInt32(Context.Request.Query["page"]);
+                        if (page > 1)
+                        {
+                            dem = (page - 1) * ViewBag.Page + 1;
+                        }
+                    }
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-center">@dem</td>
+                            <td>
+                                <a href="#" class="btn @(item.Active ? "btn-primary":"btn-danger") btn-active" data-id="@item.IdArtwork">@(item.Active ? "Bật" : "Tắt")</a>
+                            </td>
+                            <td>
+                                @if (item.DocumentInfos != null && item.DocumentInfos.Any())
+                                {
+                                    <img src="@Url.Content("~/Upload/Images/" + item.DocumentInfos.FirstOrDefault().UrlDocument)" width="100" class="img-fluid" />
+                                }
+                                else
+                                {
+                                    <p>Không có ảnh.</p>
+                                }
+                            </td>
+                            <td>
+                                @if (item.IdAc.HasValue && ViewBag.AccountEmails.ContainsKey(item.IdAc.Value))
+                                {
+                                    @ViewBag.AccountEmails[item.IdAc.Value]
+                                }
+                                else
+                                {
+                                    <p>Email không xác định</p>
+                                }
+                            </td>
+                            <td>
+                                @if (item.IdTypeOfArtwork.HasValue && ViewBag.TypeOfArtworkName.ContainsKey(item.IdTypeOfArtwork.Value))
+                                {
+                                    @ViewBag.TypeOfArtworkName[item.IdTypeOfArtwork.Value]
+                                }
+                                else
+                                {
+                                    <p>Loại tác phẩm không xác định</p>
+                                }
+                            </td>
+                            <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.IdArtwork" class="btn btn-outline-primary">Chỉnh sửa</a>
+                                <a href="#" class="delete-link btn btn-danger" data-id="@item.IdArtwork" data-confirm="Bạn có thật sự muốn xoá?" data-toggle="modal" data-target="#confirmModal"> Xoá</a>
+                            </td>
+                        </tr>
+                        dem = dem + 1;
+                    }
+                </tbody>
+            </table>
+        </div>
 
         <div class="row mb-3">
             @Html.PagedListPager((IPagedList)Model, page => Url.Action("Index", "Artworks", new { ViewBag.SearchName, page, SearchString = @Context.Request.Query["SearchString"] }),
@@ -192,18 +200,5 @@
             });
         });
     </script>
-    <script src="~/controllers/ArtWorkController.js?@currentDate"></script>
-    <script>
-        $(".delete-link").click(function () {
-            var id = $(this).data("id");
-            var confirmMessage = $(this).data("confirm");
-            if (confirm(confirmMessage)) {
-                $.post("/Admin/Artworks/Delete/" + id, function (result) {
-                    if (result.success) {
-                        location.reload();
-                    }
-                });
-            }
-        });
-    </script>
+    <script src="~/Admin/js/controllers/ArtWorkController.js?@currentDate"></script>
 }

@@ -1,0 +1,60 @@
+﻿@model Business.ProjectParticipant
+
+@{
+    ViewData["Title"] = "Tạo mới người tham gia dự án";
+}
+
+@section Style {
+    <style>
+        .form-check .form-check-input {
+            margin-left: 0px !important;
+        }
+    </style>
+}
+
+<div class="container bdlayout">
+    <h2 class="h2-title bg4 text-white">Tạo mới người tham gia dự án</h2>
+
+    <div class="container my-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="row">
+                <div class="form-group form-check col-md-6">
+                    <label class="form-check-label">
+                        @Html.DisplayNameFor(model => model.Active) <br />
+                        <input class="form-check-input" asp-for="Active" />
+                    </label>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="IdProject" class="control-label"></label>
+                    <select asp-for="IdProject" class="form-control" asp-items="ViewBag.IdProject">
+                        <option value="">Chọn dự án</option> <!-- Giá trị rỗng để không làm ảnh hưởng đến việc chọn -->
+                    </select>
+                    <span asp-validation-for="IdProject" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label asp-for="IdAc" class="control-label"></label>
+                    <select asp-for="IdAc" class="form-control" asp-items="ViewBag.IdAc">
+                        <option value="">Chọn người tham gia</option> <!-- Giá trị rỗng để không làm ảnh hưởng đến việc chọn -->
+                    </select>
+                    <span asp-validation-for="IdAc" class="text-danger"></span>
+                </div>
+
+
+                <div class="form-group btnGround">
+                    <input type="submit" value="Thêm mới" class="btn btn-primary" />
+                    <a asp-action="Index" class="btn btn-secondary">Trở về</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

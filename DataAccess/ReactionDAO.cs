@@ -12,15 +12,21 @@ namespace DataAccess
     {
         public async Task<IEnumerable<Reaction>> GetReactionAll()
         {
-            var reactions = await _context.Reactions.ToListAsync();
+            var reactions = await _context.Reactions
+                .Include(re => re.Artwork)
+                .Include(re => re.Account)
+                .ToListAsync();
             return reactions;
         }
+
+        // Get a reaction by Id with related Artwork and Account entities
         public async Task<Reaction> GetReactionById(int id)
         {
-            var reactions = await _context.Reactions.FirstOrDefaultAsync(re => re.IdReaction == id);
-            if (reactions == null) return null;
-
-            return reactions;
+            var reaction = await _context.Reactions
+                .Include(re => re.Artwork)
+                .Include(re => re.Account)
+                .FirstOrDefaultAsync(re => re.IdReaction == id);
+            return reaction;
         }
         public async Task Add(Reaction reactions)
         {

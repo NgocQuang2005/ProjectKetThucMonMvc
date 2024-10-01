@@ -23,7 +23,7 @@
     }
 
     <div class="container my-4">
-        <form asp-action="Create">
+        <form asp-action="Create" enctype="multipart/form-data">
             <div class="row">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group form-check col-md-6">
@@ -39,8 +39,8 @@
                 </div>
                 <div class="form-group col-md-6">
                     <label asp-for="Description" class="control-label"></label>
-                    <textarea asp-for="Description" class="form-control" id="editor" style="width: 100%; min-height: 200px;"></textarea>
-                    <span asp-validation-for="Description" class="text-danger"></span>
+                    <div id="editor"></div>
+
                 </div>
                 <div class="form-group btnGround">
                     <input type="submit" value="Thêm" class="btn btn-primary" />
@@ -57,10 +57,11 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
         DateTime currentDate = DateTime.Now;
-
     }
+
     <script src="
 https://cdn.jsdelivr.net/npm/ckeditor5-classic-free-full-feature@35.4.1/build/ckeditor.min.js
             "></script>
-    <script src="~/Admin/controllers/ckeditorDocumentInfo.js?@currentDate"></script>
+
+    <script src="~/Admin/js/controllers/ckeditorEvent.js?@currentDate"></script>
 }
