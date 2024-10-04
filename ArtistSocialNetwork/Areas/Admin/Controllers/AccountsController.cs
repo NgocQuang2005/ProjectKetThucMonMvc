@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Business;
 using Microsoft.AspNetCore.Authorization;
+using Business;
 using Repository;
 using X.PagedList;
+using ArtistSocialNetwork.Models;
 
 namespace ArtistSocialNetwork.Areas.Admin.Controllers
 {
@@ -33,23 +32,19 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
         // GET: Admin/Accounts
         public async Task<IActionResult> Index(string searchString, int? page, int IdRole)
         {
-            // Lấy danh sách tài khoản từ repository
             var accounts = await accountRepository.GetAccountAll();
 
-            // Lọc theo từ khoá tìm kiếm nếu có
             if (!string.IsNullOrEmpty(searchString))
             {
                 accounts = accounts.Where(c => Commons.Library.ConvertToUnSign(c.Email.ToLower())
                                     .Contains(Commons.Library.ConvertToUnSign(searchString.ToLower()))).ToList();
             }
 
-            // Lọc theo vai trò nếu được chọn
             if (IdRole != 0)
             {
                 accounts = accounts.Where(u => u.IdRole == IdRole).ToList();
             }
 
-            // Trả dữ liệu cho view
             ViewData["IdRole"] = new SelectList(await roleRepository.GetRoleAll(), "IdRole", "RoleName");
             ViewBag.Page = 5;
 
@@ -64,62 +59,67 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
         }
 
         // POST: Admin/Accounts/Create
-        // POST: Admin/Accounts/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IdAccount,Email,Phone,Password,IdRole,CreatedBy,CreatedWhen,LastUpdateBy,LastUpdateWhen")] Account account, IFormFile ProfileImage)
+        public async Task<IActionResult> Create([Bind("IdAccount,Email,Phone,Password,IdRole,CreatedBy,CreatedWhen,LastUpdateBy,LastUpdateWhen,ProfileImageUrl")] AccountDTO accountDTO, IFormFile ProfileImage)
         {
-            ViewData["IdRole"] = new SelectList(await roleRepository.GetRoleAll(), "IdRole", "RoleName", account.IdRole);
+            ViewData["IdRole"] = new SelectList(await roleRepository.GetRoleAll(), "IdRole", "RoleName", accountDTO.IdRole);
 
             if (ModelState.IsValid)
             {
-                if (string.IsNullOrEmpty(account.Password))
+                if (string.IsNullOrEmpty(accountDTO.Password))
                 {
                     SetAlert(Commons.Contants.PASSWORD_FAIL, Commons.Contants.FAIL);
-                    return View(account);
+                    return View(accountDTO);
                 }
 
-                account.Password = Commons.Library.EncryptMD5(account.Password);
+                var account = new Account
+                {
+                    Email = accountDTO.Email,
+                    Phone = accountDTO.Phone,
+                    Password = Commons.Library.EncryptMD5(accountDTO.Password),
+                    IdRole = accountDTO.IdRole,
+                    CreatedBy = accountDTO.CreatedBy,
+                    CreatedWhen = accountDTO.CreatedWhen,
+                    LastUpdateBy = accountDTO.LastUpdateBy,
+                    LastUpdateWhen = accountDTO.LastUpdateWhen
+                };
 
-                // Lưu tài khoản vào database
                 await accountRepository.Add(account);
 
-                // Xử lý việc lưu ảnh nếu có
                 if (ProfileImage != null && ProfileImage.Length > 0)
                 {
                     var fileName = Path.GetFileName(ProfileImage.FileName);
                     var uploadFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Upload/Images");
 
-                    // Kiểm tra và tạo thư mục nếu nó chưa tồn tại
                     if (!Directory.Exists(uploadFolderPath))
                     {
                         Directory.CreateDirectory(uploadFolderPath);
                     }
 
                     var filePath = Path.Combine(uploadFolderPath, fileName);
-
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         await ProfileImage.CopyToAsync(stream);
                     }
 
-                    // Chỉ lưu tên file vào cơ sở dữ liệu (không bao gồm thư mục)
                     var documentInfo = new DocumentInfo
                     {
-                        IdAc = account.IdAccount, // Gán IdAccount mới tạo vào DocumentInfo
-                        UrlDocument = fileName,   // Chỉ lưu tên file, không lưu cả đường dẫn
+                        IdAc = account.IdAccount,
+                        UrlDocument = fileName,
                         Created_by = account.IdAccount,
                         Created_when = DateTime.Now,
                         Active = true
                     };
 
                     await documentInfoRepository.Add(documentInfo);
+                    accountDTO.ProfileImageUrl = fileName;
                 }
 
                 SetAlert(Commons.Contants.Update_success, Commons.Contants.success);
                 return RedirectToAction(nameof(Index));
             }
-            return View(account);
+            return View(accountDTO);
         }
 
         // GET: Admin/Accounts/Edit/5
@@ -136,69 +136,80 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                 return NotFound();
             }
 
+            var accountDTO = new AccountDTO
+            {
+                IdAccount = account.IdAccount,
+                Email = account.Email,
+                Phone = account.Phone,
+                IdRole = account.IdRole,
+                CreatedBy = account.CreatedBy,
+                CreatedWhen = account.CreatedWhen,
+                LastUpdateBy = account.LastUpdateBy,
+                LastUpdateWhen = account.LastUpdateWhen,
+                ProfileImageUrl = await GetProfileImageUrl(account.IdAccount)
+            };
+
             ViewData["IdRole"] = new SelectList(await roleRepository.GetRoleAll(), "IdRole", "RoleName", account.IdRole);
-
-            // Lấy thông tin ảnh đại diện nếu có
-            var documentInfo = await documentInfoRepository.GetByAccountId(account.IdAccount);
-            ViewData["ProfileImageUrl"] = documentInfo?.UrlDocument; // Lưu đường dẫn ảnh vào ViewData
-
-            return View(account);
+            return View(accountDTO);
         }
-
 
         // POST: Admin/Accounts/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IdAccount,Email,Phone,Password,IdRole,CreatedBy,CreatedWhen,LastUpdateBy,LastUpdateWhen")] Account account, IFormFile ProfileImage)
+        public async Task<IActionResult> Edit(int id, [Bind("IdAccount,Email,Phone,Password,IdRole,CreatedBy,CreatedWhen,LastUpdateBy,LastUpdateWhen,ProfileImageUrl")] AccountDTO accountDTO, IFormFile? ProfileImage)
         {
-            if (id != account.IdAccount)
+            if (id != accountDTO.IdAccount)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                if (string.IsNullOrEmpty(account.Password))
+                // Retrieve the existing account entity from the database
+                var existingAccount = await accountRepository.GetAccountById(accountDTO.IdAccount);
+                if (existingAccount == null)
                 {
-                    var currentAccount = await accountRepository.GetAccountById(account.IdAccount);
-                    account.Password = currentAccount.Password;
-                }
-                else
-                {
-                    account.Password = Commons.Library.EncryptMD5(account.Password);
+                    return NotFound();
                 }
 
-                // Cập nhật tài khoản
-                await accountRepository.Update(account);
+                // Update the account properties with the values from accountDTO
+                existingAccount.Email = accountDTO.Email;
+                existingAccount.Phone = accountDTO.Phone;
+                existingAccount.IdRole = accountDTO.IdRole;
+                existingAccount.LastUpdateBy = accountDTO.LastUpdateBy;
+                existingAccount.LastUpdateWhen = DateTime.Now;
 
-                // Xử lý cập nhật ảnh nếu có
+                // Update password only if a new password is provided
+                if (!string.IsNullOrEmpty(accountDTO.Password))
+                {
+                    existingAccount.Password = Commons.Library.EncryptMD5(accountDTO.Password);
+                }
+
+                // Handle profile image update
                 if (ProfileImage != null && ProfileImage.Length > 0)
                 {
                     var fileName = Path.GetFileName(ProfileImage.FileName);
                     var uploadFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Upload/Images");
 
-                    // Kiểm tra và tạo thư mục nếu nó chưa tồn tại
                     if (!Directory.Exists(uploadFolderPath))
                     {
                         Directory.CreateDirectory(uploadFolderPath);
                     }
 
                     var filePath = Path.Combine(uploadFolderPath, fileName);
-
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         await ProfileImage.CopyToAsync(stream);
                     }
 
-                    var documentInfo = await documentInfoRepository.GetByAccountId(account.IdAccount);
+                    var documentInfo = await documentInfoRepository.GetByAccountId(accountDTO.IdAccount);
                     if (documentInfo == null)
                     {
-                        // Tạo mới DocumentInfo nếu chưa có
                         documentInfo = new DocumentInfo
                         {
-                            IdAc = account.IdAccount,
-                            UrlDocument = fileName,   // Chỉ lưu tên file
-                            Created_by = account.IdAccount,
+                            IdAc = accountDTO.IdAccount,
+                            UrlDocument = fileName,
+                            Created_by = accountDTO.IdAccount,
                             Created_when = DateTime.Now,
                             Active = true
                         };
@@ -206,20 +217,33 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                     }
                     else
                     {
-                        // Cập nhật DocumentInfo nếu đã có
-                        documentInfo.UrlDocument = fileName;   // Chỉ lưu tên file
-                        documentInfo.Last_update_by = account.IdAccount;
+                        documentInfo.UrlDocument = fileName;
+                        documentInfo.Last_update_by = accountDTO.IdAccount;
                         documentInfo.Last_update_when = DateTime.Now;
                         await documentInfoRepository.Update(documentInfo);
                     }
+
+                    // Update the ProfileImageUrl in the accountDTO
+                    accountDTO.ProfileImageUrl = fileName;
                 }
+
+                // Update the account in the repository
+                await accountRepository.Update(existingAccount);
 
                 SetAlert(Commons.Contants.Update_success, Commons.Contants.success);
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["IdRole"] = new SelectList(await roleRepository.GetRoleAll(), "IdRole", "RoleName", account.IdRole);
-            return View(account);
+            // If model state is not valid, reload roles and return to view with errors
+            ViewData["IdRole"] = new SelectList(await roleRepository.GetRoleAll(), "IdRole", "RoleName", accountDTO.IdRole);
+            SetAlert("Có lỗi xảy ra. Vui lòng kiểm tra lại thông tin.", Commons.Contants.FAIL);
+            return View(accountDTO);
+        }
+
+        private async Task<string?> GetProfileImageUrl(int accountId)
+        {
+            var documentInfo = await documentInfoRepository.GetByAccountId(accountId);
+            return documentInfo?.UrlDocument;
         }
 
         public async Task<JsonResult> DeleteId(int id)
@@ -232,14 +256,12 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                     return Json(new { success = false, message = "Không tìm thấy bản ghi" });
                 }
 
-                // Xóa DocumentInfo nếu có
                 var documentInfo = await documentInfoRepository.GetByAccountId(id);
                 if (documentInfo != null)
                 {
                     await documentInfoRepository.Delete(documentInfo.IdDcIf);
                 }
 
-                // Xóa Account
                 await accountRepository.Delete(id);
                 SetAlert(Commons.Contants.Delete_success, Commons.Contants.success);
                 return Json(new { status = true });

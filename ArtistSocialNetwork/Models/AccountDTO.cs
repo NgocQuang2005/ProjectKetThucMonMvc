@@ -15,9 +15,8 @@ namespace ArtistSocialNetwork.Models
         [MaxLength(50)]
         public string? Phone { get; set; }
 
-        [Required(ErrorMessage = "Vui lòng nhập mật khẩu")]
         [MaxLength(255)]
-        public string Password { get; set; } // Mật khẩu sẽ được mã hóa (MD5)
+        public string? Password { get; set; } // Cho phép Password là null khi cập nhật
 
         public int IdRole { get; set; }
 

@@ -13,7 +13,7 @@
 }
 
 <div class="bdlayout p-0">
-    <h2 class="h2-title bg4 text-white">Chỉnh sửa thông tin người dùng </h2>
+    <h2 class="h2-title bg4 text-white">Chỉnh sửa thông tin người dùng</h2>
     @{
         if (TempData["AlertMessage"] != null)
         {
@@ -28,17 +28,20 @@
             <div class="row">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="IdAccountDt" />
+
                 <div class="form-group form-check col-md-6">
                     <label class="form-check-label">
                         @Html.DisplayNameFor(model => model.Active) <br />
-                        <input class="form-check-input" asp-for="Active" /> 
+                        <input class="form-check-input" asp-for="Active" />
                     </label>
                 </div>
+
                 <div class="form-group col-md-6">
                     <label asp-for="Fullname" class="control-label"></label>
                     <input asp-for="Fullname" class="form-control" />
                     <span asp-validation-for="Fullname" class="text-danger"></span>
                 </div>
+
                 <div class="form-group col-md-6">
                     <label asp-for="IdAccount" class="control-label"></label>
                     <select asp-for="IdAccount" class="form-control" asp-items="ViewBag.IdAccount">
@@ -46,36 +49,44 @@
                     </select>
                     <span asp-validation-for="IdAccount" class="text-danger"></span>
                 </div>
+
                 <div class="form-group col-md-6">
                     <label asp-for="CCCD" class="control-label"></label>
                     <input asp-for="CCCD" type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" />
                     <span asp-validation-for="CCCD" class="text-danger"></span>
                 </div>
+
                 <div class="form-group col-md-6">
                     <label asp-for="Description" class="control-label"></label>
-                    <input asp-for="Description" class="form-control" />
+                    <textarea id="editor" asp-for="Description" class="form-control"></textarea>
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
+
                 <div class="form-group col-md-6">
                     <label asp-for="Birthday" class="control-label"></label>
-                    <input asp-for="Birthday" class="form-control" />
+                    <!-- Trường nhập liệu cho ngày sinh -->
+                    <input asp-for="Birthday" class="form-control" id="Birthday" />
                     <span asp-validation-for="Birthday" class="text-danger"></span>
                 </div>
+
                 <div class="form-group col-md-6">
                     <label asp-for="Nationality" class="control-label"></label>
                     <input asp-for="Nationality" class="form-control" />
                     <span asp-validation-for="Nationality" class="text-danger"></span>
-                </div> 
+                </div>
+
                 <div class="form-group col-md-6">
                     <label asp-for="Gender" class="control-label"></label>
                     <input asp-for="Gender" class="form-control" />
                     <span asp-validation-for="Gender" class="text-danger"></span>
                 </div>
+
                 <div class="form-group col-md-6">
                     <label asp-for="Address" class="control-label"></label>
                     <input asp-for="Address" class="form-control" />
                     <span asp-validation-for="Address" class="text-danger"></span>
                 </div>
+
                 <div class="form-group btnGround">
                     <input type="submit" value="Sửa" class="btn btn-primary" />
                     <a asp-action="Index" class="btn btn-dark">Trở về</a>
@@ -84,21 +95,43 @@
         </form>
     </div>
 </div>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ckeditor5-classic-free-full-feature@35.4.1/build/ckeditor.min.js"></script>
+
     <script>
+        ClassicEditor.create(document.querySelector('#editor'))
+            .then(editor => {
+                // Lấy giá trị từ CKEditor vào textarea khi submit form
+                const form = document.querySelector('form');
+                form.onsubmit = () => {
+                    document.querySelector('textarea[name="Description"]').value = editor.getData();
+                };
+            })
+            .catch(error => {
+                console.error(error);
+            });
         $(function () {
+            // Khởi tạo flatpickr với giá trị từ input
+            flatpickr("#Birthday", {
+                dateFormat: "Y-m-d", // Định dạng ngày phù hợp với input của ASP.NET
+                maxDate: "today", // Không cho phép chọn ngày trong tương lai
+                defaultDate: $("#Birthday").val() || null // Sử dụng giá trị của input nếu có
+            });
+
             // Kiểm tra CCCD phải là số
             $("form").on("submit", function () {
                 var cccd = $("#CCCD").val();
-                if (!/^\d{12}$/.test(cccd)) {
-                    alert("CCCD phải là dãy 12 chữ số.");
+                if (!/^\d{9,12}$/.test(cccd)) { // Đảm bảo CCCD có từ 9 đến 12 chữ số
+                    alert("CCCD phải là dãy số có độ dài từ 9 đến 12 chữ số.");
                     return false;
                 }
             });
         });
     </script>
 }
-

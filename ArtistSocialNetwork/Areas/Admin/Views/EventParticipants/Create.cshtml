@@ -13,7 +13,7 @@
 }
 
 <div class="container bdlayout">
-    <h2 class="h2-title bg4 text-white">Create Event Participant</h2>
+    <h2 class="h2-title bg7 text-white">Add Event Participant</h2>
 
     <div class="container my-4">
         <form asp-action="Create">
@@ -45,12 +45,13 @@
 
                 <div class="form-group col-md-6">
                     <label asp-for="RegistrationTime" class="control-label"></label>
-                    <input asp-for="RegistrationTime" class="form-control" />
+                    <!-- Trường nhập liệu cho ngày giờ -->
+                    <input asp-for="RegistrationTime" class="form-control" id="RegistrationTime" />
                     <span asp-validation-for="RegistrationTime" class="text-danger"></span>
                 </div>
 
                 <div class="form-group btnGround">
-                    <input type="submit" value="Thêm mới" class="btn btn-primary" />
+                    <input type="submit" value="Thêm" class="btn btn-primary" />
                     <a asp-action="Index" class="btn btn-secondary">Trở về</a>
                 </div>
             </div>
@@ -62,4 +63,18 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <!-- Thêm JavaScript của Flatpickr -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+        $(function () {
+            // Khởi tạo flatpickr với giá trị từ input
+            flatpickr("#RegistrationTime", {
+                enableTime: true, // Cho phép chọn thời gian
+                dateFormat: "Y-m-d H:i", // Định dạng ngày và giờ phù hợp với input
+                time_24hr: true // Sử dụng định dạng 24 giờ
+            });
+        });
+    </script>
 }

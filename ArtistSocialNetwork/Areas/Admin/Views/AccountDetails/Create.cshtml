@@ -9,6 +9,7 @@
             margin-left: 0px !important;
         }
     </style>
+    <!-- Thêm CSS của Flatpickr -->
 }
 <div class="bdlayout p-0">
     <h2 class="h2-title bg7 text-white ">Thêm thông tin người dùng mới</h2>
@@ -53,7 +54,7 @@
                 </div>
                 <div class="form-group col-md-6">
                     <label asp-for="Birthday" class="control-label"></label>
-                    <input asp-for="Birthday" class="form-control" />
+                    <input asp-for="Birthday" class="form-control" id="Birthday" />
                     <span asp-validation-for="Birthday" class="text-danger"></span>
                 </div>
                 <div class="form-group col-md-6">
@@ -85,14 +86,20 @@
         DateTime currentDate = DateTime.Now;
     }
 
-    <script src="
-https://cdn.jsdelivr.net/npm/ckeditor5-classic-free-full-feature@35.4.1/build/ckeditor.min.js
-            "></script>
+    <!-- Thêm JavaScript của Flatpickr -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/ckeditor5-classic-free-full-feature@35.4.1/build/ckeditor.min.js"></script>
 
     <script src="~/Admin/js/controllers/ckeditorEvent.js?@currentDate"></script>
     <script>
-
         $(function () {
+            // Khởi tạo Flatpickr cho trường ngày sinh
+            flatpickr("#Birthday", {
+                dateFormat: "d/m/Y", // Định dạng ngày tháng
+                maxDate: "today" // Không cho phép chọn ngày trong tương lai
+            });
+
             // Kiểm tra CCCD phải là số
             $("form").on("submit", function () {
                 var cccd = $("#CCCD").val();
@@ -103,8 +110,4 @@ https://cdn.jsdelivr.net/npm/ckeditor5-classic-free-full-feature@35.4.1/build/ck
             });
         });
     </script>
-
-
 }
-
-

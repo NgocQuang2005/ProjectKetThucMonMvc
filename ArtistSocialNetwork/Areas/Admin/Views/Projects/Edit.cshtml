@@ -59,13 +59,13 @@
 
                 <div class="form-group col-md-6">
                     <label asp-for="StartDate" class="control-label"></label>
-                    <input asp-for="StartDate" class="form-control" />
+                    <input asp-for="StartDate" class="form-control" id="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd HH:mm")" />
                     <span asp-validation-for="StartDate" class="text-danger"></span>
                 </div>
 
                 <div class="form-group col-md-6">
                     <label asp-for="EndDate" class="control-label"></label>
-                    <input asp-for="EndDate" class="form-control" />
+                    <input asp-for="EndDate" class="form-control" value="@Model.EndDate.ToString("yyyy-MM-dd HH:mm")" />
                     <span asp-validation-for="EndDate" class="text-danger"></span>
                 </div>
 
@@ -114,8 +114,26 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdn.ckeditor.com/ckeditor5/35.4.1/classic/ckeditor.js"></script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        DateTime currentDate = DateTime.Now;
+    }
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ckeditor5-classic-free-full-feature@35.4.1/build/ckeditor.min.js"></script>
+
     <script>
+        // Khởi tạo CKEditor
+        ClassicEditor.create(document.querySelector('#editor'))
+            .then(editor => {
+                // Lấy giá trị từ CKEditor vào textarea khi submit form
+                const form = document.querySelector('form');
+                form.onsubmit = () => {
+                    document.querySelector('textarea[name="Description"]').value = editor.getData();
+                };
+            })
+            .catch(error => {
+                console.error(error);
+            });
         document.addEventListener("DOMContentLoaded", function () {
             const deletedImagesField = document.getElementById("deletedImages");
 
@@ -131,7 +149,20 @@
                     imageWrapper.remove();
                 });
             });
+            // Khởi tạo Flatpickr cho các trường ngày giờ
+            flatpickr("#StartDate", {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+                time_24hr: true,
+                defaultDate: $("#StartDate").val() || null
+            });
 
+            flatpickr("#EndDate", {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+                time_24hr: true,
+                defaultDate: $("#EndDate").val() || null
+            });
             document.getElementById("imageInput").addEventListener("change", function (event) {
                 var imagePreview = document.getElementById("imagePreview");
                 imagePreview.innerHTML = "";

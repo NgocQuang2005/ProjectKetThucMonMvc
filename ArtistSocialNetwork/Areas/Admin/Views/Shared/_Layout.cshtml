@@ -24,7 +24,7 @@
     <!-- RTL Css -->
     <link rel="stylesheet" href="~/Admin/css/rtl.min.css" />
     <link rel="stylesheet" href="~/Admin/css/app.css" />
-    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     @RenderSection("Style", required: false)
     <style>
         *{
@@ -278,11 +278,11 @@
                                         }
                                         else
                                         {
-                                            profileImageUrl = Url.Content(profileImageUrl); // Đảm bảo đường dẫn đúng
+                                            profileImageUrl = Url.Content("~/Upload/Images/" + profileImageUrl); // Đảm bảo đường dẫn đúng
                                         }
                                     }
 
-                                    <img src="@profileImageUrl" alt="User-Profile" class="theme-color-default-img img-fluid avatar avatar-50 avatar-rounded" />
+                                    <img src="@profileImageUrl" alt="User-Profile" class="theme-color-default-img img-fluid avatar avatar-50 avatar-rounded" style="object-fit:cover"/>
 
                                     <div class="caption ms-3 d-none d-md-block ">
                                         @{

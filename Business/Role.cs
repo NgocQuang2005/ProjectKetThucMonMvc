@@ -13,9 +13,11 @@ namespace Business
         public int IdRole { get; set; }
 
         [Required]
+        [Display(Name = "Trạng Thái")]
         public bool Active { get; set; }
 
         [Required]
+        [Display(Name = "Tên Vai Trò")]
         [MaxLength(255)]
         public string RoleName { get; set; }
 

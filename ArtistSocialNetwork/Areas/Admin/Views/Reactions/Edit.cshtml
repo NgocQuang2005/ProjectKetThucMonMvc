@@ -54,7 +54,7 @@
 
                 <div class="form-group col-md-6">
                     <label asp-for="CreatedAt" class="control-label"></label>
-                    <input asp-for="CreatedAt" class="form-control" />
+                    <input asp-for="CreatedAt" class="form-control" id="CreatedAt" />
                     <span asp-validation-for="CreatedAt" class="text-danger"></span>
                 </div>
 
@@ -71,4 +71,17 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        $(function () {
+            // Khởi tạo flatpickr với giá trị từ input
+            flatpickr("#CreatedAt", {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i", // Định dạng ngày phù hợp với input của ASP.NET
+                maxDate: "today", // Không cho phép chọn ngày trong tương lai
+                defaultDate: $("#CreatedAt").val() || null // Sử dụng giá trị của input nếu có
+            });
+
+        });
+    </script>
 }

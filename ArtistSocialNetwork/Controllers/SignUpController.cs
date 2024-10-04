@@ -2,8 +2,9 @@
 using Business;
 using Microsoft.AspNetCore.Mvc;
 using Commons;
-using System.Threading.Tasks;
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ArtistSocialNetwork.Controllers
@@ -20,12 +21,19 @@ namespace ArtistSocialNetwork.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            // Initialize gender dropdown options with SelectListItem
+            // Initialize gender dropdown options
             ViewBag.GenderOptions = new List<SelectListItem>
             {
                 new SelectListItem { Value = "Nam", Text = "Nam" },
                 new SelectListItem { Value = "Nữ", Text = "Nữ" },
                 new SelectListItem { Value = "Khác", Text = "Khác" }
+            };
+
+            // Initialize role dropdown options
+            ViewBag.RoleOptions = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "2", Text = "Người Dùng" },
+                new SelectListItem { Value = "3", Text = "Nghệ Sỹ" }
             };
 
             return View();
@@ -35,6 +43,20 @@ namespace ArtistSocialNetwork.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(SignUpWeb model)
         {
+            // Set gender and role options before validating ModelState
+            ViewBag.GenderOptions = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "Nam", Text = "Nam" },
+                new SelectListItem { Value = "Nữ", Text = "Nữ" },
+                new SelectListItem { Value = "Khác", Text = "Khác" }
+            };
+
+            ViewBag.RoleOptions = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "2", Text = "Người Dùng" },
+                new SelectListItem { Value = "3", Text = "Nghệ Sỹ" }
+            };
+
             if (ModelState.IsValid)
             {
                 // Check if the email is already taken
@@ -51,8 +73,8 @@ namespace ArtistSocialNetwork.Controllers
                 var account = new Account
                 {
                     Email = model.Email,
-                    Password = Commons.Library.EncryptMD5(model.Password),  // Encrypt the password
-                    IdRole = 2,  // Default to User role
+                    Password = Commons.Library.EncryptMD5(model.Password),
+                    IdRole = model.IdRole,
                     CreatedWhen = DateTime.Now,
                     LastUpdateWhen = DateTime.Now
                 };
@@ -69,9 +91,10 @@ namespace ArtistSocialNetwork.Controllers
                     Gender = model.Gender,
                     Birthday = model.Birthday,
                     Nationality = model.Nationality,
+                    CCCD = model.CCCD, // Sử dụng giá trị CCCD từ model
                     CreatedWhen = DateTime.Now,
                     LastUpdateWhen = DateTime.Now,
-                    CreatedBy = account.IdAccount,  // Assuming the user creates their own details
+                    CreatedBy = account.IdAccount,
                     LastUpdateBy = account.IdAccount
                 };
 
@@ -82,14 +105,6 @@ namespace ArtistSocialNetwork.Controllers
                 SetAlert(Contants.Update_success, Contants.success);
                 return RedirectToAction("Index", "Login");
             }
-
-            // Reload gender options if validation fails
-            ViewBag.GenderOptions = new List<SelectListItem>
-            {
-                new SelectListItem { Value = "Nam", Text = "Nam" },
-                new SelectListItem { Value = "Nữ", Text = "Nữ" },
-                new SelectListItem { Value = "Khác", Text = "Khác" }
-            };
 
             // Set error alert if model validation fails
             SetAlert(Contants.PASSWORD_FAIL, Contants.FAIL);

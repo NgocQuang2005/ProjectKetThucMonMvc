@@ -2,47 +2,37 @@
 
 @{
     Layout = null;
-    ViewBag.Title = "Login";
 }
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="icon" type="image/png" href="~/Website/images/logo-16x16.png" />
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Major+Mono+Display" rel="stylesheet">
-    <link href='https://cdn.jsdelivr.net/npm/boxicons@1.9.2/css/boxicons.min.css' rel='stylesheet'>
-
-    <!-- Styles -->
-    <link href="~/Website/css/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <link href="~/Website/css/style.css" rel="stylesheet">
-    <link href="~/Website/css/components.css" rel="stylesheet">
-    <link href="~/Website/css/auth.css" rel="stylesheet">
-    <link href="~/Website/css/forms.css" rel="stylesheet">
-    <link href="~/Website/css/media.css" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="~/Admin/images/favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+          crossorigin="anonymous" />
+          <title>Đăng Nhập</title>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+          integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="~/Website/css/login.css" />
 </head>
-
 <body>
-    <div class="row ht-100v flex-row-reverse no-gutters">
-        <div class="col-md-6 d-flex justify-content-center align-items-center">
-            <div class="signup-form">
-                <div class="auth-logo text-center mb-5">
-                    <div class="row">
-                        <div class="col-md-2">
-                            <img src="~/Website/images/logo-64x64.png" class="logo-img" alt="Logo">
-                        </div>
-                        <div class="col-md-10">
-                            <p>Argon Social Network</p>
-                            <span>Design System</span>
-                        </div>
-                    </div>
+    <section class="vh-100">
+        <div class="container-fluid h-custom">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-md-9 col-lg-6 col-xl-5">
+                    <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp"
+                         class="img-fluid"
+                         alt="Sample image" />
                 </div>
-                <form asp-action ="Index" method="post">
-                    <div class="row">
-                        <div class="col-md-12 my-2">
+                <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+                    <form asp-action="Index" method="post">
+                        <div data-mdb-input-init class="form-outline mb-4">
                             @if (TempData["Message"] != null)
                             {
                                 <div class="alert alert-@TempData["AlertType"]">
@@ -50,76 +40,77 @@
                                 </div>
                             }
                         </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <input asp-for="Email" placeholder="  Email..." class="form-control" />
-                                <span asp-validation-for="Email" class="text-danger"></span>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <input asp-for="Password" placeholder="  Mật khẩu..." class="form-control" type="password" />
-                                <span asp-validation-for="Password" class="text-danger"></span>
-                            </div>
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <a href="forgot-password.html">Quên mật khẩu?</a>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="custom-control material-checkbox">
-                                <input type="checkbox" class="material-control-input">
-                                <span class="material-control-indicator"></span>
-                                <span class="material-control-description">Nhớ mật khẩu</span>
-                            </label>
-                        </div>
-                        <div class="col-md-6 text-right">
-                            <div class="form-group">
-                                <button type="submit" class="btn btn-primary">Đăng nhập</button>
-                            </div>
-                        </div>
-                        <div class="col-md-12 text-center mt-5">
-                            <span class="go-login">Chưa có tài khoản , tạo tài khoản? <a href="@Url.Action("Index", "SignUp")">Đăng ký</a></span>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-        <div class="col-md-6 auth-bg-image d-flex justify-content-center align-items-center">
-            <div class="auth-left-content mt-5 mb-5 text-center">
-                <div class="weather-small text-white">
-                    <p class="current-weather"><i class='bx bx-sun'></i> <span>14&deg;</span></p>
-                    <p class="weather-city">Gyumri</p>
-                </div>
-                <div class="text-white mt-5 mb-5">
-                    <h2 class="create-account mb-3">Welcome Back</h2>
-                    <p>Thank you for joining. Updates and new features are released daily.</p>
-                </div>
-                <div class="auth-quick-links">
-                    <a href="#" class="btn btn-outline-primary">Purchase template</a>
-                </div>
-            </div>
-        </div>
-    </div>
+                        <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
+                            <p class="lead fw-normal mb-0 me-3">Đăng Nhập Bằng</p>
+                            <button type="button"
+                                    data-mdb-button-init
+                                    data-mdb-ripple-init
+                                    class="btn btn-primary btn-floating mx-1">
+                                <i class="fab fa-facebook-f"></i>
+                            </button>
 
-    <!-- Modal -->
-    <div class="modal fade fingerprint-modal" id="fingerprintModal" tabindex="-1" role="dialog" aria-labelledby="fingerprintModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-body text-center">
-                    <h3 class="text-muted display-5">Place your Finger on the Device Now</h3>
-                    <img src="~/Website/images/icons/auth-fingerprint.png" alt="Fingerprint">
+                            <button type="button"
+                                    data-mdb-button-init
+                                    data-mdb-ripple-init
+                                    class="btn btn-primary btn-floating mx-1">
+                                <i class="fab fa-twitter"></i>
+                            </button>
+
+                            <button type="button"
+                                    data-mdb-button-init
+                                    data-mdb-ripple-init
+                                    class="btn btn-primary btn-floating mx-1">
+                                <i class="fab fa-linkedin-in"></i>
+                            </button>
+                        </div>
+
+                        <div class="divider d-flex align-items-center my-4">
+                            <p class="text-center fw-bold mx-3 mb-0">Hoặc</p>
+                        </div>
+
+                        <!-- Email input -->
+                        <div data-mdb-input-init class="form-outline mb-4">
+                            <input asp-for="Email" placeholder="Nhập địa chỉ email hợp lệ" class="form-control form-control-lg" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <!-- Password input -->
+                        <div data-mdb-input-init class="form-outline mb-3">
+                            <input asp-for="Password" placeholder="Nhập mật khẩu" class="form-control form-control-lg" type="password" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <!-- Checkbox -->
+                            <div class="form-check mb-0">
+                                <input class="form-check-input me-2"
+                                       type="checkbox"
+                                       value=""
+                                       id="form2Example3" />
+                                <label class="form-check-label" for="form2Example3">
+                                    Remember me
+                                </label>
+                            </div>
+                            <a href="#!" class="text-body">Quên Mật Khẩu?</a>
+                        </div>
+
+                        <div class="text-center text-lg-start mt-4 pt-2">
+                            <button type="submit"
+                                    class="btn btn-primary btn-lg"
+                                    style="padding-left: 2.5rem; padding-right: 2.5rem">
+                                Đăng Nhập
+                            </button>
+                            <p class="small fw-bold mt-2 pt-1 mb-0">
+                                Bạn chưa có tài khoản?
+                                <a href="@Url.Action("Index", "SignUp")" class="link-danger">Đăng Ký</a>
+                            </p>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Core -->
-    <script src="~/Website/js/jquery/jquery-3.3.1.min.js"></script>
-    <script src="~/Website/js/popper/popper.min.js"></script>
-    <script src="~/Website/js/bootstrap/bootstrap.min.js"></script>
-    <!-- Optional -->
-    <script src="~/Website/js/app.js"></script>
+    </section>
 </body>
-
 </html>
 

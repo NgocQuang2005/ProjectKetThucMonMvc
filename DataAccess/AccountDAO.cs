@@ -32,13 +32,15 @@ namespace DataAccess
 
         public async Task Update(Account account)
         {
-            var existingItem = await GetAccountById(account.IdAccount);
+            var existingItem = await _context.Accounts.FindAsync(account.IdAccount);
             if (existingItem != null)
             {
+                // Update the existing account's properties with new values
                 _context.Entry(existingItem).CurrentValues.SetValues(account);
                 await _context.SaveChangesAsync();
             }
         }
+
 
         public async Task Delete(int id)
         {

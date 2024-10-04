@@ -62,13 +62,13 @@
 
                 <div class="form-group col-md-6">
                     <label asp-for="StartDate" class="control-label"></label>
-                    <input asp-for="StartDate" class="form-control" />
+                    <input asp-for="StartDate" class="form-control" id="StartDate" />
                     <span asp-validation-for="StartDate" class="text-danger"></span>
                 </div>
 
                 <div class="form-group col-md-6">
                     <label asp-for="EndDate" class="control-label"></label>
-                    <input asp-for="EndDate" class="form-control" />
+                    <input asp-for="EndDate" class="form-control" id="EndDate" />
                     <span asp-validation-for="EndDate" class="text-danger"></span>
                 </div>
 
@@ -98,8 +98,8 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
         DateTime currentDate = DateTime.Now;
     }
-
     <script src="https://cdn.jsdelivr.net/npm/ckeditor5-classic-free-full-feature@35.4.1/build/ckeditor.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
         // Khởi tạo CKEditor
         ClassicEditor.create(document.querySelector('#editor'))
@@ -113,6 +113,17 @@
             .catch(error => {
                 console.error(error);
             });
+        flatpickr("#StartDate", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            time_24hr: true
+        });
+
+        flatpickr("#EndDate", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            time_24hr: true
+        });
 
         // Xử lý ảnh tải lên
         document.getElementById("imageInput").addEventListener("change", function (event) {

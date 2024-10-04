@@ -1,0 +1,87 @@
+body {
+  background: linear-gradient(
+    to right,
+    #cd3268,
+    #3473e0
+  ); /* Gradient background */
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Container for the registration form */
+.form-container {
+  background: #fff;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.form-container h4 {
+  color: #6a11cb;
+  font-weight: bold;
+}
+
+.form-container p {
+  color: #6c757d;
+}
+
+/* Form elements styling */
+.form-control {
+  border-radius: 10px;
+  border: 1px solid #ced4da;
+  padding: 12px;
+}
+
+.form-control:focus {
+  box-shadow: none;
+  border-color: #6a11cb;
+}
+
+/* Select element styling */
+select.form-control {
+  appearance: none;
+  background: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="gray" d="M2 0L0 2h4z"/></svg>')
+    no-repeat right 10px center;
+  background-size: 10px;
+}
+
+/* Button styling */
+.btn-primary {
+  background-color: #6a11cb;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  transition: background 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #2575fc;
+}
+
+/* Links */
+a {
+  color: #6a11cb;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Image Container for Background Image */
+.image-container {
+  height: 100vh; /* Set height to viewport height */
+  overflow: hidden; /* Hide any overflow */
+}
+
+.image-container img {
+  width: 100%; /* Make the image occupy full width of its container */
+  height: 100%; /* Make the image occupy full height of its container */
+  object-fit: cover; /* Ensure the image covers the container without being distorted */
+}
+
+/* Mobile responsiveness */
+@media (max-width: 767px) {
+  .image-container {
+    display: none;
+  }
+}

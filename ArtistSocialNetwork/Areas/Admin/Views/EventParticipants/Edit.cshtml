@@ -46,7 +46,8 @@
 
                 <div class="form-group col-md-6">
                     <label asp-for="RegistrationTime" class="control-label"></label>
-                    <input asp-for="RegistrationTime" class="form-control" />
+                    <!-- Trường nhập liệu cho ngày giờ -->
+                    <input asp-for="RegistrationTime" class="form-control" id="RegistrationTime" value="@Model.RegistrationTime.ToString("yyyy-MM-dd HH:mm")" />
                     <span asp-validation-for="RegistrationTime" class="text-danger"></span>
                 </div>
 
@@ -63,4 +64,19 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <!-- Thêm JavaScript của Flatpickr -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+        $(function () {
+            // Khởi tạo flatpickr với giá trị từ input
+            flatpickr("#RegistrationTime", {
+                enableTime: true, // Cho phép chọn thời gian
+                dateFormat: "Y-m-d H:i", // Định dạng ngày và giờ phù hợp với input
+                time_24hr: true, // Sử dụng định dạng 24 giờ
+                defaultDate: $("#RegistrationTime").val() || null // Sử dụng giá trị của input nếu có
+            });
+        });
+    </script>
 }

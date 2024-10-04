@@ -12,112 +12,101 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="icon" type="image/png" href="~/Website/images/logo-16x16.png" />
-    <title>Argon - Social Network</title>
+    <title>Đăng Ký</title>
 
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Major+Mono+Display" rel="stylesheet">
-    <link href='https://cdn.jsdelivr.net/npm/boxicons@1.9.2/css/boxicons.min.css' rel='stylesheet'>
-
-    <!-- Styles -->
-    <link href="~/Website/css/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <link href="~/Website/css/style.css" rel="stylesheet">
-    <link href="~/Website/css/components.css" rel="stylesheet">
-    <link href="~/Website/css/auth.css" rel="stylesheet">
-    <link href="~/Website/css/media.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+          crossorigin="anonymous" />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+          integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="~/Website/css/signUp.css" />
 </head>
 
-<body>0505
-    05050505
-    <div class="row ht-100v flex-row-reverse no-gutters">
-        <div class="col-md-6 d-flex justify-content-center align-items-center">
-            <div class="signup-form">
-                <div class="auth-logo text-center mb-5">
-                    <div class="row">
-                        <div class="col-md-2">
-                            <img src="~/Website/images/logo-64x64.png" class="logo-img" alt="Logo">
+<body>
+    <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center p-0">
+        <div class="row w-100 h-100">
+            <div class="col-md-6 d-flex justify-content-center align-items-center">
+                <div class="form-container w-100" style="max-width: 500px;">
+                    <div>
+                        <div class="text-center mb-4">
+                            <h4>Đăng Ký Tài Khoản</h4>
+                            <p>NgocQuang20</p>
                         </div>
-                        <div class="col-md-10">
-                            <p>Argon Social Network</p>
-                            <span>Design System</span>
-                        </div>
-                    </div>
-                </div>
-                <form asp-action="Index" method="post" class="pt-5">
-                    <div class="row">
-                        <div class="col-md-12 my-2">
+                        <form asp-action="Index" method="post">
                             @if (TempData["AlertMessage"] != null)
                             {
                                 <div class="alert @TempData["Type"]">
                                     @TempData["AlertMessage"]
                                 </div>
                             }
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <input asp-for="Fullname" placeholder="  Tên đầy đủ ..." class="form-control" />
+
+                            <div class="mb-3">
+                                <input asp-for="Fullname" placeholder="Tên đầy đủ..." class="form-control" />
                                 <span asp-validation-for="Fullname" class="text-danger"></span>
                             </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <input asp-for="Email" placeholder="  Email.." class="form-control" />
+
+                            <div class="mb-3">
+                                <input asp-for="Email" placeholder="Email..." class="form-control" />
                                 <span asp-validation-for="Email" class="text-danger"></span>
                             </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <input asp-for="Password" placeholder=" Mật khẩu.." class="form-control" type="password" />
+
+                            <div class="mb-3">
+                                <input asp-for="Password" placeholder="Mật khẩu..." class="form-control" type="password" />
                                 <span asp-validation-for="Password" class="text-danger"></span>
                             </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
+
+                            <div class="mb-3">
                                 <input type="date" id="Birthday" name="Birthday" class="form-control" value="@(Model?.Birthday != null ? Model.Birthday.Value.ToString("yyyy-MM-dd") : "")" />
                                 <span class="text-danger">@Html.ValidationMessage("Birthday")</span>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <select asp-for="Gender" class="form-control" asp-items="@(new SelectList(ViewBag.GenderOptions ?? new List<SelectListItem>(), "Value", "Text"))">
+
+                            <!-- Gender Select with Icon -->
+                            <div class="mb-3 position-relative">
+                                <select asp-for="Gender" class="form-control" asp-items="@(new SelectList(ViewBag.GenderOptions, "Value", "Text"))">
                                     <option value="">--Chọn giới tính--</option>
                                 </select>
+                                <i class="fas fa-chevron-down dropdown-icon"></i>
                                 <span asp-validation-for="Gender" class="text-danger"></span>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <input asp-for="Nationality" placeholder=" Quốc gia.." class="form-control" />
+
+                            <!-- Role Select with Icon -->
+                            <div class="mb-3 position-relative">
+                                <select asp-for="IdRole" class="form-control" asp-items="@(new SelectList(ViewBag.RoleOptions, "Value", "Text"))">
+                                    <option value="">--Chọn vai trò--</option>
+                                </select>
+                                <i class="fas fa-chevron-down dropdown-icon"></i>
+                                <span asp-validation-for="IdRole" class="text-danger"></span>
+                            </div>
+
+                            <!-- CCCD Input Field -->
+                            <div class="mb-3">
+                                <input asp-for="CCCD" placeholder="CCCD..." class="form-control" />
+                                <span asp-validation-for="CCCD" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <input asp-for="Nationality" placeholder="Quốc gia..." class="form-control" />
                                 <span asp-validation-for="Nationality" class="text-danger"></span>
                             </div>
-                        </div>
-                        <div class="col-md-12">
-                            <p class="agree-privacy">Bằng cách nhấp vào nút Đăng ký bên dưới, bạn đồng ý với chính sách bảo mật và điều khoản sử dụng trang web của chúng tôi.</p>
-                        </div>
-                        <div class="col-md-6">
-                            <span class="go-login">Đă có tài khoản? <a href="@Url.Action("Index", "Login")">Đăng nhập</a></span>
-                        </div>
-                        <div class="col-md-6 text-right">
-                            <div class="form-group">
-                                <button type="submit" class="btn btn-primary">Đăng ký</button>
+
+                            <p class="mb-3 text-muted">Bằng cách nhấp vào nút Đăng ký bên dưới, bạn đồng ý với chính sách bảo mật và điều khoản sử dụng trang web của chúng tôi.</p>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span>Đã có tài khoản? <a href="@Url.Action("Index", "Login")">Đăng nhập</a></span>
                             </div>
-                        </div>
+
+                            <button type="submit" class="btn btn-primary">Đăng ký</button>
+                        </form>
                     </div>
-                </form>
+                </div>
             </div>
-        </div>
-        <div class="col-md-6 auth-bg-image d-flex justify-content-center align-items-center">
-            <div class="auth-left-content mt-5 mb-5 text-center">
-                <div class="weather-small text-white">
-                    <p class="current-weather"><i class='bx bx-sun'></i> <span>14&deg;</span></p>
-                    <p class="weather-city">Gyumri</p>
-                </div>
-                <div class="text-white mt-5 mb-5">
-                    <h2 class="create-account mb-3">Create Account</h2>
-                    <p>Enter your personal details and start your journey with us.</p>
-                </div>
-                <div class="auth-quick-links">
-                    <a href="#" class="btn btn-outline-primary">Purchase template</a>
-                </div>
+            <div class="col-md-6 d-none d-md-flex align-items-center justify-content-center image-container">
+                <img src="https://images.unsplash.com/photo-1527794892110-a9ecebbf4420?q=80&w=1861&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                     alt="Background Image" />
             </div>
         </div>
     </div>
@@ -127,6 +116,16 @@
     <script src="~/Website/js/popper/popper.min.js"></script>
     <script src="~/Website/js/bootstrap/bootstrap.min.js"></script>
     <!-- Optional -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        $(function () {
+            // Initialize Flatpickr for the birthday input field
+            flatpickr("#Birthday", {
+                dateFormat: "d/m/Y", // Date format
+                maxDate: "today" // Prevent selecting future dates
+            });
+        });
+    </script>
     <script src="~/Website/js/app.js"></script>
 </body>
 </html>
