@@ -9,8 +9,12 @@ namespace DataAccess
     {
         public async Task<IEnumerable<Artwork>> GetArtworkAll()
         {
-            return await _context.Artworks.ToListAsync();
+            return await _context.Artworks
+                                 .Include(a => a.Account) // Tải thông tin Account
+                                 .ThenInclude(ac => ac.AccountDetail) // Tải chi tiết của Account
+                                 .ToListAsync();
         }
+
 
         public async Task<Artwork> GetArtworkById(int id)
         {

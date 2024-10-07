@@ -33,7 +33,6 @@
   <ItemGroup>
     <Folder Include="Areas\Admin\Data\" />
     <Folder Include="wwwroot\Upload\Images\" />
-    <Folder Include="wwwroot\Website\css\" />
   </ItemGroup>
 
 </Project>

@@ -1,8 +1,474 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Trang Chủ";
 }
+@section Style {
+    <style>
+        /* Đặt kích thước cố định cho ảnh */
+        .latest-news-item img {
+            width: 100%;
+            height: 200px; /* Chiều cao cố định cho hình ảnh */
+            object-fit: cover; /* Giúp hình ảnh lấp đầy không gian mà không bị biến dạng */
+        }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+        /* Giới hạn tiêu đề ở 2 dòng và thêm dấu 3 chấm nếu quá dài */
+        .latest-news-item .h4 {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Số dòng tối đa */
+            -webkit-box-orient: vertical;
+        }
+
+        /* Đảm bảo chiều cao cố định cho các cột */
+        .latest-news-item {
+            display: flex;
+            flex-direction: column;
+            height: 100%; /* Chiều cao tối đa của mỗi phần tử */
+        }
+
+            .latest-news-item .p-4 {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+        .whats-item img {
+            width: 100%;
+            height: 200px; /* Chiều cao cố định */
+            object-fit: cover; /* Đảm bảo hình ảnh được cắt mà không thay đổi tỉ lệ */
+        }
+
+        /* Cắt bớt tiêu đề nếu vượt quá 2 dòng */
+        .truncate-title {
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Hiển thị tối đa 2 dòng */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .img-list{
+            max-width: 130px;
+            max-height: 80px;
+            width: 100%;
+            height: 100% ;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+}
+<!-- Modal Search Start -->
+<div class="modal fade"
+     id="searchModal"
+     tabindex="-1"
+     aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content rounded-0">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">
+                    Search by keyword
+                </h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body d-flex align-items-center">
+                <div class="input-group w-75 mx-auto d-flex">
+                    <input type="search"
+                           class="form-control p-3"
+                           placeholder="keywords"
+                           aria-describedby="search-icon-1" />
+                    <span id="search-icon-1" class="input-group-text p-3">
+                        <i class="fa fa-search"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Search End -->
+<!-- Main Post Section Start -->
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="row g-4">
+            <div class="col-lg-7 col-xl-8 mt-0">
+                <div class="position-relative overflow-hidden rounded" style="    max-height: 650px; height: 100%;">
+                    <img src="~/Upload/images/@ViewBag.ArtworkImageUrl"
+                         class="img-fluid rounded img-zoomin w-100"
+                         style="height: 100%; object-fit: cover;"
+                         alt="@ViewBag.Artwork?.Title ?? " Untitled Artwork"" />
+                    <div class="d-flex justify-content-center px-4 position-absolute flex-wrap" style="bottom: 10px; left: 0">
+                        <a href="#" class="text-white me-3 link-hover"><i class="fa fa-clock"></i> @ViewBag.TimeAgo</a>
+                        <a href="#" class="text-white me-3 link-hover"><i class="fa fa-eye"></i> @ViewBag.Artwork?.Watched?.ToString() </a>
+                        <a href="#" class="text-white me-3 link-hover"><i class="fa fa-user"></i> @ViewBag.UploaderName </a>
+                        <a href="#" class="text-white link-hover"><i class="fa fa-tag"></i> @ViewBag.ArtworkType</a>
+                    </div>
+                </div>
+                <div class="border-bottom py-3">
+                    <a href="#" class="display-4 text-dark mb-0 link-hover">@ViewBag.Artwork?.Title</a>
+                </div>
+                <p class="mt-3 mb-4">
+                    @ViewBag.Artwork?.Description
+                </p>
+
+                <div class="bg-light p-4 rounded">
+                    <div class="news-2">
+                        <h3 class="mb-4">Top Story</h3>
+                    </div>
+                    <div class="row g-4 align-items-center">
+                        <div class="col-md-6">
+                            <div class="rounded overflow-hidden">
+                                <img src="~/Website/assets/img/news-2.jpg"
+                                     class="img-fluid rounded img-zoomin w-100"
+                                     alt="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex flex-column">
+                                <a href="#" class="h3">
+                                    Stoneman Clandestine Ukrainian claims successes against
+                                    Russian.
+                                </a>
+                                <p class="mb-0 fs-5">
+                                    <i class="fa fa-clock"> 06 minute read</i>
+                                </p>
+                                <p class="mb-0 fs-5">
+                                    <i class="fa fa-eye"> 3.5k Views</i>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 col-xl-4">
+                <div class="bg-light rounded p-4 pt-0">
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <div class="rounded overflow-hidden">
+                                <img src="~/Upload/images/@ViewBag.EventImageUrl"
+                                     class="img-fluid rounded img-zoomin w-100"
+                                     alt="@ViewBag.LatestEvent.Title" />
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="d-flex flex-column">
+                                <a href="#" class="h4 mb-2">@ViewBag.LatestEvent.Title</a>
+                                <p class="fs-5 mb-0">
+                                    <i class="fa fa-clock"></i> @ViewBag.EventTimeAgo
+                                </p>
+                                <p class="fs-5 mb-0">
+                                    <i class="fa fa-user"></i> @ViewBag.EventUploaderName
+                                </p>
+                            </div>
+                        </div>
+
+                        @if (ViewBag.ArtworkList != null)
+                        {
+                            foreach (var item in ViewBag.ArtworkList)
+                            {
+                                <div class="col-12">
+                                    <div class="row g-4 align-items-center">
+                                        <div class="col-5">
+                                            <div class="overflow-hidden rounded img-list">
+                                                <img src="~/Upload/images/@item.ImageUrl"
+                                                     class="img-zoomin img-fluid rounded w-100"
+                                                     alt="@item.Artwork?.Title" style="width: 100%; height:100%; object-fit: cover;"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-7">
+                                            <div class="features-content d-flex flex-column">
+                                                <a href="#" class="h6">@item.Artwork?.Title </a>
+                                                <small>
+                                                    <i class="fa fa-clock"></i> @item.TimeAgo
+                                                </small>
+                                                <small><i class="fa fa-user"></i> @item.UploaderName</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p>không tìm thấy tác phẩm.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Main Post Section End -->
+<!-- Latest News Start -->
+<div class="container-fluid latest-news py-5">
+    <div class="container py-5">
+        <h2 class="mb-4">Sự Kiện Mới</h2>
+        <div class="latest-news-carousel owl-carousel">
+            @if (ViewBag.EventList != null)
+            {
+                foreach (var item in ViewBag.EventList)
+                {
+                    <div class="latest-news-item">
+                        <div class="bg-light rounded">
+                            <div class="rounded-top overflow-hidden">
+                                <img src="~/Upload/images/@item.ImageUrl"
+                                     class="img-zoomin img-fluid rounded-top w-100"
+                                     alt="@item.Event?.Title" />
+                            </div>
+                            <div class="d-flex flex-column p-4">
+                                <a href="#" class="h4">@item.Event?.Title</a>
+                                <div class="">
+                                    <a href="#" class="small text-body link-hover"><i class="fas fa-user"></i> @item.UploaderName</a>
+                                    <small class="text-body d-block">
+                                        <i class="fas fa-calendar-alt me-1"></i>
+                                        @item.TimeAgo
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p>Không tìm thấy sự kiện nào.</p>
+            }
+
+
+        </div>
+    </div>
+</div>
+<!-- Latest News End -->
+<!-- Most Populer News Start -->
+<div class="container-fluid populer-news py-5">
+    <div class="container py-5">
+        <div class="tab-class mb-4">
+            <div class="row g-4">
+                <div class="col-lg-8 col-xl-9">
+                    <div class="d-flex flex-column flex-md-row justify-content-md-between border-bottom mb-4">
+                        <h1 class="mb-4">Tác Phẩm Mới</h1>
+                        <ul class="nav nav-pills mb-3">
+                            <li class="nav-item mb-3">
+                                <!-- Nút "Tất cả" -->
+                                <a class="d-flex py-2 px-4 bg-light rounded-pill me-2 text-dark @(ViewBag.SelectedTypeId == null ? "active text-white" : "")"
+                                   href="@Url.Action("Index", "Home", new { typeId = (int?)null })">
+                                    <span>Tất cả</span>
+                                </a>
+                            </li>
+                            @foreach (var item in ViewBag.ArtworkTypes)
+                            {
+                                <li class="nav-item mb-3">
+                                    <a class="d-flex py-2 px-4 bg-light rounded-pill me-2 text-dark  @(ViewBag.SelectedTypeId == item.IdTypeOfArtwork ? "active text-white" : "")"
+                                       href="@Url.Action("Index", "Home", new { typeId = item.IdTypeOfArtwork })">
+                                        <span>@item.NameTypeOfArtwork</span>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+
+                    <div class="tab-content mb-4">
+                        <div id="tab-1" class="tab-pane fade show p-0 active">
+                            <div class="row g-4">
+                                <div class="col-lg-8 mb-4" style=" height: 100%;">
+                                    <!-- Thêm mb-4 để tạo khoảng cách dưới -->
+                                    @if (ViewBag.ArtworkList != null && ViewBag.ArtworkList.Count > 0)
+                                    {
+                                        var artwork = ViewBag.ArtworkList[0];
+                                        <!-- Hiển thị tác phẩm đầu tiên của loại đã chọn -->
+                                        <div class="position-relative rounded overflow-hidden" style="max-height: 650px; height: 100%;">
+                                            <img src="~/Upload/images/@artwork.ImageUrl" class="img-zoomin img-fluid rounded w-100" alt="" style="height: 100%; object-fit: cover;" />
+                                        </div>
+                                        <div class="my-4">
+                                            <a href="#" class="h4">
+                                                @artwork.Artwork.Title
+                                            </a>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <a href="#" class="text-dark link-hover me-3"><i class="fa fa-clock"></i> @artwork.TimeAgo</a>
+                                            <a href="#" class="text-dark link-hover me-3"><i class="fa fa-user"></i> @artwork.UploaderName</a>
+                                        </div>
+                                        <p class="my-4">
+                                            @artwork.Artwork.Description
+                                        </p>
+                                    }
+                                    else
+                                    {
+                                        <p>Không có tác phẩm nào cho loại này.</p>
+                                    }
+                                </div>
+
+                                <div class="col-lg-4 mb-4">
+                                    <!-- Thêm mb-4 để tạo khoảng cách dưới -->
+                                    <div class="row g-4">
+                                        @if (ViewBag.ArtworkList != null && ViewBag.ArtworkList.Count > 0)
+                                        {
+                                            @foreach (var artwork in ViewBag.ArtworkList)
+                                            {
+                                                <div class="col-12">
+                                                    <div class="row g-4 align-items-center mb-4">
+                                                        <div class="col-5">
+                                                            <div class="overflow-hidden rounded img-list">
+                                                                <img src="~/Upload/images/@artwork.ImageUrl" class="img-zoomin img-fluid rounded w-100" alt="" style="width: 100%; height: 100%; object-fit:cover;" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-7">
+                                                            <div class="features-content d-flex flex-column">
+                                                                <p class="text-uppercase mb-2">@artwork.ArtworkType</p>
+                                                                <a href="#" class="h6">@artwork.Artwork.Title</a>
+                                                                <small class="text-body d-block">
+                                                                    <i class="fas fa-calendar-alt me-1"></i> @artwork.TimeAgo
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <p>Không có tác phẩm nào cho loại này.</p>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-bottom mb-4">
+                        <h2 class="my-4">Dự Án Mới</h2>
+                    </div>
+
+                    <div class="whats-carousel owl-carousel mb-4">
+                        <!-- Thêm mb-4 để tạo khoảng cách -->
+                        @if (ViewBag.ProjectList != null && ViewBag.ProjectList.Count > 0)
+                        {
+                            foreach (var project in ViewBag.ProjectList)
+                            {
+                                <div class="whats-item mb-4">
+                                    <div class="bg-light rounded">
+                                        <div class="rounded-top overflow-hidden">
+                                            <img src="~/Upload/images/@project.ImageUrl"
+                                                 class="img-zoomin img-fluid rounded-top w-100"
+                                                 alt="Project Image" />
+                                        </div>
+                                        <div class="d-flex flex-column p-4">
+                                            <a href="#" class="h4 truncate-title">
+                                                @project.Project.Title
+                                            </a>
+                                            <div class="d-flex justify-content-between">
+                                                <a href="#" class="small text-body link-hover">@project.UploaderName</a>
+                                                <small class="text-body d-block">
+                                                    <i class="fas fa-calendar-alt me-1"></i> @project.TimeAgo
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-center">Không có dự án nào để hiển thị.</p>
+                        }
+                    </div>
+
+                </div>
+                <div class="col-lg-4 col-xl-3">
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <div class="p-3 rounded border">
+                                <h4 class="mb-4">Luôn Kết Nối</h4>
+                                <div class="row g-4">
+                                    <div class="col-12">
+                                        <a href="#"
+                                           class="w-100 rounded btn btn-primary d-flex align-items-center p-3 mb-2">
+                                            <i class="fab fa-facebook-f btn btn-light btn-square rounded-circle me-3"></i>
+                                            <span class="text-white">13,977 Fans</span>
+                                        </a>
+                                        <a href="#"
+                                           class="w-100 rounded btn btn-danger d-flex align-items-center p-3 mb-2">
+                                            <i class="fab fa-twitter btn btn-light btn-square rounded-circle me-3"></i>
+                                            <span class="text-white">21,798 Follower</span>
+                                        </a>
+                                        <a href="#"
+                                           class="w-100 rounded btn btn-warning d-flex align-items-center p-3 mb-2">
+                                            <i class="fab fa-youtube btn btn-light btn-square rounded-circle me-3"></i>
+                                            <span class="text-white">7,999 Subscriber</span>
+                                        </a>
+                                        <a href="#"
+                                           class="w-100 rounded btn btn-dark d-flex align-items-center p-3 mb-2">
+                                            <i class="fab fa-instagram btn btn-light btn-square rounded-circle me-3"></i>
+                                            <span class="text-white">19,764 Follower</span>
+                                        </a>
+                                        <a href="#"
+                                           class="w-100 rounded btn btn-secondary d-flex align-items-center p-3 mb-2">
+                                            <i class="bi-cloud btn btn-light btn-square rounded-circle me-3"></i>
+                                            <span class="text-white">31,999 Subscriber</span>
+                                        </a>
+                                        <a href="#"
+                                           class="w-100 rounded btn btn-warning d-flex align-items-center p-3 mb-4">
+                                            <i class="fab fa-dribbble btn btn-light btn-square rounded-circle me-3"></i>
+                                            <span class="text-white">37,999 Subscriber</span>
+                                        </a>
+                                    </div>
+                                </div>
+                                <h4 class="my-4">Bxh Nghệ Sỹ</h4>
+                                <div class="row g-4">
+                                    @if (ViewBag.UsersWithRoles != null && ViewBag.UsersWithRoles.Count > 0)
+                                    {
+                                        foreach (var user in ViewBag.UsersWithRoles)
+                                        {
+                                            <div class="col-12">
+                                                <div class="row g-4 align-items-center features-item mb-4">
+                                                    <div class="col-4">
+                                                        <div class="rounded-circle position-relative">
+                                                            <div class="overflow-hidden rounded-circle " style="width: 60px ; height: 60px">
+                                                                <img src="~/Upload/images/@user.ProfileImage" style="    height: 100%;
+                                                                    object-fit: cover;" class="img-zoomin img-fluid rounded-circle w-100" alt="User Profile" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-8">
+                                                        <div class="features-content d-flex flex-column">
+                                                            <p class="text-uppercase mb-2">@user.Name</p>
+
+                                                            @if (user.DateOfBirth != null)
+                                                            {
+                                                                <small class="text-body d-block">
+                                                                    <i class="fas fa-birthday-cake me-1"></i> @user.DateOfBirth?.ToString("dd/MM/yyyy")
+                                                                </small>
+                                                            }
+
+                                                            <small class="text-body d-block">
+                                                                <i class="fas fa-map-marker-alt me-1"></i> @user.Country
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <p class="text-center">Không tìm thấy người dùng với vai trò "nghệ sĩ" hoặc "admin".</p>
+                                    }
+
+
+
+                                    <div class="col-lg-12">
+                                        <a href="#"
+                                           class="link-hover btn border border-primary rounded-pill text-dark w-100 py-3 mb-4">Xem Tất Cả</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

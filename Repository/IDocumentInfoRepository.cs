@@ -12,10 +12,9 @@ namespace Repository
         Task Update(DocumentInfo documentInfo); // Cập nhật DocumentInfo
         Task Delete(int id); // Xóa DocumentInfo
         Task<bool> ChangeActive(int id); // Thay đổi trạng thái Active
-        Task<DocumentInfo?> GetByAccountId(int accountId); // Lấy DocumentInfo theo IdAccount
+        Task<DocumentInfo?> GetDocumentInfoByAccountId(int accountId); // Lấy DocumentInfo theo IdAccount
         Task<IEnumerable<DocumentInfo>> GetDocumentInfosByArtworkId(int artworkId);
         Task<IEnumerable<DocumentInfo>> GetDocumentInfoByEventId(int eventId);
         Task<IEnumerable<DocumentInfo>> GetDocumentInfoByProjectId(int projectId);
-
     }
 }

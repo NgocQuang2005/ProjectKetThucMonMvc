@@ -11,8 +11,9 @@
         }
     </style>
 }
+
 <div class="bdlayout p-0">
-    <h2 class="h2-title bg7 text-white ">Thêm loại tác phẩm mới</h2>
+    <h2 class="h2-title bg7 text-white">Thêm loại tác phẩm mới</h2>
     @{
         if (TempData["AlertMessage"] != null)
         {
@@ -26,22 +27,31 @@
         <form asp-action="Create" enctype="multipart/form-data">
             <div class="row">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
                 <div class="form-group form-check col-md-6">
                     <label class="form-check-label">
                         @Html.DisplayNameFor(model => model.Active) <br />
                         <input class="form-check-input" asp-for="Active" />
                     </label>
                 </div>
+
                 <div class="form-group col-md-6">
                     <label asp-for="NameTypeOfArtwork" class="control-label"></label>
                     <input asp-for="NameTypeOfArtwork" class="form-control" />
                     <span asp-validation-for="NameTypeOfArtwork" class="text-danger"></span>
                 </div>
+
                 <div class="form-group col-md-6">
                     <label asp-for="Description" class="control-label"></label>
-                    <div id="editor"></div>
 
+                    <!-- Hidden input to bind the Description model property -->
+                    <input type="hidden" asp-for="Description" />
+
+                    <!-- CKEditor placeholder -->
+                    <div id="editor"></div>
+                    <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
+
                 <div class="form-group btnGround">
                     <input type="submit" value="Thêm" class="btn btn-primary" />
                     <a asp-action="Index" class="btn btn-dark">Trở lại</a>
@@ -51,17 +61,27 @@
     </div>
 </div>
 
-
-
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
-        DateTime currentDate = DateTime.Now;
     }
+        DateTime currentDate = DateTime.Now;
 
-    <script src="
-https://cdn.jsdelivr.net/npm/ckeditor5-classic-free-full-feature@35.4.1/build/ckeditor.min.js
-            "></script>
+    <!-- Include CKEditor Script -->
+    <script src="https://cdn.jsdelivr.net/npm/ckeditor5-classic-free-full-feature@35.4.1/build/ckeditor.min.js"></script>
 
-    <script src="~/Admin/js/controllers/ckeditorEvent.js?@currentDate"></script>
+    <script>
+        // Initialize CKEditor
+        ClassicEditor
+            .create(document.querySelector('#editor'))
+            .then(editor => {
+                // Listen to changes in CKEditor and update the hidden input field
+                editor.model.document.on('change:data', () => {
+                    document.querySelector('input[name="Description"]').value = editor.getData();
+                });
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
 }

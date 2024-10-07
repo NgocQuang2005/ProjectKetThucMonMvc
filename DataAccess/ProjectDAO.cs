@@ -12,7 +12,8 @@ namespace DataAccess
     {
         public async Task<IEnumerable<Project>> GetProjectAll()
         {
-            var projects = await _context.Projects.ToListAsync();
+            var projects = await _context.Projects.Include(p => p.Account) // Include Account
+                                       .ThenInclude(a => a.AccountDetail).ToListAsync();
             return projects;
         }
         public async Task<Project> GetProjectById(int id)

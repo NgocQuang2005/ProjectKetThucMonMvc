@@ -55,7 +55,7 @@ namespace Business
         public int? LastUpdateBy { get; set; }
 
         [ForeignKey("LastUpdateBy")]
-        public Account? Updater { get; set; }
+        public Account? Updater { get; set; }   
 
         public DateTime? LastUpdateWhen { get; set; } = DateTime.Now;
 

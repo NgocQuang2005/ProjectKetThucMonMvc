@@ -1,0 +1,138 @@
+﻿@{
+    ViewData["Title"] = "Dự Án";
+}
+@section Style {
+}
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="row g-4">
+            <div class="col-lg-12 bg-white p-3 rounded shadow-sm">
+                <div class="d-flex align-items-center mb-3">
+                    <img src="https://via.placeholder.com/40"
+                         alt="User"
+                         class="rounded-circle me-2" />
+
+                    <!-- Input cho màn hình lớn hơn 576px -->
+                    <input type="text"
+                           class="form-control form-control-lg d-none d-sm-block"
+                           placeholder="Quang ơi, bạn đang nghĩ gì thế?"
+                           style="background-color: #f0f2f5; border-radius: 20px"
+                           data-bs-toggle="modal"
+                           data-bs-target="#postModal" />
+
+                    <!-- Input cho màn hình nhỏ hơn 576px -->
+                    <input type="text"
+                           class="form-control form-control-sm d-block d-sm-none"
+                           placeholder="Quang ơi, bạn đang nghĩ gì thế?"
+                           style="background-color: #f0f2f5; border-radius: 20px"
+                           data-bs-toggle="modal"
+                           data-bs-target="#postModal" />
+                </div>
+
+                <!-- modal post -->
+                <div class="modal fade"
+                     id="postModal"
+                     tabindex="-1"
+                     aria-labelledby="postModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="postModalLabel">
+                                    Tạo bài viết
+                                </h5>
+                                <button type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <!-- User Info and Input -->
+                                <div class="d-flex align-items-center mb-3">
+                                    <img src="https://via.placeholder.com/40"
+                                         alt="User"
+                                         class="rounded-circle me-2" />
+                                    <div>
+                                        <p class="mb-0">Ngọc Quang</p>
+                                        <small class="text-muted">Bạn bè</small>
+                                    </div>
+                                </div>
+
+                                <!-- Tiêu Đề Sự Kiện -->
+                                <div class="mb-3">
+                                    <label for="eventTitle" class="form-label">Tiêu Đề Dự Án</label>
+                                    <input type="text"
+                                           id="eventTitle"
+                                           class="form-control"
+                                           placeholder="Nhập tiêu đề dự án" />
+                                </div>
+
+                                <!-- Ngày Bắt Đầu -->
+                                <div class="mb-3">
+                                    <label for="fromDate" class="form-label">Ngày Bắt Đầu</label>
+                                    <input type="datetime-local"
+                                           id="fromDate"
+                                           class="form-control" />
+                                </div>
+
+                                <!-- Ngày Kết Thúc -->
+                                <div class="mb-3">
+                                    <label for="toDate" class="form-label">Ngày Kết Thúc</label>
+                                    <input type="datetime-local"
+                                           id="toDate"
+                                           class="form-control" />
+                                </div>
+
+                                <!-- Nội Dung Sự Kiện -->
+                                <div class="mb-3">
+                                    <label for="eventDescription" class="form-label">Nội Dung Chi Tiết Của Dự Án</label>
+                                    <textarea id="eventDescription"
+                                              class="form-control"
+                                              rows="4"
+                                              placeholder="Nhập nội dung chi tiết của dự án"
+                                              style="resize: none"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer d-flex justify-content-between">
+                                <div class="d-flex">
+                                    <button class="btn">
+                                        <i class="fas fa-images text-success"></i>
+                                    </button>
+                                    <button class="btn">
+                                        <i class="fas fa-user-friends text-primary"></i>
+                                    </button>
+                                    <button class="btn">
+                                        <i class="fas fa-smile text-warning"></i>
+                                    </button>
+                                    <button class="btn">
+                                        <i class="fas fa-gift text-info"></i>
+                                    </button>
+                                </div>
+                                <button type="button" class="btn btn-primary">Đăng</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dòng phân cách -->
+                <hr />
+
+                <!-- Phần lựa chọn video, ảnh/video, cảm xúc -->
+                <div class="d-flex justify-content-around">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-video text-danger me-2"></i>
+                        <span>Video trực tiếp</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-images text-success me-2"></i>
+                        <span>Ảnh/video</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-smile text-warning me-2"></i>
+                        <span>Cảm xúc/hoạt động</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

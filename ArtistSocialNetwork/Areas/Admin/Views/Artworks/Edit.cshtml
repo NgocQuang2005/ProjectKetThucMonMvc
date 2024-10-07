@@ -116,7 +116,16 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdn.ckeditor.com/ckeditor5/35.4.1/classic/ckeditor.js"></script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        DateTime currentDate = DateTime.Now;
+
+    }
+    <script src="
+https://cdn.jsdelivr.net/npm/ckeditor5-classic-free-full-feature@35.4.1/build/ckeditor.min.js
+            "></script>
+
+    <script src="~/Admin/js/controllers/ckeditorArtwork.js?@currentDate"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const deletedImagesField = document.getElementById("deletedImages");

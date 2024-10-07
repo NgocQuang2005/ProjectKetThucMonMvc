@@ -12,17 +12,21 @@ namespace DataAccess
     {
         public async Task<IEnumerable<Event>> GetEventAll()
         {
-            var events = await _context.Events.ToListAsync();
+            var events = await _context.Events
+                                       .Include(e => e.Account) // Include Account
+                                       .ThenInclude(a => a.AccountDetail) // Include AccountDetail
+                                       .ToListAsync();
             return events;
         }
+
         public async Task<Event> GetEventById(int id)
         {
-            // Sử dụng Include để lấy cả thông tin ảnh (DocumentInfos)
+            // Use Include to fetch related DocumentInfos and Account details
             var events = await _context.Events
-                .Include(e => e.DocumentInfos) // Bao gồm danh sách DocumentInfos
+                .Include(e => e.DocumentInfos)
+                .Include(e => e.Account) // Include Account
+                .ThenInclude(a => a.AccountDetail) // Include AccountDetail
                 .FirstOrDefaultAsync(e => e.IdEvent == id);
-
-            if (events == null) return null;
 
             return events;
         }

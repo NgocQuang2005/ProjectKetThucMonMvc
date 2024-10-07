@@ -1,0 +1,122 @@
+.user {
+}
+.user-avt {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.user-avt img {
+  width: 190px;
+  height: 190px;
+  object-fit: cover;
+  border: 7px solid;
+  border-radius: 50%;
+}
+.user__information {
+  display: flex;
+  justify-content: end;
+  flex-direction: column;
+}
+.friend {
+  display: flex;
+  justify-content: end;
+  flex-direction: column;
+}
+.fullname {
+  font-weight: bold;
+}
+.follow {
+  margin-bottom: 10px;
+}
+.list-follow {
+  height: 100vh;
+}
+.list-follow h5 {
+  font-weight: bold;
+}
+
+.follow-user {
+  list-style-type: none;
+  padding: 10px;
+  margin: 0;
+}
+.user-follow {
+  margin-bottom: 10px;
+}
+.user-follow img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.post h4 {
+  font-weight: bold;
+  padding: 10px;
+}
+.bdlayout {
+  border-color: #d9dee3;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 6px 0 rgba(67, 89, 113, 0.12);
+  background-color: #fff;
+}
+.post-user {
+  padding: 20px;
+}
+.user-show {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+.user-show img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 15px;
+}
+.act {
+  position: absolute;
+  top: 20%;
+  right: 0;
+}
+.act i {
+  font-size: 20px;
+}
+.user-name {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+.user-name span:first-child {
+  font-weight: bold;
+}
+.artwork {
+  margin-bottom: 10px;
+}
+.artwork img {
+  width: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+.reaction {
+  display: flex;
+  align-items: center;
+}
+.reaction button {
+  border: none;
+  background: none;
+}
+.reaction button:nth-child(3) {
+  margin-right: auto;
+}
+.reaction button i {
+  font-size: 20px;
+}
+.comment {
+  margin-bottom: 10px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

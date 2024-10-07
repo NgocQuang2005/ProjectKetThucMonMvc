@@ -1,0 +1,750 @@
+﻿@using Business
+@{
+    ViewData["Title"] = "Tác Phẩm";
+}
+
+@section Style {
+    <style>
+        /* Post Images Grid Layout */
+        .post-images {
+            display: grid;
+            gap: 5px;
+        }
+
+            .post-images.single {
+                grid-template-columns: 1fr;
+            }
+
+            .post-images.double {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .post-images.triple {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .post-images.quad {
+                grid-template-columns: 1fr 1fr;
+            }
+
+                .post-images.quad img:nth-child(1) {
+                    grid-column: 1 / 3;
+                }
+
+            .post-images img {
+                width: 100%;
+                height: 200px;
+                object-fit: cover;
+                border-radius: 8px;
+                cursor: pointer;
+            }
+
+            .post-images.single img{
+                height: auto;
+            }
+
+            .post-images.quad img{
+                height: 300px
+            }
+
+            .post-images.triple img{
+                height: 300px;
+            }
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Modal Content (Image) */
+        #modalImage {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+            object-fit: contain;
+            animation: zoomIn 0.3s ease;
+        }
+
+        /* Close Button */
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #ff0000;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+            .close:hover {
+                color: #ff4d4d;
+            }
+
+        /* Navigation Buttons */
+        .modal-nav {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            padding: 0 60px;
+        }
+
+            .modal-nav button {
+                width: 50px;
+                height: 50px;
+                border: 1px solid rgba(0, 0, 0, 0.7) !important;
+                color: black;
+                border: none;
+                cursor: pointer;
+                font-size: 22px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: transparent !important;
+                border-radius: 50%;
+            }
+
+                .modal-nav button:hover {
+                    transform: scale(1.2);
+                }
+
+        .updateAvt {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 3px solid;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 10px;
+            right: 75px;
+            background-color: #fff;
+        }
+
+        .btn-light.active {
+            color: #fbfbfb !important;
+            background-color: #76bbde;
+            border-color: #f5f7f9;
+        }
+
+        /* CSS cho phần xem trước hình ảnh */
+        #imagePreview {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+            #imagePreview div {
+                position: relative;
+                width: 100px;
+                height: 100px;
+                overflow: hidden;
+                border-radius: 8px;
+            }
+
+            #imagePreview img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 8px;
+            }
+
+        .remove-image {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(255, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+
+}
+
+<div id="toast"></div>
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="row g-4">
+            <!-- Post Creation Section -->
+            <div class="col-lg-12 bg-white p-3 rounded shadow-sm">
+                <div class="d-flex align-items-center mb-3">
+                    <img src="@Url.Content("~/Upload/images/" + ViewBag.UserAvatar)"
+                         alt="User"
+                         class="rounded-circle me-2"
+                         style="width: 40px; height: 40px; object-fit: cover;"
+                         onerror="this.onerror=null; this.src='@Url.Content("~/Upload/images/default-profile.png")';" />
+
+                    <input type="text"
+                           class="form-control form-control-lg d-none d-sm-block"
+                           placeholder="@ViewBag.UserName ơi, bạn đang nghĩ gì thế?"
+                           style="background-color: #f0f2f5; border-radius: 20px"
+                           data-bs-toggle="modal"
+                           data-bs-target="#postModal" />
+
+                    <input type="text"
+                           class="form-control form-control-sm d-block d-sm-none"
+                           placeholder="@ViewBag.UserName ơi, bạn đang nghĩ gì thế?"
+                           style="background-color: #f0f2f5; border-radius: 20px"
+                           data-bs-toggle="modal"
+                           data-bs-target="#postModal" />
+                </div>
+
+                <!-- Form tạo bài viết -->
+                <form asp-action="Index" method="post" enctype="multipart/form-data">
+                    <div class="modal fade" id="postModal" tabindex="-1" aria-labelledby="postModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="postModalLabel">Tạo bài viết</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- Thông tin người dùng -->
+                                    <div class="d-flex align-items-center mb-3">
+                                        <img src="@Url.Content("~/Upload/images/" + ViewBag.UserAvatar)" alt="User" class="rounded-circle me-2" style="width: 50px; height: 50px; object-fit: cover;" />
+                                        <div>
+                                            <p class="mb-0 fw-bold">@ViewBag.UserName</p>
+                                            <small class="text-muted">Bạn bè</small>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tiêu đề tác phẩm -->
+                                    <div class="mb-3">
+                                        <label for="Title" class="form-label fw-bold">Tiêu Đề Tác Phẩm</label>
+                                        <input type="text" id="Title" name="Title" class="form-control" placeholder="Tiêu Đề Tác Phẩm..." />
+                                    </div>
+
+                                    <!-- Tags -->
+                                    <div class="mb-3">
+                                        <label for="Tags" class="form-label fw-bold">Tags</label>
+                                        <input type="text" id="Tags" name="Tags" class="form-control" placeholder="Tags Tác Phẩm Nếu Có..." />
+                                    </div>
+
+                                    <!-- Nội dung -->
+                                    <div class="mb-3">
+                                        <label for="Description" class="form-label fw-bold">Nội Dung Tác Phẩm</label>
+                                        <textarea id="Description" name="Description" class="form-control" rows="4" placeholder="Nội Dung Tác Phẩm..." style="resize: none"></textarea>
+                                    </div>
+
+                                    <!-- Loại nghệ thuật -->
+                                    <div class="mb-3">
+                                        <label for="IdTypeOfArtwork" class="form-label fw-bold">Chọn Loại Nghệ Thuật</label>
+                                        <select id="IdTypeOfArtwork" name="IdTypeOfArtwork" class="form-select">
+                                            <option selected>Chọn Loại Nghệ Thuật</option>
+                                            @foreach (var item in ViewBag.ArtworkTypes)
+                                            {
+                                                <option value="@item.IdTypeOfArtwork">@item.NameTypeOfArtwork</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <!-- Tải lên ảnh và xem trước -->
+                                    <div class="mb-3">
+                                        <label for="imageUpload" class="form-label fw-bold">Hiển thị ảnh đã chọn:</label>
+                                        <input type="file" name="ImageFiles" class="form-control" multiple id="imageUpload" style="display: none;">
+                                        <div id="imagePreview" class="d-flex mt-3 flex-wrap"></div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer d-flex justify-content-between">
+                                    <div class="d-flex align-items-center">
+                                        <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('imageUpload').click();">
+                                            <i class="fas fa-images text-success me-2"></i>Chọn Ảnh
+                                        </button>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Đăng</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+
+                <hr />
+                <div class="d-flex justify-content-around">
+                    <div class="d-flex align-items-center" style="cursor: not-allowed;">
+                        <i class="fas fa-video text-danger me-2"></i>
+                        <span>Video trực tiếp</span>
+                    </div>
+                    <div class="d-flex align-items-center" style="cursor: pointer;" data-bs-toggle="modal"
+                         data-bs-target="#postModal">
+                        <i class="fas fa-images text-success me-2"></i>
+                        <span>Ảnh/video</span>
+                    </div>
+                    <div class="d-flex align-items-center" style="cursor: not-allowed;">
+                        <i class="fas fa-smile text-warning me-2"></i>
+                        <span>Cảm xúc/hoạt động</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="p-3 rounded border">
+                    <h4 class="mb-4">Loại Tác Phẩm</h4>
+                    <div class="row g-2">
+                        <div class="col-12">
+                            <a href="@Url.Action("Index", "Artworks", new { typeId = (int?)null })"
+                               class="link-hover btn btn-light w-100 rounded text-uppercase text-dark py-3 @(ViewBag.SelectedTypeId == null ? "active" : "")">
+                                Tất cả
+                            </a>
+                        </div>
+                        @foreach (var item in ViewBag.ArtworkTypes)
+                        {
+                            <div class="col-12">
+                                <a href="@Url.Action("Index", "Artworks", new { typeId = item.IdTypeOfArtwork })"
+                                   class="link-hover btn btn-light w-100 rounded text-uppercase text-dark py-3 @(ViewBag.SelectedTypeId == item.IdTypeOfArtwork ? "active" : "")">
+                                    @item.NameTypeOfArtwork
+                                </a>
+                            </div>
+                        }
+                    </div>
+
+                    <h4 class="my-4">Danh Sách Nghệ Sĩ</h4>
+                    <div class="row g-4">
+                        @if (ViewBag.UsersWithRoles != null && ViewBag.UsersWithRoles.Count > 0)
+                        {
+                            @foreach (var user in ViewBag.UsersWithRoles)
+                            {
+                                <div class="col-12">
+                                    <div class="row g-4 align-items-center features-item mb-4">
+                                        <div class="col-4">
+                                            <div class="rounded-circle position-relative">
+                                                <div class="overflow-hidden rounded-circle" style="width: 70px; height: 70px;">
+                                                    <img src="~/Upload/images/@user.ProfileImage"
+                                                         class="img-zoomin img-fluid rounded-circle w-100"
+                                                         alt="@user.Name" style="height: 100%; object-fit: cover;" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="features-content d-flex flex-column">
+                                                <p class="text-uppercase mb-2">@user.Name</p>
+                                                <a href="#" class="h6">Thông tin chi tiết về nghệ sĩ</a>
+                                                <small class="text-body d-block"><i class="fas fa-calendar-alt me-1"></i> @user.DateOfBirth?.ToString("dd/MM/yyyy")</small>
+                                                <small class="text-body d-block"><i class="fas fa-map-marker-alt me-1"></i> @user.Country</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p>Không có nghệ sĩ hoặc admin nào để hiển thị.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Artwork Posts Section -->
+            <div class="col-lg-8 post">
+                <h4 class="bdlayout">Bài Đăng</h4>
+                @if (ViewBag.ArtworkList != null && ViewBag.ArtworkList.Count > 0)
+                {
+                    @foreach (var artwork in ViewBag.ArtworkList)
+                    {
+                        <div class="post-item bdlayout mb-4">
+                            <div class="post-user">
+                                <div class="user-show d-flex align-items-center mb-2">
+                                    <img src="~/Upload/images/@artwork.UploaderAvatar"
+                                         alt=""
+                                         class="img-fluid rounded-circle me-2"
+                                         width="40" />
+                                    <div class="user-name">
+                                        <span class="fw-bold">@artwork.UploaderName</span>
+                                        <span class="text-muted d-block" style="font-size: 0.85rem">@artwork.TimeAgo</span>
+                                    </div>
+                                    <div class="ms-auto act dropdown">
+                                        <i class="fas fa-ellipsis-v" id="menuIcon" style="cursor: pointer;" data-bs-toggle="dropdown" aria-expanded="false"></i>
+                                        <ul class="dropdown-menu dropdown-menu-right">
+                                            <li><a href="#" class="dropdown-item editPost" data-id="@artwork.Artwork.IdArtwork">Chỉnh sửa bài viết</a></li>
+                                            <li><a href="#" class="dropdown-item text-danger deletePost" data-id="@artwork.Artwork.IdArtwork">Xóa bài viết</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="artwork mb-2">
+                                    <h3 class="bold">@artwork.Artwork.Title</h3>
+                                    <p class="mb-2">@artwork.Artwork.Description</p>
+                                    <div class="post-images @(artwork.Images.Count == 1 ? "single" : artwork.Images.Count == 2 ? "double" : artwork.Images.Count == 3 ? "triple" : "quad")">
+                                        @foreach (var image in artwork.Images)
+                                        {
+                                            <img src="~/Upload/images/@image" alt="Post Image" class="img-fluid rounded" />
+                                        }
+                                    </div>
+                                </div>
+                                <div class="comment mb-2">
+                                    <span id="like-count-@artwork.Artwork.IdArtwork">
+                                        @artwork.LikeCount Lượt Thích
+                                    </span>
+                                </div>
+                                <div class="reaction d-flex justify-content-around">
+                                    <button class="btn btn-light like-btn" data-id="@artwork.Artwork.IdArtwork">
+                                        <i class="fa-heart @(artwork.IsLikedByCurrentUser ? "fas text-danger" : "far")"></i>
+                                    </button>
+                                    <button class="btn btn-light"><i class="far fa-comment"></i></button>
+                                    <button class="btn btn-light"><i class="fas fa-share"></i></button>
+                                    <button class="btn btn-light"><i class="fas fa-bookmark"></i></button>
+                                </div>
+
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-center">Không có bài đăng nào để hiển thị.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div id="imageModal" class="modal">
+    <span class="close"><i class="fas fa-times"></i></span>
+    <img id="modalImage" class="modal-content" style="background: none;" alt="Image">
+    <div class="modal-nav">
+        <button id="prevImage" style="margin-right: auto;"><i class="fas fa-chevron-left"></i></button>
+        <button id="nextImage"><i class="fas fa-chevron-right"></i></button>
+    </div>
+</div>
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Chỉnh sửa bài viết</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="editArtworkId" name="IdArtwork" />
+                    <input type="hidden" id="deletedImages" name="DeletedImages" />
+
+                    <!-- Title -->
+                    <div class="mb-3">
+                        <label for="editTitle" class="form-label">Tiêu đề</label>
+                        <input type="text" class="form-control" id="editTitle" name="Title" required />
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-3">
+                        <label for="editDescription" class="form-label">Nội dung</label>
+                        <textarea class="form-control" id="editDescription" name="Description" rows="3"></textarea>
+                    </div>
+
+                    <!-- Artwork Type -->
+                    <div class="mb-3">
+                        <label for="editArtworkType" class="form-label">Chọn Loại Nghệ Thuật</label>
+                        <select id="editArtworkType" name="IdTypeOfArtwork" class="form-select">
+                            <option selected>Chọn Loại Nghệ Thuật</option>
+                            @foreach (var item in ViewBag.ArtworkTypes)
+                            {
+                                <option value="@item.IdTypeOfArtwork">@item.NameTypeOfArtwork</option>
+                            }
+                        </select>
+                    </div>
+                    <!-- Existing Images -->
+                    <div class="mb-3">
+                        <label class="form-label">Hình ảnh hiện tại</label>
+                        <div id="editImagePreview" class="d-flex mt-3 flex-wrap post-images"></div>
+                    </div>
+
+
+                    <div class="mb-3">
+                        <label for="editImageUpload" class="form-label">Chọn hình ảnh mới</label>
+                        <input type="file" name="ImageFiles" class="form-control" multiple id="editImageUpload" />
+                        <div id="editNewImagePreview" class="d-flex mt-3 flex-wrap"></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xóa bài viết</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa bài viết này không?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let currentArtworkId;
+
+            // Xử lý sự kiện chỉnh sửa bài viết
+            $('.editPost').on('click', function () {
+                currentArtworkId = $(this).data('id');
+
+                // Lấy dữ liệu bài viết bằng AJAX
+                $.ajax({
+                    url: '/Artworks/GetArtworkById',
+                    type: 'GET',
+                    data: { id: currentArtworkId },
+                    success: function (data) {
+                        console.log('Data from server:', data);
+
+                        if (data) {
+                            $('#editArtworkId').val(data.idArtwork);
+                            $('#editTitle').val(data.title);
+                            $('#editDescription').val(data.description);
+                            $('#editArtworkType').val(data.idTypeOfArtwork);
+
+                            // Xóa các hình ảnh cũ
+                            $('#editImagePreview').empty();
+                            $('#editNewImagePreview').empty();
+
+                            // Hiển thị hình ảnh hiện tại
+                            if (data.images && data.images.length > 0) {
+                                data.images.forEach(img => {
+                                    if (img.urlDocument && img.idDcIf) {
+                                        const imgDiv = $('<div>').addClass('position-relative m-1');
+                                        const image = $('<img>')
+                                            .attr('src', img.urlDocument)
+                                            .addClass('img-thumbnail')
+                                            .css({ width: '100px', height: '100px', objectFit: 'cover' });
+                                        const removeButton = $('<button>')
+                                            .addClass('btn btn-danger btn-sm remove-image')
+                                            .html('&times;')
+                                            .on('click', function () {
+                                                let deletedImages = $('#deletedImages').val();
+                                                $('#deletedImages').val(deletedImages ? deletedImages + ',' + img.idDcIf : img.idDcIf);
+                                                $(this).parent().remove();
+                                            });
+
+                                        imgDiv.append(image).append(removeButton);
+                                        $('#editImagePreview').append(imgDiv);
+                                    } else {
+                                        console.error('Image URL or ID is undefined for image:', img);
+                                    }
+                                });
+                            } else {
+                                console.error('No images found for this artwork.');
+                            }
+
+                            $('#editModal').modal('show');
+                        } else {
+                            alert('Không tìm thấy dữ liệu bài viết.');
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error('AJAX error:', textStatus, errorThrown);
+                        alert('Error retrieving artwork data.');
+                    }
+                });
+            });
+            $('#editForm').on('submit', function (e) {
+                e.preventDefault();
+
+                // Create a new FormData object
+                var formData = new FormData(this);
+
+                // Log form data entries for debugging
+                for (let pair of formData.entries()) {
+                    console.log(pair[0] + ', ' + pair[1]);
+                }
+
+                // Append image files to the FormData object
+                var files = $('#editImageUpload')[0].files;
+                for (var i = 0; i < files.length; i++) {
+                    formData.append('ImageFiles', files[i]);
+                }
+
+                // Append deleted image IDs to the FormData object
+                var deletedImages = $('#deletedImages').val();
+                if (deletedImages) {
+                    formData.append('DeletedImages', deletedImages);
+                }
+
+                // Make AJAX POST request with FormData
+                $.ajax({
+                    url: '/Artworks/EditArtwork',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false, // Prevent jQuery from overriding content type
+                    processData: false, // Prevent jQuery from processing the data
+                    success: function (response) {
+                        if (response.success) {
+                            showSuccessEdit();
+                            $('#editModal').modal('hide');
+                            setTimeout(function () {
+                                location.reload();
+                            }, 2000);
+                        } else {
+                            console.error('Error in response:', response.message);
+                            if (response.errors) {
+                                console.error('Validation errors:', response.errors.join(', '));
+                            }
+                            showWarningToast();
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error('AJAX error:', textStatus, errorThrown);
+                        console.error('Response text:', jqXHR.responseText); // Log the detailed server response
+                        showWarningToast();
+                    }
+                });
+            });
+
+            // Xử lý sự kiện xóa bài viết
+            $('.deletePost').on('click', function () {
+                currentArtworkId = $(this).data('id');
+                $('#deleteModal').modal('show');
+            });
+
+            $('#confirmDelete').on('click', function () {
+                $.ajax({
+                    url: '/Artworks/DeleteArtwork',
+                    type: 'POST',
+                    data: { id: currentArtworkId },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#deleteModal').modal('hide');
+                            showSuccessDelete();
+                            setTimeout(function () {
+                                location.reload();
+                            }, 2000);
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error('AJAX error:', textStatus, errorThrown);
+                        alert('Lỗi khi xóa bài viết.');
+                    }
+                });
+            });
+
+            // Xử lý sự kiện thả tim
+            $('.like-btn').on('click', function () {
+                var artworkId = $(this).data('id');
+
+                $.ajax({
+                    url: '/Artworks/ToggleLike',
+                    type: 'POST',
+                    data: { artworkId: artworkId },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#like-count-' + artworkId).text(response.likeCount + ' Lượt Thích');
+                            var likeButton = $('.like-btn[data-id="' + artworkId + '"] i');
+                            likeButton.toggleClass('far fas text-danger');
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error('AJAX error:', textStatus, errorThrown);
+                        alert('Lỗi khi thực hiện thả tim.');
+                    }
+                });
+            });
+
+            // Xem trước hình ảnh trong edit modal
+            $('#editImageUpload').on('change', function (event) {
+                const previewContainer = $('#editNewImagePreview');
+                previewContainer.empty();
+
+                Array.from(event.target.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const imageDiv = $('<div>').addClass('position-relative m-1');
+                        const img = $('<img>').attr('src', e.target.result).addClass('img-thumbnail').css({ width: '100px', height: '100px', objectFit: 'cover' });
+                        const removeButton = $('<button>').addClass('btn btn-danger btn-sm remove-image').html('&times;').on('click', function () {
+                            $(this).parent().remove();
+                        });
+
+                        imageDiv.append(img).append(removeButton);
+                        previewContainer.append(imageDiv);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            // Xem trước hình ảnh trong phần tạo bài viết
+            $('#imageUpload').on('change', function (event) {
+                const previewContainer = $('#imagePreview');
+                previewContainer.empty();
+
+                Array.from(event.target.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const imageDiv = $('<div>').addClass('position-relative m-1');
+                        const img = $('<img>').attr('src', e.target.result).addClass('img-thumbnail').css({ width: '100px', height: '100px', objectFit: 'cover' });
+                        const removeButton = $('<button>').addClass('btn btn-danger btn-sm remove-image').html('&times;').on('click', function () {
+                            $(this).parent().remove();
+                        });
+
+                        imageDiv.append(img).append(removeButton);
+                        previewContainer.append(imageDiv);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            // Modal logic for image viewing
+            const modal = document.querySelector("#imageModal");
+            const modalImage = document.querySelector("#modalImage");
+            const closeModal = document.querySelector(".close");
+            const prevImage = document.querySelector("#prevImage");
+            const nextImage = document.querySelector("#nextImage");
+            let currentImageIndex = 0;
+
+            function openModal(images, index) {
+                modal.style.display = "flex";
+                modalImage.src = images[index];
+                currentImageIndex = index;
+
+                prevImage.onclick = () => navigateImages(images, -1);
+                nextImage.onclick = () => navigateImages(images, 1);
+            }
+
+            function navigateImages(images, direction) {
+                currentImageIndex = (currentImageIndex + direction + images.length) % images.length;
+                modalImage.src = images[currentImageIndex];
+            }
+
+            closeModal.onclick = () => {
+                modal.style.display = "none";
+            };
+
+            // Open image modal when an image is clicked
+            document.querySelectorAll(".post-images img").forEach((img, index) => {
+                img.addEventListener("click", () => {
+                    const images = Array.from(img.closest(".post-images").querySelectorAll("img")).map(i => i.src);
+                    openModal(images, index);
+                });
+            });
+        });
+    </script>
+
+}

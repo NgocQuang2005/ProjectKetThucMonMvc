@@ -1,0 +1,337 @@
+﻿@{
+    ViewData["Title"] = "Cá Nhân";
+}
+@section Style {
+    <style>
+        .post-images {
+            display: grid;
+            gap: 5px;
+        }
+
+            .post-images.single {
+                grid-template-columns: 1fr;
+            }
+
+            .post-images.double {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .post-images.triple {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .post-images.quad {
+                grid-template-columns: 1fr 1fr;
+            }
+
+                .post-images.quad img:nth-child(1) {
+                    grid-column: 1 / 3;
+                }
+
+            .post-images img {
+                width: 100%;
+                height: 200px;
+                object-fit: cover;
+                border-radius: 8px;
+                cursor: pointer;
+            }
+
+            .post-images.single img {
+                height: auto;
+            }
+
+            .post-images.quad img {
+                height: 300px;
+            }
+
+            .post-images.triple img {
+                height: 300px;
+            }
+
+        /* Modal Styling */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 99999; /* Highest priority */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Disable scrolling */
+            background-color: rgba(128, 128, 128, 0.5); /* Semi-transparent gray */
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Modal Content (Image) */
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            border: none;
+            object-fit: contain;
+            animation: zoomIn 0.3s ease;
+            background: none;
+        }
+
+        /* Close Button */
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #ffffff !important;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+            .close:hover {
+                color: #ff0000;
+            }
+
+        /* Navigation Buttons */
+        .modal-nav {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            padding: 0 60px;
+        }
+
+            .modal-nav button {
+                width: 50px;
+                height: 50px;
+                border: 1px solid rgba(0, 0, 0, 0.7) !important;
+                color: black;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 16px;
+                transition: all 0.3s linear;
+                z-index: 2;
+                border-radius: 50%;
+                font-size: 22px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: transparent !important;
+            }
+
+                .modal-nav button:hover {
+                    transform: scale(1.2);
+                }
+
+        /* Centering Modal Content */
+        #modalImage {
+            display: block;
+            margin: auto;
+            max-width: 100%;
+            max-height: 75%;
+        }
+
+        .close:hover {
+            color: red;
+        }
+
+        .updateAvt {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 3px solid;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 10px;
+            right: 75px;
+            background-color: #fff;
+        }
+    </style>
+}
+
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="bg-light rounded p-4">
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="row align-items-center">
+                        <div class="col-12 col-md-3 text-center mb-3 mb-md-0 user-avt position-relative">
+                            <img src="~/Upload/images/@ViewBag.ProfileImage"
+                                 alt="avt"
+                                 class="img-fluid rounded-circle"
+                                 width="100" />
+                            <a class="updateAvt" href="@Url.Action("Index", "AccountSettings")"><i class="fas fa-pencil-alt"></i></a>
+                        </div>
+                        <div class="col-12 col-md-6 text-center text-md-start mb-3 mb-md-0 user__information">
+                            <h3 class="fullname">@ViewBag.FullName</h3>
+                            <p class="follow">Người Theo Dõi: <span>@ViewBag.FollowersCount</span></p>
+                            <p class="follow">Đang Theo Dõi: <span>@ViewBag.FollowingCount</span></p>
+                        </div>
+                        <div class="col-12 col-md-3 text-center text-md-end py-3">
+                            <a href="@Url.Action("Index", "EditProfile")" class="btn btn-primary text-white">Chỉnh Sửa Trang Cá Nhân</a>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="col-12">
+                    <div class="row">
+                        <!-- Danh Sách Follower - Ẩn trên màn hình điện thoại -->
+                        <div class="col-12 col-md-4 p-2 list-follow bdlayout d-none d-md-block">
+                            <h5>Danh Sách Follower</h5>
+                            <ul class="list-unstyled">
+                                <li class="user-follow d-flex align-items-center mb-2">
+                                    <img src="/img/features-fashion.jpg"
+                                         alt=""
+                                         class="img-fluid rounded-circle me-2"
+                                         width="40" />
+                                    <span>Nguyễn Văn A</span>
+                                </li>
+                                <!-- Repeat for other followers -->
+                            </ul>
+                        </div>
+
+                        <div class="col-12 col-md-8 post">
+                            <h4 class="bdlayout">Bài Đăng</h4>
+
+                            @if (ViewBag.UserPosts != null && ViewBag.UserPosts.Count > 0)
+                            {
+                                foreach (var post in ViewBag.UserPosts)
+                                {
+                                    <div class="post-item bdlayout mb-4">
+                                        <div class="post-user">
+                                            <div class="user-show d-flex align-items-center mb-2">
+                                                <img src="~/Upload/images/@ViewBag.ProfileImage"
+                                                     alt="Profile Image"
+                                                     class="img-fluid rounded-circle me-2"
+                                                     width="40" />
+                                                <div class="user-name">
+                                                    <span class="fw-bold">@ViewBag.FullName</span>
+                                                    <span class="text-muted d-block" style="font-size: 0.85rem">
+                                                        @post.Timestamp?.ToString("dd/MM/yyyy HH:mm")
+                                                    </span>
+                                                </div>
+                                                <div class="ms-auto act">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </div>
+                                            </div>
+                                            <div class="artwork mb-2">
+                                                <h3 class="bold">@post.Title</h3>
+                                                <p class="mb-2">@post.Content</p>
+                                                <div class="post-images @post.GridClass">
+                                                    @foreach (var image in post.Images)
+                                                    {
+                                                        <img src="~/Upload/images/@image" alt="Post Image" class="img-fluid rounded" />
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="comment mb-2">
+                                                @if (post.IsArtwork)
+                                                {
+                                                    <span id="like-count-@post.ArtworkId">@post.LikeCount Lượt Thích</span>
+                                                }
+                                            </div>
+
+                                            @if (post.IsArtwork)
+                                            {
+                                                <div class="reaction d-flex justify-content-around">
+                                                    <button class="btn btn-light like-btn" data-id="@post.ArtworkId">
+                                                        <i class="fa-heart @(post.IsLikedByCurrentUser ? "fas text-danger" : "far")"></i>
+                                                    </button>
+                                                    <button class="btn btn-light"><i class="far fa-comment"></i></button>
+                                                    <button class="btn btn-light"><i class="fas fa-share"></i></button>
+                                                    <button class="btn btn-light"><i class="fas fa-bookmark"></i></button>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <p class="text-center">Không có bài đăng nào để hiển thị.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Image Viewing -->
+<div id="imageModal" class="modal">
+    <span class="close" style="color: black"><i class="fas fa-times"></i></span>
+    <img id="modalImage" class="modal-content" alt="Image">
+    <div class="modal-nav">
+        <button id="prevImage" style="margin-right: auto;"><i class="fas fa-chevron-left"></i></button>
+        <button id="nextImage"><i class="fas fa-chevron-right"></i></button>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        // Image modal logic
+        const modal = document.querySelector("#imageModal");
+        const modalImage = document.querySelector("#modalImage");
+        const closeModal = document.querySelector(".close");
+        const prevImage = document.querySelector("#prevImage");
+        const nextImage = document.querySelector("#nextImage");
+        let currentImageIndex = 0;
+
+        function openModal(images, index) {
+            modal.style.display = "flex";
+            modalImage.src = images[index];
+            currentImageIndex = index;
+
+            prevImage.onclick = () => navigateImages(images, -1);
+            nextImage.onclick = () => navigateImages(images, 1);
+        }
+
+        function navigateImages(images, direction) {
+            currentImageIndex = (currentImageIndex + direction + images.length) % images.length;
+            modalImage.src = images[currentImageIndex];
+        }
+
+        closeModal.onclick = () => {
+            modal.style.display = "none";
+        };
+
+        // Open image modal when an image is clicked
+        document.querySelectorAll(".post-images img").forEach((img, index) => {
+            img.addEventListener("click", () => {
+                const images = Array.from(img.closest(".post-images").querySelectorAll("img")).map(i => i.src);
+                openModal(images, index);
+            });
+        });
+
+        $(document).ready(function () {
+            // Handle the like button click event
+            $('.like-btn').on('click', function () {
+                var artworkId = $(this).data('id');
+
+                $.ajax({
+                    url: '/Artworks/ToggleLike',
+                    type: 'POST',
+                    data: { artworkId: artworkId },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#like-count-' + artworkId).text(response.likeCount + ' Lượt Thích');
+                            var likeButton = $('.like-btn[data-id="' + artworkId + '"] i');
+                            likeButton.toggleClass('far fas text-danger');
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error('AJAX error:', textStatus, errorThrown);
+                        alert('Lỗi khi thực hiện thả tim.');
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -15,19 +15,22 @@ namespace ArtistSocialNetwork
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Cấu hình authentication với cookie
+            // Cấu hình xác thực với cookie cho Web
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
                     options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
                     options.SlidingExpiration = true;
                     options.AccessDeniedPath = "/Forbidden/";
-                    options.LoginPath = "/Admin/Login/Index";
+                    options.LoginPath = "/Login/Index"; // Đường dẫn đăng nhập dành cho phần Web
                     options.ReturnUrlParameter = "returnUrl";
                 })
+                // Cấu hình xác thực với cookie cho Admin
                 .AddCookie("Admin", options =>
                 {
                     options.LoginPath = new PathString("/Admin/Login/Index");
+                    options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+                    options.SlidingExpiration = true;
                 });
 
             // Cấu hình Session
@@ -41,7 +44,7 @@ namespace ArtistSocialNetwork
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             // Thêm các DAO và repository vào Dependency Injection (DI)
-            builder.Services.AddScoped(typeof(ApplicationDbContext));
+            builder.Services.AddScoped<ApplicationDbContext>();
             builder.Services.AddScoped<AccountDAO>();
             builder.Services.AddScoped<AccountDetailDAO>();
             builder.Services.AddScoped<RoleDAO>();
@@ -86,7 +89,6 @@ namespace ArtistSocialNetwork
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days.
                 app.UseHsts();
             }
             else
@@ -96,11 +98,11 @@ namespace ArtistSocialNetwork
 
             app.UseStatusCodePages();
             app.UseHttpsRedirection();
-            app.UseStaticFiles(); // Thêm dòng này nếu chưa có
+            app.UseStaticFiles();
+
             app.UseStaticFiles(new StaticFileOptions
             {
-                FileProvider = new PhysicalFileProvider(
-                    Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Upload")),
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Upload")),
                 RequestPath = "/Upload",
                 OnPrepareResponse = ctx =>
                 {
@@ -114,9 +116,11 @@ namespace ArtistSocialNetwork
             // Sử dụng Session
             app.UseSession();
 
+            // Sử dụng Authentication
             app.UseAuthentication();
             app.UseAuthorization();
 
+            // Định nghĩa route cho Admin và Web
             app.MapControllerRoute(
                 name: "areas",
                 pattern: "{area:exists}/{controller=Login}/{action=Index}/{id?}");

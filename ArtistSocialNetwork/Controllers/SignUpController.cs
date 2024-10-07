@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Logging;
 
 namespace ArtistSocialNetwork.Controllers
 {
@@ -13,7 +14,7 @@ namespace ArtistSocialNetwork.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public SignUpController(ApplicationDbContext context)
+        public SignUpController(ApplicationDbContext context, ILogger<SignUpController> logger) : base(logger, context) // Truyền logger và context đến BaseController
         {
             _context = context;
         }
@@ -60,12 +61,11 @@ namespace ArtistSocialNetwork.Controllers
             if (ModelState.IsValid)
             {
                 // Check if the email is already taken
-                var existingAccount = _context.Accounts
-                    .FirstOrDefault(a => a.Email == model.Email);
+                var existingAccount = _context.Accounts.FirstOrDefault(a => a.Email == model.Email);
 
                 if (existingAccount != null)
                 {
-                    ModelState.AddModelError("Email", "Email is already registered.");
+                    ModelState.AddModelError("Email", "Email đã được đăng ký.");
                     return View(model);
                 }
 
@@ -91,7 +91,7 @@ namespace ArtistSocialNetwork.Controllers
                     Gender = model.Gender,
                     Birthday = model.Birthday,
                     Nationality = model.Nationality,
-                    CCCD = model.CCCD, // Sử dụng giá trị CCCD từ model
+                    CCCD = model.CCCD,
                     CreatedWhen = DateTime.Now,
                     LastUpdateWhen = DateTime.Now,
                     CreatedBy = account.IdAccount,

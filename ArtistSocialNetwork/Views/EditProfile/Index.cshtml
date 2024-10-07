@@ -1,0 +1,98 @@
+﻿@using Business;
+@model AccountDetail
+@{
+    ViewData["Title"] = "Chỉnh Sửa Hồ Sơ";
+}
+
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="row g-4">
+            <div class="col-md-12 form-section">
+                <h2 class="mb-4">Chỉnh sửa hồ sơ</h2>
+                <form id="editAccountDetailForm" asp-action="Index" asp-controller="EditProfile" method="post" class="needs-validation" novalidate>
+                    <div class="row">
+                        <!-- Họ và Tên -->
+                        <div class="col-md-6 mb-3">
+                            <label for="fullname" class="form-label">Họ và Tên</label>
+                            <input type="text" id="fullname" name="Fullname" class="form-control" placeholder="Nhập tên đầy đủ" asp-for="Fullname" required />
+                            <div class="invalid-feedback">Vui lòng nhập tên đầy đủ.</div>
+                            <span asp-validation-for="Fullname" class="text-danger"></span>
+                        </div>
+
+                        <!-- CCCD -->
+                        <div class="col-md-6 mb-3">
+                            <label for="cccd" class="form-label">CCCD</label>
+                            <input type="text" id="cccd" name="CCCD" class="form-control" placeholder="Nhập số CCCD" asp-for="CCCD" required />
+                            <div class="invalid-feedback">Vui lòng nhập số CCCD hợp lệ.</div>
+                            <span asp-validation-for="CCCD" class="text-danger"></span>
+                        </div>
+
+                        <!-- Ngày sinh -->
+                        <div class="col-md-6 mb-3">
+                            <label for="birthday" class="form-label">Ngày sinh</label>
+                            <input type="date" id="birthday" name="Birthday" class="form-control" asp-for="Birthday" />
+                            <span asp-validation-for="Birthday" class="text-danger"></span>
+                        </div>
+
+                        <!-- Quốc gia -->
+                        <div class="col-md-6 mb-3">
+                            <label for="nationality" class="form-label">Quốc gia</label>
+                            <input type="text" id="nationality" name="Nationality" class="form-control" placeholder="Nhập quốc gia" asp-for="Nationality" required />
+                            <div class="invalid-feedback">Vui lòng nhập quốc gia.</div>
+                            <span asp-validation-for="Nationality" class="text-danger"></span>
+                        </div>
+
+                        <!-- Giới tính -->
+                        <div class="col-md-6 mb-3">
+                            <label for="gender" class="form-label">Giới tính</label>
+                            <select id="gender" name="Gender" class="form-control" asp-for="Gender">
+                                <option value="">Chọn giới tính</option>
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                            <span asp-validation-for="Gender" class="text-danger"></span>
+                        </div>
+
+                        <!-- Địa chỉ -->
+                        <div class="col-md-12 mb-3">
+                            <label for="address" class="form-label">Địa chỉ</label>
+                            <textarea id="address" name="Address" class="form-control" placeholder="Nhập địa chỉ" rows="3" asp-for="Address"></textarea>
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+
+                        <!-- Mô tả -->
+                        <div class="col-md-12 mb-3">
+                            <label for="description" class="form-label">Mô tả</label>
+                            <textarea id="description" name="Description" class="form-control" placeholder="Nhập mô tả" rows="3" asp-for="Description"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary text-white">Lưu Thay Đổi</button>
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Hủy</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            'use strict';
+            window.addEventListener('load', function () {
+                var forms = document.getElementsByClassName('needs-validation');
+                Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    </script>
+}

@@ -1,9 +1,6 @@
 ﻿using Business;
 using DataAccess;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Repository
@@ -29,30 +26,36 @@ namespace Repository
         {
             return await DocumentInfoDAO.Instance.GetDocumentInfoById(id);
         }
+
         public async Task Update(DocumentInfo documentInfo)
         {
             await DocumentInfoDAO.Instance.Update(documentInfo);
         }
+
         public async Task<bool> ChangeActive(int id)
         {
             return await DocumentInfoDAO.Instance.ChangeActive(id);
         }
-        public async Task<DocumentInfo> GetByAccountId(int accountId)
+
+        // Triển khai phương thức GetDocumentInfoByAccountId
+        public async Task<DocumentInfo?> GetDocumentInfoByAccountId(int accountId)
         {
             return await DocumentInfoDAO.Instance.GetDocumentInfoByAccountId(accountId);
         }
+
         public async Task<IEnumerable<DocumentInfo>> GetDocumentInfosByArtworkId(int artworkId)
         {
             return await DocumentInfoDAO.Instance.GetDocumentInfosByArtworkId(artworkId);
         }
+
         public async Task<IEnumerable<DocumentInfo>> GetDocumentInfoByEventId(int eventId)
         {
             return await DocumentInfoDAO.Instance.GetDocumentInfoByEventId(eventId);
         }
+
         public async Task<IEnumerable<DocumentInfo>> GetDocumentInfoByProjectId(int projectId)
         {
             return await DocumentInfoDAO.Instance.GetDocumentInfoByProjectId(projectId);
         }
-
     }
 }

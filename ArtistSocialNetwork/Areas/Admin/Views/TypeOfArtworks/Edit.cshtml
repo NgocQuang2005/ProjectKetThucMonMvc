@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Edit";
 }
+
 @section Style {
     <style>
         .form-check .form-check-input {
@@ -12,7 +13,7 @@
 }
 
 <div class="bdlayout p-0">
-    <h2 class="h2-title bg4 text-white">Chỉnh sửa loại tác phẩm </h2>
+    <h2 class="h2-title bg4 text-white">Chỉnh sửa loại tác phẩm</h2>
     @{
         if (TempData["AlertMessage"] != null)
         {
@@ -23,40 +24,67 @@
     }
 
     <div class="container my-4">
-        <form asp-action="Edit">
+        <form asp-action="Edit" enctype="multipart/form-data">
             <div class="row">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="IdTypeOfArtwork" />
+
                 <div class="form-group form-check col-md-6">
                     <label class="form-check-label">
                         @Html.DisplayNameFor(model => model.Active) <br />
                         <input class="form-check-input" asp-for="Active" />
                     </label>
                 </div>
+
                 <div class="form-group col-md-6">
                     <label asp-for="NameTypeOfArtwork" class="control-label"></label>
                     <input asp-for="NameTypeOfArtwork" class="form-control" />
                     <span asp-validation-for="NameTypeOfArtwork" class="text-danger"></span>
                 </div>
+
                 <div class="form-group col-md-6">
                     <label asp-for="Description" class="control-label"></label>
-                    <textarea asp-for="Description" class="form-control" id="editor" style="width: 100%; min-height: 200px;"></textarea>
+
+                    <!-- Hidden input to bind the Description model property -->
+                    <input type="hidden" asp-for="Description" />
+
+                    <!-- CKEditor placeholder -->
+                    <div id="editor">@Model.Description</div>
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
+
                 <div class="form-group btnGround">
                     <input type="submit" value="Sửa" class="btn btn-primary" />
                     <a asp-action="Index" class="btn btn-dark">Trở về</a>
-
                 </div>
             </div>
         </form>
     </div>
 </div>
 
-
-
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <!-- Include CKEditor Script -->
+    <script src="https://cdn.jsdelivr.net/npm/ckeditor5-classic-free-full-feature@35.4.1/build/ckeditor.min.js"></script>
+
+    <script>
+        // Initialize CKEditor
+        ClassicEditor
+            .create(document.querySelector('#editor'))
+            .then(editor => {
+                // Listen to changes in CKEditor and update the hidden input field
+                editor.model.document.on('change:data', () => {
+                    document.querySelector('input[name="Description"]').value = editor.getData();
+                });
+
+                // Set the initial value of CKEditor
+                editor.setData(document.querySelector('input[name="Description"]').value);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
 }

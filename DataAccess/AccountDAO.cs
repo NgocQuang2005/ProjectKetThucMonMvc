@@ -12,6 +12,7 @@ namespace DataAccess
         {
             return _context.Accounts
                            .Include(a => a.AccountRole) // Bao gồm dữ liệu vai trò
+                           .Include(a => a.AccountDetail)
                            .Include(a => a.DocumentInfos) // Bao gồm dữ liệu ảnh
                            .AsNoTracking(); // Sử dụng AsNoTracking() để tối ưu hóa truy vấn
         }
@@ -20,6 +21,7 @@ namespace DataAccess
         {
             return await _context.Accounts
                                  .Include(a => a.DocumentInfos) // Bao gồm dữ liệu ảnh
+                                 .Include(a => a.AccountDetail)
                                  .AsNoTracking() // Sử dụng AsNoTracking() để giảm tải
                                  .FirstOrDefaultAsync(a => a.IdAccount == id);
         }

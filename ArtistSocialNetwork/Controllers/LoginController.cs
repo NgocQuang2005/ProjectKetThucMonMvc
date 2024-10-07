@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using Repository;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
+using Business;
 
 namespace ArtistSocialNetwork.Controllers
 {
@@ -14,7 +17,8 @@ namespace ArtistSocialNetwork.Controllers
         private readonly IRoleRepository _roleRepository;
         private readonly IDocumentInfoRepository _documentInfoRepository;
 
-        public LoginController(IAccountRepository accountRepository, IRoleRepository roleRepository, IDocumentInfoRepository documentInfoRepository)
+        public LoginController(IAccountRepository accountRepository, IRoleRepository roleRepository, IDocumentInfoRepository documentInfoRepository, ILogger<LoginController> logger, ApplicationDbContext context)
+            : base(logger, context) // Truyền logger và context đến BaseController
         {
             _accountRepository = accountRepository;
             _roleRepository = roleRepository;
@@ -22,7 +26,7 @@ namespace ArtistSocialNetwork.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(string returnUrl = null)
+        public IActionResult Index(string returnUrl = null)
         {
             TempData["ReturnUrl"] = returnUrl;
             return View();
@@ -40,11 +44,12 @@ namespace ArtistSocialNetwork.Controllers
                 if (user != null)
                 {
                     // Lấy ảnh đại diện từ bảng DocumentInfo
-                    var documentInfo = await _documentInfoRepository.GetByAccountId(user.IdAccount);
-                    var profileImageUrl = documentInfo?.UrlDocument ?? "default-profile.png"; // Dùng ảnh mặc định nếu không có ảnh đại diện
+                    var documentInfo = await _documentInfoRepository.GetDocumentInfoByAccountId(user.IdAccount);
+                    var profileImageUrl = documentInfo?.UrlDocument ?? "default-profile.png";
 
-                    // Lưu URL ảnh vào session
+                    // Lưu URL ảnh và ID người dùng vào session
                     HttpContext.Session.SetString("ProfileImageUrl", profileImageUrl);
+                    HttpContext.Session.SetInt32("CurrentUserId", user.IdAccount);
 
                     // Tạo các claims cho người dùng đã xác thực
                     var claims = new List<Claim>
@@ -52,6 +57,7 @@ namespace ArtistSocialNetwork.Controllers
                         new Claim(ClaimTypes.Name, email),
                         new Claim("Email", user.Email),
                         new Claim(ClaimTypes.Role, "User"),
+                        new Claim("UserId", user.IdAccount.ToString())
                     };
 
                     // Tạo danh tính và thông tin người dùng
@@ -74,21 +80,28 @@ namespace ArtistSocialNetwork.Controllers
                 }
                 else
                 {
-                    TempData["Message"] = "Đăng nhập thất bại. Vui lòng kiểm tra email và mật khẩu của bạn, hoặc quyền truy cập.";
+                    TempData["Message"] = "Đăng nhập thất bại. Vui lòng kiểm tra email và mật khẩu của bạn.";
                     TempData["AlertType"] = "danger";
                 }
             }
+            else
+            {
+                TempData["Message"] = "Vui lòng nhập đầy đủ thông tin.";
+                TempData["AlertType"] = "warning";
+            }
 
-            return View(nameof(Index));
+            // Nếu đăng nhập thất bại, trả về lại view
+            return View();
         }
 
         public async Task<IActionResult> Logout()
         {
             // Đăng xuất người dùng
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            HttpContext.Session.Clear(); // Xóa session khi đăng xuất
             SetAlert("Đăng xuất thành công!", "success");
 
-            // Chuyển hướng về trang đăng nhập hoặc trang chủ
+            // Chuyển hướng về trang đăng nhập
             return RedirectToAction("Index", "Login");
         }
     }

@@ -202,7 +202,7 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                         await ProfileImage.CopyToAsync(stream);
                     }
 
-                    var documentInfo = await documentInfoRepository.GetByAccountId(accountDTO.IdAccount);
+                    var documentInfo = await documentInfoRepository.GetDocumentInfoByAccountId(accountDTO.IdAccount);
                     if (documentInfo == null)
                     {
                         documentInfo = new DocumentInfo
@@ -242,7 +242,7 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
 
         private async Task<string?> GetProfileImageUrl(int accountId)
         {
-            var documentInfo = await documentInfoRepository.GetByAccountId(accountId);
+            var documentInfo = await documentInfoRepository.GetDocumentInfoByAccountId(accountId);
             return documentInfo?.UrlDocument;
         }
 
@@ -256,7 +256,7 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                     return Json(new { success = false, message = "Không tìm thấy bản ghi" });
                 }
 
-                var documentInfo = await documentInfoRepository.GetByAccountId(id);
+                var documentInfo = await documentInfoRepository.GetDocumentInfoByAccountId(id);
                 if (documentInfo != null)
                 {
                     await documentInfoRepository.Delete(documentInfo.IdDcIf);

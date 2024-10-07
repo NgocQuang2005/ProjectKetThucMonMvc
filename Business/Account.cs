@@ -42,7 +42,7 @@ namespace Business
 
         public DateTime? LastUpdateWhen { get; set; } = DateTime.Now;
         
-        public AccountDetail? AccountDetail { get; set; }
+        public virtual AccountDetail? AccountDetail { get; set; }
         public ICollection<AccountDetail>? CreatedAd { get; set; }
         public ICollection<AccountDetail>? UpdatedAd { get; set; }
         public ICollection<Artwork>? Artworks { get; set; }

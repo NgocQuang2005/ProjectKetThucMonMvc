@@ -45,9 +45,6 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             return View();
         }
 
-        // POST: Admin/TypeOfArtworks/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("IdTypeOfArtwork,Active,NameTypeOfArtwork,Description")] TypeOfArtwork typeOfArtwork)
@@ -58,8 +55,28 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                 SetAlert(Commons.Contants.Update_success, Commons.Contants.success);
                 return RedirectToAction(nameof(Index));
             }
+
+            // If the model is not valid, check the ModelState for errors
+            foreach (var key in ModelState.Keys)
+            {
+                var state = ModelState[key];
+                if (state.Errors.Count > 0)
+                {
+                    foreach (var error in state.Errors)
+                    {
+                        // Log the error or set a message to view
+                        // For demonstration, let's log the error to the console
+                        Console.WriteLine($"Error in {key}: {error.ErrorMessage}");
+                    }
+                }
+            }
+
+            // Optionally, set a custom error message to alert the user
+            SetAlert("There were errors with the form submission. Please check the inputs and try again.", Commons.Contants.FAIL);
+
             return View(typeOfArtwork);
         }
+
 
         // GET: Admin/TypeOfArtworks/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -72,9 +89,6 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             return View(typeOfArtwork);
         }
 
-        // POST: Admin/TypeOfArtworks/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("IdTypeOfArtwork,Active,NameTypeOfArtwork,Description")] TypeOfArtwork typeOfArtwork)
