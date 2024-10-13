@@ -78,6 +78,7 @@ namespace ArtistSocialNetwork.Controllers
                     Country = user.AccountDetail?.Nationality ?? "Unknown",
                     ProfileImage = user.DocumentInfos.FirstOrDefault()?.UrlDocument ?? "default-profile.png"
                 })
+                .Take(5)
                 .ToList();
             foreach (var user in accounts)
             {

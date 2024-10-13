@@ -16,5 +16,6 @@ namespace Repository
         Task<IEnumerable<DocumentInfo>> GetDocumentInfosByArtworkId(int artworkId);
         Task<IEnumerable<DocumentInfo>> GetDocumentInfoByEventId(int eventId);
         Task<IEnumerable<DocumentInfo>> GetDocumentInfoByProjectId(int projectId);
+        Task<DocumentInfo?> GetDocumentInfoByIdAsNoTracking(int id);
     }
 }

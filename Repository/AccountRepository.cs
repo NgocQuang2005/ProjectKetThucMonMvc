@@ -29,6 +29,11 @@ namespace Repository
             return await AccountDAO.Instance.GetAccountById(id) ?? new Account(); // Trả về một đối tượng Account mới nếu null
         }
 
+        public async Task<Account> GetAccountByIdAsNoTracking(int id)
+        {
+            return await AccountDAO.Instance.GetAccountByIdAsNoTracking(id);
+        }
+
         public async Task Update(Account account)
         {
             await AccountDAO.Instance.Update(account);
@@ -37,6 +42,11 @@ namespace Repository
         public async Task<Account> GetAccountEmailPassWord(string email, string password)
         {
             return await AccountDAO.Instance.GetAccountEmailPassWord(email, password);
+        }
+
+        public async Task<Account> GetAccountByEmailOrPhone(string emailOrPhone)
+        {
+            return await AccountDAO.Instance.GetAccountByEmailOrPhone(emailOrPhone);
         }
     }
 }

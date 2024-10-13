@@ -1,0 +1,44 @@
+﻿@model IEnumerable<Business.Account>
+@{
+    ViewData["Title"] = "Nghệ Sĩ";
+}
+@section Style {
+    <link href="~/Website/assets/css/artists.css" rel="stylesheet" />
+}
+<div class="bdlayout container mt-5 py-4">
+    <h3>
+        Danh sách các nghệ sĩ
+    </h3>
+    <div class="searchArtists">
+        <form method="get">
+            <input type="text" name="search" placeholder="Tìm kiếm nghệ sĩ..." value="@ViewBag.Search" />
+            <button type="submit">Tìm Kiếm</button>
+        </form>
+    </div>
+    <div class="gridContent">
+        @foreach (var artist in Model)
+        {
+            <div class="flexContent">
+                <div class="user">
+                    <div class="user__img">
+                        <!-- Check if DocumentInfos and FirstOrDefault() exist before accessing -->
+                        @if (artist.DocumentInfos != null && artist.DocumentInfos.Any())
+                        {
+                            <img src="~/Upload/Images/@artist.DocumentInfos.FirstOrDefault()?.UrlDocument" alt="Image of @artist.AccountDetail?.Fullname" />
+                        }
+                        else
+                        {
+                            <!-- Use a default image if no image is available -->
+                            <img src="~/Upload/Images/default-avatar.png" alt="Default image" />
+                        }
+                    </div>
+                    <!-- Check if AccountDetail exists before accessing its properties -->
+                    <h2 class="user__name">@artist.AccountDetail?.Fullname</h2>
+                    <p class="user__dev">Ngày sinh: @artist.AccountDetail?.Birthday?.ToString("dd/MM/yyyy") </p>
+                    <!-- Liên kết tới trang chi tiết nghệ sĩ, truyền IdAccount qua URL -->
+                    <a href="@Url.Action("Index", "ArtistDetails", new { id = artist.IdAccount })">Xem Thông Tin</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

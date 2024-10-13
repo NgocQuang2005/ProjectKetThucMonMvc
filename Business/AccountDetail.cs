@@ -22,6 +22,8 @@ public class AccountDetail
     [Range(100000000, 999999999999, ErrorMessage = "CCCD phải là số và có độ dài từ 9 đến 12 ký tự.")]
     public long? CCCD { get; set; }  // Sử dụng long thay vì int
     public string? Description { get; set; }
+    [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
+    [DataType(DataType.Date)]
     public DateTime? Birthday { get; set; }
     [Display(Name ="Quốc gia")]
     [Required(ErrorMessage ="Vui lòng nhập Quốc Gia")]

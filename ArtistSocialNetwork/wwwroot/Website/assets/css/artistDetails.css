@@ -1,0 +1,109 @@
+﻿
+.artist-card {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background-color: #f8f9fb;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    margin-top: 30px;
+}
+
+.artist-avatar {
+    flex: 0 0 120px;
+    margin-right: 20px;
+}
+
+    .artist-avatar img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+        .artist-avatar img:hover {
+            transform: scale(1.1);
+        }
+.artist-follow button:hover{
+    color: #fff !important;
+}
+.artist-info {
+    flex-grow: 1;
+    padding-left: 20px;
+}
+
+.artist-name {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.artist-field,
+.artist-dob,
+.artist-country,
+.artist-address {
+    margin: 8px 0;
+    font-size: 1rem;
+    color: #7f8c8d;
+}
+
+.artist-divider {
+    width: 100%;
+    height: 1px;
+    background-color: #ecf0f1;
+    margin: 20px 0;
+}
+
+.artist-description {
+    padding: 20px;
+    background-color: #fdfdfd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+    .artist-description h3 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        color: #34495e;
+    }
+
+    .artist-description p {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #555;
+    }
+
+        /* Hiệu ứng hover cho các đoạn văn */
+        .artist-description p:hover {
+            color: #2980b9;
+            transition: color 0.3s ease;
+        }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .artist-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .artist-avatar {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+
+    .artist-info {
+        padding-left: 0;
+    }
+
+    .artist-name {
+        font-size: 1.5rem;
+    }
+
+    .artist-description p {
+        font-size: 1rem;
+    }
+}

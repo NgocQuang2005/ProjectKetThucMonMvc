@@ -35,5 +35,9 @@ namespace Repository
         {
             return await ArtworkDAO.Instance.ChangeActive(id);
         }
+        public async Task<Artwork> GetArtworkByIdAsNoTracking(int id)
+        {
+            return await ArtworkDAO.Instance.GetArtworkByIdAsNoTracking(id);
+        }
     }
 }

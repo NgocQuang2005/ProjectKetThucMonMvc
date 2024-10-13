@@ -35,8 +35,15 @@ namespace Repository
             await FollowDAO.Instance.Update(follow);
         }
         public async Task<bool> ChangeActive(int id)
-        {
+        {   
             return await FollowDAO.Instance.ChangeActive(id);
         }
+        public async Task<Follow> GetFollowByUsers(int followerId, int followingId)
+        {
+            var follows = await FollowDAO.Instance.GetFollowAll(); // Lấy kết quả từ Task
+            return follows.Where(f => f.IdFollower == followerId && f.IdFollowing == followingId).FirstOrDefault();
+
+        }
+
     }
 }

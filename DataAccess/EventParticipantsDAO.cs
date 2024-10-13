@@ -33,6 +33,7 @@ namespace DataAccess
             _context.EventParticipants.Add(eventParticipants);
             await _context.SaveChangesAsync();
         }
+
         public async Task Update(EventParticipants eventParticipants)
         {
 
@@ -61,5 +62,13 @@ namespace DataAccess
             await _context.SaveChangesAsync();
             return eventParticipants.Active;
         }
+        public async Task<EventParticipants?> GetEventParticipantsByEventAndUser(int eventId, int userId)
+        {
+            return await _context.EventParticipants
+                .Include(ep => ep.Event)  // Nạp dữ liệu liên quan từ bảng Event
+                .Include(ep => ep.Account) // Nạp dữ liệu liên quan từ bảng Account
+                .FirstOrDefaultAsync(ep => ep.IdEvent == eventId && ep.IdAc == userId);
+        }
+
     }
 }

@@ -86,9 +86,9 @@
                             <a href="#" class="btn @(item.Active ? "btn-primary":"btn-danger") btn-active" data-id="@item.IdDcIf">@(item.Active ? "Bật" : "Tắt")</a>
                         </td>
                         <td>@Html.DisplayFor(modelItem => item.Account.Email)</td>
-                        <td>@Html.DisplayFor(modelItem => item.IdEventNavigation.Description)</td>
-                        <td>@Html.DisplayFor(modelItem => item.IdProjectNavigation.Description)</td>
-                        <td>@Html.DisplayFor(modelItem => item.IdArtworkNavigation.Description)</td>
+                        <td>@Html.DisplayFor(modelItem => item.IdEventNavigation.Title)</td>
+                        <td>@Html.DisplayFor(modelItem => item.IdProjectNavigation.Title)</td>
+                        <td>@Html.DisplayFor(modelItem => item.IdArtworkNavigation.Title)</td>
                         <td>
                             <a asp-action="Edit" asp-route-id="@item.IdDcIf" class="btn btn-outline-primary">Chỉnh sửa</a>
                             <a href="#" title="Xoá" class="delete-link btn btn-danger" data-id="@item.IdDcIf" data-confirm="Bạn có thật sự muốn xoá?" data-toggle="modal" data-target="#confirmModal"> Xoá</a>
@@ -149,29 +149,4 @@
         DateTime currentDate = DateTime.Now;
     }
     <script src="~/Admin/js/controllers/DocumentController.js?@currentDate"></script>
-    <script>
-        $('.btn-active').off('click').on('click', function (e) {
-            e.preventDefault();
-            var btn = $(this);
-            var id = btn.data('id');
-            $.ajax({
-                url: "/Admin/DocumentInfoes/ChangeActive",
-                data: { id: id },
-                datatype: "json",
-                type: "POST",
-                success: function (response) {
-                    if (response.status == true) {
-                        console.log(`Active is true`);
-                        btn.text('Bật');
-                        btn.removeClass("btn-danger");
-                        btn.addClass('btn-primary');
-                    }
-                    else {
-                        btn.text('Tắt');
-                        btn.removeClass('btn-primary').addClass('btn-danger');
-                    }
-                }
-            });
-        });
-    </script>
 }

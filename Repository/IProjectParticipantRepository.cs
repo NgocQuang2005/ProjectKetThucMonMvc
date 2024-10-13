@@ -15,6 +15,8 @@ namespace Repository
         Task Update(ProjectParticipant projectParticipant);
         Task Delete(int id);
         Task<bool> ChangeActive(int id);
-
+        Task DeleteByProjectId(int projectId);
+        Task<IEnumerable<ProjectParticipant>> GetProjectParticipantsByProjectId(int projectId);
+        Task DeleteByProjectAndAccount(int projectId, int accountId);
     }
 }

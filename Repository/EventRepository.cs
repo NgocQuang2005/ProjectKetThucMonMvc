@@ -17,8 +17,10 @@ namespace Repository
 
         public async Task Delete(int id)
         {
+            // Truy cập đến DAO để thực hiện xóa
             await EventDAO.Instance.Delete(id);
         }
+
 
         public async Task<IEnumerable<Event>> GetEventAll()
         {
@@ -31,7 +33,7 @@ namespace Repository
         }
         public async Task Update(Event events)
         {
-            await EventDAO.Instance.Update(events);
+            await EventDAO.Instance.Update(events);     
         }
         public async Task<bool> ChangeActive(int id)
         {

@@ -1,0 +1,126 @@
+﻿@model Business.Account
+@{
+    ViewData["Title"] = "Chi tiết về nghệ sĩ";
+}
+@section Style {
+    <link href="~/Website/assets/css/artistDetails.css" rel="stylesheet" />
+    <style>
+        .latest-news-item {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+            .latest-news-item img {
+                object-fit: cover;
+                height: 200px; /* Adjust to the required height */
+            }
+
+        .user__img img {
+            height: 100px;
+            width: 100px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        
+        h4 {
+            margin-bottom: 10px;
+        }
+
+    </style>
+}
+<div class="container">
+    <div class="bdlayout">
+        <div class="artist-card">
+            <!-- Ảnh Đại Diện -->
+            <div class="artist-avatar">
+                <img src="~/Upload/Images/@ViewBag.ArtistImage" alt="Ảnh đại diện nghệ sĩ" />
+            </div>
+
+            <!-- Phần Thông Tin -->
+            <div class="artist-info">
+                <h2 class="artist-name">@Model.AccountDetail.Fullname</h2>
+                <p class="artist-dob">Ngày sinh: @Model.AccountDetail.Birthday?.ToString("dd/MM/yyyy")</p>
+                <p class="artist-country">Quốc gia: @Model.AccountDetail.Nationality</p>
+                <p class="artist-address">Địa chỉ: @Model.AccountDetail.Address</p>
+            </div>
+
+            <!-- Phần Theo Dõi -->
+            <div class="artist-follow">
+                @if (Context.Session.GetInt32("CurrentUserId") is int currentUserId)
+                {
+                    @if (currentUserId != Model.IdAccount)
+                    {
+                        <form asp-action="Follow" asp-route-id="@Model.IdAccount" method="post">
+                            <button type="submit" class="btn btn-outline-primary">
+                                @if (ViewBag.FollowExists == true)
+                                {
+                                    @if (ViewBag.IsFollowing == true)
+                                    {
+                                        <text>Đang Theo Dõi</text>
+                                    }
+                                    else
+                                    {
+                                        <text>Theo Dõi</text>
+                                    }
+                                }
+                                else
+                                {
+                                    <text>Theo Dõi</text>
+                                }
+                            </button>
+                        </form>
+                    }
+                }
+            </div>
+
+        </div>
+
+        <!-- Phần Mô Tả Nghệ Sĩ -->
+        <div class="artist-description">
+            <h3>Giới thiệu về nghệ sĩ</h3>
+            <p>@Model.AccountDetail.Description</p>
+        </div>
+    </div>
+
+    <!-- Phần hiển thị các tác phẩm -->
+    <div class="container-fluid latest-news py-5">
+        <div class="container py-5">
+            <h2 class="mb-4">Tác Phẩm</h2>
+            <div class="latest-news-carousel owl-carousel">
+                @if (ViewBag.ArtworkImages != null)
+                {
+                    @foreach (var artwork in ViewBag.ArtworkImages)
+                    {
+                        <div class="latest-news-item">
+                            <div class="bg-light rounded">
+                                <div class="rounded-top overflow-hidden">
+                                    <img src="~/Upload/Images/@artwork.ImageUrl"
+                                         class="img-zoomin img-fluid rounded-top w-100"
+                                         alt="@artwork.Title" />
+                                </div>
+                                <div class="d-flex flex-column p-4">
+                                    <a href="#" class="h4">@artwork.Title</a>
+                                    <div class="d-flex justify-content-between">
+                                        <small class="text-body d-block">
+                                            <i class="fas fa-calendar-alt me-1"></i>
+                                            @artwork.CreatedWhen <!-- Hiển thị thời gian dưới dạng "n phút trước", "n ngày trước", v.v. -->
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    }
+                }
+                else
+                {
+                    <p>Không có tác phẩm nào để hiển thị.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+

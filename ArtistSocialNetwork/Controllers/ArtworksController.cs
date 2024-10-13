@@ -1,6 +1,7 @@
 ﻿using ArtistSocialNetwork.Models;
 using Business;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Repository;
 using System.Diagnostics;
@@ -15,10 +16,11 @@ namespace ArtistSocialNetwork.Controllers
         private readonly IAccountRepository _accountRepository;
         private readonly ITypeOfArtworkRepository _typeOfArtworkRepository;
         private readonly IReactionRepository _reactionRepository;
+        private readonly IRoleRepository _roleRepository;
 
         public ArtworksController(ILogger<BaseController> logger, ApplicationDbContext context, IArtworkRepository artworkRepository,
             IDocumentInfoRepository documentInfoRepository,
-            IAccountRepository accountRepository, ITypeOfArtworkRepository typeOfArtworkRepository, IReactionRepository reactionRepository)
+            IAccountRepository accountRepository, ITypeOfArtworkRepository typeOfArtworkRepository, IReactionRepository reactionRepository, IRoleRepository roleRepository)
             : base(logger, context)
         {
             _artworkRepository = artworkRepository;
@@ -26,42 +28,74 @@ namespace ArtistSocialNetwork.Controllers
             _accountRepository = accountRepository;
             _typeOfArtworkRepository = typeOfArtworkRepository;
             _reactionRepository = reactionRepository;
+            _roleRepository = roleRepository;
         }
-
         [HttpGet]
-        public async Task<IActionResult> Index(int? typeId)
+        public async Task<IActionResult> Index(int? typeId, string filter = "all", string searchTerm = "", int page = 1, int pageSize = 5)
         {
-            await GetUsersByRoles(); // Get the list of artists or admins
-            await GetArtworkTypes(); // Get the artwork types
+            await GetUsersByRoles(); // Lấy danh sách nghệ sỹ hoặc admin
+            await GetArtworkTypes(); // Lấy danh sách loại tác phẩm
 
             var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
+            ViewBag.CurrentUserId = currentUserId;
+            ViewBag.Filter = filter;
+            ViewBag.SearchTerm = searchTerm;
+            ViewBag.SelectedTypeId = typeId; // Lưu loại tác phẩm đã chọn để hiển thị trong view
+
             if (currentUserId != null)
             {
                 var user = await _accountRepository.GetAccountById(currentUserId.Value);
-                ViewBag.UserName = user?.AccountDetail?.Fullname ?? "Unknown";
-                var userAvatar = await _documentInfoRepository.GetDocumentInfoByAccountId(currentUserId.Value);
-                ViewBag.UserAvatar = userAvatar?.UrlDocument ?? "default-profile.png";
-                Debug.WriteLine($"UserName: {ViewBag.UserName}, UserAvatar URL: {ViewBag.UserAvatar}");
+
+                if (user != null && user.AccountRole != null)
+                {
+                    var userRole = await _roleRepository.GetRoleById(user.AccountRole.IdRole);
+                    ViewBag.UserRoleId = userRole?.IdRole;
+                    ViewBag.UserName = user?.AccountDetail?.Fullname ?? "Unknown";
+                    var userAvatar = await _documentInfoRepository.GetDocumentInfoByAccountId(currentUserId.Value);
+                    ViewBag.UserAvatar = userAvatar?.UrlDocument ?? "default-profile.png";
+                }
             }
             else
             {
+                ViewBag.UserRoleId = 0;
                 ViewBag.UserName = "Unknown";
                 ViewBag.UserAvatar = "default-profile.png";
-                Debug.WriteLine("CurrentUserId is null.");
+            }
+
+            IEnumerable<Artwork> artworks = await _artworkRepository.GetArtworkAll();
+
+            // Lọc bài viết theo người dùng, loại tác phẩm, và từ khóa tìm kiếm
+            if (filter == "mine" && currentUserId != null)
+            {
+                artworks = artworks.Where(a => a.IdAc == currentUserId.Value).ToList();
             }
 
             if (typeId.HasValue)
             {
-                await GetArtworksByType(typeId); // Get artworks by type
-            }
-            else
-            {
-                await GetArtworkList(); // Get all artworks
+                artworks = artworks.Where(a => a.IdTypeOfArtwork == typeId.Value).ToList();
             }
 
-            ViewBag.SelectedTypeId = typeId; // Save selected artwork type for view
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                artworks = artworks.Where(a => a.Title != null && a.Title.ToLower().Contains(searchTerm.ToLower())).ToList();
+            }
+
+            // Sắp xếp bài viết theo thời gian cập nhật
+            artworks = artworks.OrderByDescending(a => a.LastUpdateWhen ?? a.CreatedWhen).ToList();
+
+            // Phân trang
+            int totalArtworks = artworks.Count();
+            int totalPages = (int)Math.Ceiling(totalArtworks / (double)pageSize);
+            artworks = artworks.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            // Gọi phương thức để tạo danh sách view model
+            ViewBag.ArtworkList = await CreateArtworkViewModelList(artworks);
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> ToggleLike(int artworkId)
         {
@@ -76,12 +110,10 @@ namespace ArtistSocialNetwork.Controllers
 
             if (existingReaction != null)
             {
-                // User has already liked the post, so remove the like
                 await _reactionRepository.Delete(existingReaction.IdReaction);
             }
             else
             {
-                // User has not liked the post, so add a new like
                 var newReaction = new Reaction
                 {
                     IdArtwork = artworkId,
@@ -91,8 +123,6 @@ namespace ArtistSocialNetwork.Controllers
                 };
                 await _reactionRepository.Add(newReaction);
             }
-
-            // Return the updated like count
             var likeCount = (await _reactionRepository.GetReactionAll()).Count(r => r.IdArtwork == artworkId && r.Action == true);
             return Json(new { success = true, likeCount });
         }
@@ -117,7 +147,6 @@ namespace ArtistSocialNetwork.Controllers
 
             if (ModelState.IsValid)
             {
-                // Set metadata
                 artwork.CreatedBy = currentUserId.Value;
                 artwork.LastUpdateBy = currentUserId.Value;
                 artwork.CreatedWhen = DateTime.Now;
@@ -125,7 +154,6 @@ namespace ArtistSocialNetwork.Controllers
                 artwork.IdAc = currentUserId.Value;
                 artwork.Active = true;
 
-                // Add artwork to the repository
                 await _artworkRepository.Add(artwork);
 
                 // Handle image upload
@@ -177,17 +205,12 @@ namespace ArtistSocialNetwork.Controllers
                     }
                 }
 
-                // Refresh artwork list after posting
                 await GetArtworkList();
                 return RedirectToAction(nameof(Index));
             }
-
-            // Reload artwork list in case of errors
             await GetArtworkList();
             return View(artwork);
         }
-
-        // New: Get artwork details for editing
 
         [HttpGet]
         public async Task<IActionResult> GetArtworkById(int id)
@@ -229,31 +252,25 @@ namespace ArtistSocialNetwork.Controllers
             var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
             if (currentUserId == null)
             {
-                Console.WriteLine("CurrentUserId is null. Cannot identify the user.");
                 return Json(new { success = false, message = "Không thể xác định người dùng hiện tại." });
             }
-
-            // Ghi log dữ liệu nhận được từ form
-            Console.WriteLine($"Received Artwork Data: Id: {artwork.IdArtwork}, Title: {artwork.Title}, Description: {artwork.Description}, IdTypeOfArtwork: {artwork.IdTypeOfArtwork}");
 
             if (!ModelState.IsValid)
             {
                 var errorMessages = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-                Console.WriteLine("Invalid artwork data received: " + string.Join(", ", errorMessages));
                 return Json(new { success = false, message = "Dữ liệu tác phẩm không hợp lệ.", errors = errorMessages });
             }
 
             try
             {
-                // Lấy Artwork hiện tại từ cơ sở dữ liệu
-                var existingArtwork = await _artworkRepository.GetArtworkById(artwork.IdArtwork);
+                // Lấy Artwork hiện tại từ cơ sở dữ liệu mà không theo dõi
+                var existingArtwork = await _artworkRepository.GetArtworkByIdAsNoTracking(artwork.IdArtwork);
                 if (existingArtwork == null)
                 {
-                    Console.WriteLine("Artwork không tồn tại.");
                     return Json(new { success = false, message = "Artwork không tồn tại." });
                 }
 
-                // Gán các giá trị cập nhật
+                // Cập nhật các giá trị của Artwork
                 existingArtwork.Title = artwork.Title;
                 existingArtwork.Description = artwork.Description;
                 existingArtwork.Tags = artwork.Tags;
@@ -261,21 +278,24 @@ namespace ArtistSocialNetwork.Controllers
                 existingArtwork.LastUpdateBy = currentUserId.Value;
                 existingArtwork.LastUpdateWhen = DateTime.Now;
 
-                // Log thông tin trước khi cập nhật
-                Console.WriteLine("Attempting to update artwork...");
+                // Đặt trạng thái thực thể là Modified để báo cho EF Core biết cần cập nhật
+                _context.Entry(existingArtwork).State = EntityState.Modified;
 
-                // Update artwork trong cơ sở dữ liệu
-                await _artworkRepository.Update(existingArtwork);
-                Console.WriteLine("Artwork updated successfully in the database.");
+                // Lưu thay đổi Artwork vào cơ sở dữ liệu
+                await _context.SaveChangesAsync();
 
-                // Xử lý xóa hình ảnh
-                var deletedImages = Request.Form["DeletedImages"].ToString().Split(',').Where(x => !string.IsNullOrEmpty(x)).Select(int.Parse).ToList();
-                Console.WriteLine($"Images to be deleted: {string.Join(", ", deletedImages)}");
-
+                // Xử lý xóa hình ảnh nếu có
+                var deletedImages = Request.Form["DeletedImages"].ToString().Split(',')
+                    .Where(x => !string.IsNullOrEmpty(x))
+                    .Select(int.Parse).ToList();
                 foreach (var imageId in deletedImages)
                 {
-                    await _documentInfoRepository.Delete(imageId);
-                    Console.WriteLine($"Deleted image with ID: {imageId}");
+                    var imageToDelete = await _documentInfoRepository.GetDocumentInfoById(imageId);
+                    if (imageToDelete != null)
+                    {
+                        _context.Entry(imageToDelete).State = EntityState.Deleted; // Đánh dấu để xóa
+                        await _documentInfoRepository.Delete(imageId);
+                    }
                 }
 
                 // Xử lý tải hình ảnh mới
@@ -294,7 +314,6 @@ namespace ArtistSocialNetwork.Controllers
                             }
 
                             var filePath = Path.Combine(uploadFolderPath, fileName);
-
                             using (var stream = new FileStream(filePath, FileMode.Create))
                             {
                                 await file.CopyToAsync(stream);
@@ -308,71 +327,69 @@ namespace ArtistSocialNetwork.Controllers
                                 Created_when = DateTime.Now,
                                 Active = true
                             };
-
                             await _documentInfoRepository.Add(documentInfo);
-                            Console.WriteLine($"Uploaded new image: {fileName}");
                         }
                     }
                 }
 
-                await GetArtworkList();
-                Console.WriteLine("Artwork list refreshed.");
+                await GetArtworkList(); // Lấy danh sách tác phẩm sau khi cập nhật để hiển thị lại
                 return Json(new { success = true });
             }
             catch (DbUpdateException dbEx)
             {
-                Console.WriteLine($"Database update error: {dbEx.InnerException?.Message}");
+                Console.WriteLine($"Lỗi khi cập nhật dữ liệu vào cơ sở dữ liệu: {dbEx.Message}");
                 return Json(new { success = false, message = "Lỗi khi cập nhật tác phẩm. Vui lòng kiểm tra lại dữ liệu." });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error while updating artwork: {ex.Message}");
+                Console.WriteLine($"Lỗi không xác định: {ex.Message}");
                 return Json(new { success = false, message = "Lỗi khi cập nhật tác phẩm." });
             }
         }
-
         [HttpPost]
         public async Task<JsonResult> DeleteArtwork(int id)
         {
             try
             {
-                var artwork = await _artworkRepository.GetArtworkById(id);
+                // Bước 1: Lấy tác phẩm từ cơ sở dữ liệu bao gồm các thông tin liên quan
+                var artwork = await _context.Artworks
+                                            .Include(a => a.DocumentInfos)   // Bao gồm hình ảnh liên quan
+                                            .Include(a => a.Reactions)       // Bao gồm phản hồi (Reaction) liên quan
+                                            .AsNoTracking()                  // Không theo dõi artwork
+                                            .FirstOrDefaultAsync(a => a.IdArtwork == id);
+
                 if (artwork == null)
                 {
                     return Json(new { success = false, message = "Không tìm thấy tác phẩm." });
                 }
 
-                // Xóa tất cả các hình ảnh liên quan đến artwork
-                var images = await _documentInfoRepository.GetDocumentInfosByArtworkId(id);
-                foreach (var image in images)
+                // Bước 2: Xóa tất cả các phản hồi (Reaction) liên quan đến artwork
+                if (artwork.Reactions != null && artwork.Reactions.Any())
                 {
-                    await _documentInfoRepository.Delete(image.IdDcIf);
-                    Console.WriteLine($"Deleted image with ID: {image.IdDcIf}");
+                    _context.Reactions.RemoveRange(artwork.Reactions); // Xóa tất cả các phản hồi khỏi context
                 }
 
-                // Xóa tất cả các phản ứng liên quan đến artwork (nếu có)
-                var reactions = (await _reactionRepository.GetReactionAll()).Where(r => r.IdArtwork == id).ToList();
-                foreach (var reaction in reactions)
+                // Bước 3: Xóa tất cả các hình ảnh liên quan đến artwork
+                if (artwork.DocumentInfos != null && artwork.DocumentInfos.Any())
                 {
-                    await _reactionRepository.Delete(reaction.IdReaction);
-                    Console.WriteLine($"Deleted reaction with ID: {reaction.IdReaction}");
+                    _context.DocumentInfos.RemoveRange(artwork.DocumentInfos); // Xóa tất cả các hình ảnh khỏi context
                 }
 
-                // Xóa tác phẩm
-                await _artworkRepository.Delete(id);
-                Console.WriteLine($"Deleted artwork with ID: {id}");
+                // Bước 4: Xóa artwork chính
+                _context.Artworks.Remove(artwork);  // Xóa tác phẩm
+                await _context.SaveChangesAsync();  // Lưu thay đổi vào cơ sở dữ liệu
 
-                // Làm mới danh sách artwork
-                await GetArtworkList();
                 return Json(new { success = true });
             }
             catch (DbUpdateException dbEx)
             {
+                // Ghi lại lỗi cập nhật cơ sở dữ liệu
                 Console.WriteLine($"Database update error: {dbEx.InnerException?.Message}");
-                return Json(new { success = false, message = "Lỗi khi xóa tác phẩm. Vui lòng kiểm tra lại dữ liệu." });
+                return Json(new { success = false, message = "Lỗi khi xóa tác phẩm. Vui lòng kiểm tra lại dữ liệu liên quan." });
             }
             catch (Exception ex)
             {
+                // Ghi lại lỗi chung
                 Console.WriteLine($"Error while deleting artwork: {ex.Message}");
                 return Json(new { success = false, message = "Lỗi khi xóa tác phẩm." });
             }
@@ -389,11 +406,13 @@ namespace ArtistSocialNetwork.Controllers
                              a.AccountRole.RoleName.Equals("Admin", StringComparison.OrdinalIgnoreCase)))
                 .Select(user => new
                 {
+                    IdAccount = user.IdAccount,  // Include IdAccount in the anonymous object
                     Name = user.AccountDetail?.Fullname ?? "Unknown",
                     DateOfBirth = user.AccountDetail?.Birthday,
                     Country = user.AccountDetail?.Nationality ?? "Unknown",
                     ProfileImage = user.DocumentInfos.FirstOrDefault()?.UrlDocument ?? "default-profile.png"
                 })
+                .Take(5)
                 .ToList();
 
             ViewBag.UsersWithRoles = usersWithRoles;
@@ -453,6 +472,7 @@ namespace ArtistSocialNetwork.Controllers
                 artworkViewModelList.Add(new
                 {
                     Artwork = artwork,
+                    IdAc = artwork.IdAc, // Thêm thuộc tính IdAc
                     Images = images.Where(img => !string.IsNullOrEmpty(img.UrlDocument))
                                    .Select(img => Url.Content(img.UrlDocument))
                                    .ToList(),

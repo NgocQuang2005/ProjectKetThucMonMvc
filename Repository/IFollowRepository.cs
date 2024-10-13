@@ -16,5 +16,8 @@ namespace Repository
         Task Delete(int id);
         Task<bool> ChangeActive(int id);
 
+        // Thêm phương thức để lấy tất cả các đối tượng Follow của một người dùng
+        Task<Follow> GetFollowByUsers(int followerId, int followingId);
     }
+
 }

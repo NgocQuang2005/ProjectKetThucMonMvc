@@ -12,5 +12,6 @@ namespace Repository
         Task Update(Artwork artwork); // Cập nhật Artwork
         Task Delete(int id); // Xóa Artwork
         Task<bool> ChangeActive(int id);
+        Task<Artwork> GetArtworkByIdAsNoTracking(int id);
     }
 }

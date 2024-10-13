@@ -57,5 +57,10 @@ namespace Repository
         {
             return await DocumentInfoDAO.Instance.GetDocumentInfoByProjectId(projectId);
         }
+        public async Task<DocumentInfo?> GetDocumentInfoByIdAsNoTracking(int id)
+        {
+            return await DocumentInfoDAO.Instance.GetDocumentInfoByIdAsNoTracking(id);
+        }
+
     }
 }

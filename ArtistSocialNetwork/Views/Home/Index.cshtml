@@ -92,10 +92,10 @@
 <!-- Modal Search End -->
 <!-- Main Post Section Start -->
 <div class="container-fluid py-5">
-    <div class="container py-5">
+    <div class="container ">
         <div class="row g-4">
             <div class="col-lg-7 col-xl-8 mt-0">
-                <div class="position-relative overflow-hidden rounded" style="    max-height: 650px; height: 100%;">
+                <div class="position-relative overflow-hidden rounded imgContent" >
                     <img src="~/Upload/images/@ViewBag.ArtworkImageUrl"
                          class="img-fluid rounded img-zoomin w-100"
                          style="height: 100%; object-fit: cover;"
@@ -108,40 +108,13 @@
                     </div>
                 </div>
                 <div class="border-bottom py-3">
-                    <a href="#" class="display-4 text-dark mb-0 link-hover">@ViewBag.Artwork?.Title</a>
+                    <a href="@Url.Action("Index","Artworks")" class="display-4 text-dark mb-0 link-hover">@ViewBag.Artwork?.Title</a>
                 </div>
                 <p class="mt-3 mb-4">
                     @ViewBag.Artwork?.Description
                 </p>
 
-                <div class="bg-light p-4 rounded">
-                    <div class="news-2">
-                        <h3 class="mb-4">Top Story</h3>
-                    </div>
-                    <div class="row g-4 align-items-center">
-                        <div class="col-md-6">
-                            <div class="rounded overflow-hidden">
-                                <img src="~/Website/assets/img/news-2.jpg"
-                                     class="img-fluid rounded img-zoomin w-100"
-                                     alt="" />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="d-flex flex-column">
-                                <a href="#" class="h3">
-                                    Stoneman Clandestine Ukrainian claims successes against
-                                    Russian.
-                                </a>
-                                <p class="mb-0 fs-5">
-                                    <i class="fa fa-clock"> 06 minute read</i>
-                                </p>
-                                <p class="mb-0 fs-5">
-                                    <i class="fa fa-eye"> 3.5k Views</i>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                
             </div>
             <div class="col-lg-5 col-xl-4">
                 <div class="bg-light rounded p-4 pt-0">
@@ -155,7 +128,7 @@
                         </div>
                         <div class="col-12">
                             <div class="d-flex flex-column">
-                                <a href="#" class="h4 mb-2">@ViewBag.LatestEvent.Title</a>
+                                <a href="@Url.Action("Index","Events")" class="h4 mb-2">@ViewBag.LatestEvent.Title</a>
                                 <p class="fs-5 mb-0">
                                     <i class="fa fa-clock"></i> @ViewBag.EventTimeAgo
                                 </p>
@@ -180,7 +153,7 @@
                                         </div>
                                         <div class="col-7">
                                             <div class="features-content d-flex flex-column">
-                                                <a href="#" class="h6">@item.Artwork?.Title </a>
+                                                <a href="@Url.Action("Index", "Artworks")" class="h6">@item.Artwork?.Title </a>
                                                 <small>
                                                     <i class="fa fa-clock"></i> @item.TimeAgo
                                                 </small>
@@ -204,7 +177,7 @@
 <!-- Main Post Section End -->
 <!-- Latest News Start -->
 <div class="container-fluid latest-news py-5">
-    <div class="container py-5">
+    <div class="container">
         <h2 class="mb-4">Sự Kiện Mới</h2>
         <div class="latest-news-carousel owl-carousel">
             @if (ViewBag.EventList != null)
@@ -219,9 +192,9 @@
                                      alt="@item.Event?.Title" />
                             </div>
                             <div class="d-flex flex-column p-4">
-                                <a href="#" class="h4">@item.Event?.Title</a>
+                                <a href="@Url.Action("Index","Events")" class="h4">@item.Event?.Title</a>
                                 <div class="">
-                                    <a href="#" class="small text-body link-hover"><i class="fas fa-user"></i> @item.UploaderName</a>
+                                    <a href="@Url.Action("Index","Events")" class="small text-body link-hover"><i class="fas fa-user"></i> @item.UploaderName</a>
                                     <small class="text-body d-block">
                                         <i class="fas fa-calendar-alt me-1"></i>
                                         @item.TimeAgo
@@ -244,7 +217,7 @@
 <!-- Latest News End -->
 <!-- Most Populer News Start -->
 <div class="container-fluid populer-news py-5">
-    <div class="container py-5">
+    <div class="container ">
         <div class="tab-class mb-4">
             <div class="row g-4">
                 <div class="col-lg-8 col-xl-9">
@@ -283,13 +256,13 @@
                                             <img src="~/Upload/images/@artwork.ImageUrl" class="img-zoomin img-fluid rounded w-100" alt="" style="height: 100%; object-fit: cover;" />
                                         </div>
                                         <div class="my-4">
-                                            <a href="#" class="h4">
+                                            <a href="@Url.Action("Index", "Artworks")" class="h4">
                                                 @artwork.Artwork.Title
                                             </a>
                                         </div>
                                         <div class="d-flex justify-content-between">
-                                            <a href="#" class="text-dark link-hover me-3"><i class="fa fa-clock"></i> @artwork.TimeAgo</a>
-                                            <a href="#" class="text-dark link-hover me-3"><i class="fa fa-user"></i> @artwork.UploaderName</a>
+                                            <a href="@Url.Action("Index", "Artworks")" class="text-dark link-hover me-3"><i class="fa fa-clock"></i> @artwork.TimeAgo</a>
+                                            <a href="@Url.Action("Index", "Artworks")" class="text-dark link-hover me-3"><i class="fa fa-user"></i> @artwork.UploaderName</a>
                                         </div>
                                         <p class="my-4">
                                             @artwork.Artwork.Description
@@ -318,7 +291,7 @@
                                                         <div class="col-7">
                                                             <div class="features-content d-flex flex-column">
                                                                 <p class="text-uppercase mb-2">@artwork.ArtworkType</p>
-                                                                <a href="#" class="h6">@artwork.Artwork.Title</a>
+                                                                <a href="@Url.Action("Index", "Artworks")" class="h6">@artwork.Artwork.Title</a>
                                                                 <small class="text-body d-block">
                                                                     <i class="fas fa-calendar-alt me-1"></i> @artwork.TimeAgo
                                                                 </small>
@@ -387,33 +360,24 @@
                                         <a href="#"
                                            class="w-100 rounded btn btn-primary d-flex align-items-center p-3 mb-2">
                                             <i class="fab fa-facebook-f btn btn-light btn-square rounded-circle me-3"></i>
-                                            <span class="text-white">13,977 Fans</span>
-                                        </a>
-                                        <a href="#"
-                                           class="w-100 rounded btn btn-danger d-flex align-items-center p-3 mb-2">
-                                            <i class="fab fa-twitter btn btn-light btn-square rounded-circle me-3"></i>
-                                            <span class="text-white">21,798 Follower</span>
+                                            <span class="text-white">13,977 Người Theo Dõi</span>
                                         </a>
                                         <a href="#"
                                            class="w-100 rounded btn btn-warning d-flex align-items-center p-3 mb-2">
                                             <i class="fab fa-youtube btn btn-light btn-square rounded-circle me-3"></i>
-                                            <span class="text-white">7,999 Subscriber</span>
+                                            <span class="text-white">7,999 Người Đăng Kí</span>
                                         </a>
                                         <a href="#"
                                            class="w-100 rounded btn btn-dark d-flex align-items-center p-3 mb-2">
                                             <i class="fab fa-instagram btn btn-light btn-square rounded-circle me-3"></i>
-                                            <span class="text-white">19,764 Follower</span>
+                                            <span class="text-white">19,764 Người Theo Dõi</span>
                                         </a>
                                         <a href="#"
                                            class="w-100 rounded btn btn-secondary d-flex align-items-center p-3 mb-2">
                                             <i class="bi-cloud btn btn-light btn-square rounded-circle me-3"></i>
-                                            <span class="text-white">31,999 Subscriber</span>
+                                            <span class="text-white">31,999 Người Đăng Kí</span>
                                         </a>
-                                        <a href="#"
-                                           class="w-100 rounded btn btn-warning d-flex align-items-center p-3 mb-4">
-                                            <i class="fab fa-dribbble btn btn-light btn-square rounded-circle me-3"></i>
-                                            <span class="text-white">37,999 Subscriber</span>
-                                        </a>
+                                        
                                     </div>
                                 </div>
                                 <h4 class="my-4">Bxh Nghệ Sỹ</h4>
@@ -460,7 +424,7 @@
 
 
                                     <div class="col-lg-12">
-                                        <a href="#"
+                                        <a href="@Url.Action("Index", "Artists")"
                                            class="link-hover btn border border-primary rounded-pill text-dark w-100 py-3 mb-4">Xem Tất Cả</a>
                                     </div>
                                 </div>

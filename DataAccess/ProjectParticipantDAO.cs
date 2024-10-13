@@ -71,5 +71,27 @@ namespace DataAccess
             await _context.SaveChangesAsync();
             return projectParticipant.Active;
         }
+        public async Task DeleteByProjectId(int projectId)
+        {
+            var participants = await _context.ProjectParticipants
+                                             .Where(pp => pp.IdProject == projectId)
+                                             .ToListAsync();
+            _context.ProjectParticipants.RemoveRange(participants);
+            await _context.SaveChangesAsync();
+        }
+        public async Task<IEnumerable<ProjectParticipant>> GetProjectParticipantsByProjectId(int projectId)
+        {
+            // Lấy danh sách người tham gia dự án dựa trên IdProject
+            return await _context.ProjectParticipants
+                .Where(pp => pp.IdProject == projectId)
+                .Include(pp => pp.Account)  // Nạp dữ liệu liên quan từ bảng Account nếu cần
+                .Include(pp => pp.Project)  // Nạp dữ liệu liên quan từ bảng Project nếu cần
+                .ToListAsync();
+        }
+        public async Task<ProjectParticipant> GetProjectParticipantByProjectAndAccount(int projectId, int accountId)
+        {
+            return await _context.ProjectParticipants
+                                 .FirstOrDefaultAsync(pp => pp.IdProject == projectId && pp.IdAc == accountId);
+        }
     }
 }

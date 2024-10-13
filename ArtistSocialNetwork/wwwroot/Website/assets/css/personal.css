@@ -1,122 +1,344 @@
 .user {
-}
-.user-avt {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.user-avt img {
-  width: 190px;
-  height: 190px;
-  object-fit: cover;
-  border: 7px solid;
-  border-radius: 50%;
-}
-.user__information {
-  display: flex;
-  justify-content: end;
-  flex-direction: column;
-}
-.friend {
-  display: flex;
-  justify-content: end;
-  flex-direction: column;
-}
-.fullname {
-  font-weight: bold;
-}
-.follow {
-  margin-bottom: 10px;
-}
-.list-follow {
-  height: 100vh;
-}
-.list-follow h5 {
-  font-weight: bold;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
+.user-avt {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+    .user-avt img {
+        width: 190px;
+        height: 190px;
+        object-fit: cover;
+        border: 7px solid #d9dee3;
+        border-radius: 50%;
+    }
+
+.user__information {
+    display: flex;
+    justify-content: end;
+    flex-direction: column;
+}
+
+.friend {
+    display: flex;
+    justify-content: end;
+    flex-direction: column;
+}
+
+.fullname {
+    font-weight: bold;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.follow {
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+.list-follow {
+    height: 100vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+    .list-follow h5 {
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+
 .follow-user {
-  list-style-type: none;
-  padding: 10px;
-  margin: 0;
+    list-style-type: none;
+    padding: 10px;
+    margin: 0;
 }
+
 .user-follow {
-  margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
 }
-.user-follow img {
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  border-radius: 50%;
-}
+
+    .user-follow img {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+
 .post h4 {
-  font-weight: bold;
-  padding: 10px;
+    font-weight: bold;
+    padding: 10px;
 }
+
 .bdlayout {
-  border-color: #d9dee3;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 6px 0 rgba(67, 89, 113, 0.12);
-  background-color: #fff;
+    border: 1px solid #d9dee3;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 6px 0 rgba(67, 89, 113, 0.12);
+    background-color: #fff;
 }
+.bdlayout1 {
+    border: 1px solid #d9dee3;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 6px 0 rgba(67, 89, 113, 0.12);
+    background-color: #fff;
+}
+
 .post-user {
-  padding: 20px;
+    padding: 20px;
 }
+
 .user-show {
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-  position: relative;
+    display: flex !important;
+    align-items: center !important;
+    margin-bottom: 20px;
+    position: relative;
 }
-.user-show img {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-right: 15px;
-}
+
+    .user-show img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 15px;
+    }
+
 .act {
-  position: absolute;
-  top: 20%;
-  right: 0;
+    position: absolute;
+    top: 20%;
+    right: 0;
 }
-.act i {
-  font-size: 20px;
-}
+
+    .act i {
+        font-size: 20px;
+    }
+
 .user-name {
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
 }
-.user-name span:first-child {
-  font-weight: bold;
-}
+
+    .user-name span:first-child {
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
 .artwork {
-  margin-bottom: 10px;
+    margin-bottom: 10px;
 }
-.artwork img {
-  width: 100%;
-  object-fit: cover;
-  border-radius: 10px;
-}
+
+    .artwork img {
+        width: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
 .reaction {
-  display: flex;
-  align-items: center;
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
 }
-.reaction button {
-  border: none;
-  background: none;
-}
-.reaction button:nth-child(3) {
-  margin-right: auto;
-}
-.reaction button i {
-  font-size: 20px;
-}
+
+    .reaction button {
+        border: none;
+        background: none;
+        cursor: pointer;
+    }
+
+        .reaction button:nth-child(3) {
+            margin-right: auto;
+        }
+
+        .reaction button i {
+            font-size: 20px;
+        }
+
 .comment {
-  margin-bottom: 10px;
-  padding: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+    margin-bottom: 10px;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
+
+.post-images {
+    display: grid;
+    gap: 5px;
+}
+
+    .post-images.single {
+        grid-template-columns: 1fr;
+    }
+
+    .post-images.double {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .post-images.triple {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .post-images.quad {
+        grid-template-columns: 1fr 1fr;
+    }
+
+        .post-images.quad img:nth-child(1) {
+            grid-column: 1 / 3;
+        }
+
+    .post-images img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .post-images.single img {
+        height: auto;
+    }
+
+    .post-images.quad img {
+        height: 300px;
+    }
+
+    .post-images.triple img {
+        height: 300px;
+    }
+
+/* Modal Styling */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 99999; /* Highest priority */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Disable scrolling */
+    background-color: rgba(128, 128, 128, 0.5); /* Semi-transparent gray */
+    align-items: center;
+    justify-content: center;
+}
+
+/* Modal Content (Image) */
+.modal-content {
+    max-width: 90%;
+    max-height: 90%;
+    border: none;
+    object-fit: contain;
+    animation: zoomIn 0.3s ease;
+    background: none;
+}
+
+/* Close Button */
+.close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: #ffffff !important;
+    font-size: 35px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+    .close:hover {
+        color: #ff0000;
+    }
+
+/* Navigation Buttons */
+.modal-nav {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+    width: 100%;
+    padding: 0 60px;
+}
+
+    .modal-nav button {
+        width: 50px;
+        height: 50px;
+        border: 1px solid rgba(0, 0, 0, 0.7) !important;
+        color: black;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all 0.3s linear;
+        z-index: 2;
+        border-radius: 50%;
+        font-size: 22px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: transparent !important;
+    }
+
+        .modal-nav button:hover {
+            transform: scale(1.2);
+        }
+
+/* Centering Modal Content */
+#modalImage {
+    display: block;
+    margin: auto;
+    max-width: 100%;
+    max-height: 75%;
+}
+
+/* Avatar Update Button */
+.updateAvt {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 3px solid;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 10px;
+    right: 75px;
+    background-color: #fff;
+}
+
+    .updateAvt:hover {
+        background-color: #f0f0f0;
+    }
+
+    /* Add new hover effects for interactive elements */
+    .reaction button:hover i,
+    .updateAvt:hover {
+        color: #007bff; /* Highlight color when hovering over buttons */
+    }
+@media (max-width: 576px) {
+    .user-name  .fw-bold {
+        font-size: 0.9rem !important;
+    }
+    .user-show img{
+        width: 40px;
+        height: 40px;
+    }
+    .post-images.triple img {
+        height: 135px;
+    }
+    .post-images.single img {
+        height: 300px;
+    }
+    .post-images.double img {
+        height: 130px;
+    }
+    .post-images.quad img {
+        height: 130px;
+    }
+}
+

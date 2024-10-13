@@ -22,33 +22,54 @@ namespace DataAccess
 
         public async Task Delete(int id)
         {
-            var documentInfo = await GetDocumentInfoById(id);
+            var documentInfo = await _context.DocumentInfos.FindAsync(id);
             if (documentInfo != null)
             {
+                // Xóa trực tiếp mà không cần Detach
                 _context.DocumentInfos.Remove(documentInfo);
                 await _context.SaveChangesAsync();
             }
         }
 
+
+
+
         public async Task<IEnumerable<DocumentInfo>> GetDocumentInfoAll()
         {
-            return await _context.DocumentInfos.ToListAsync();
+            return await _context.DocumentInfos
+                    .Include(d => d.Account)
+                    .Include(d => d.IdEventNavigation)
+                    .Include(d => d.IdArtworkNavigation)
+                    .Include(d => d.IdProjectNavigation)
+                 .ToListAsync();
         }
 
         public async Task<DocumentInfo?> GetDocumentInfoById(int id)
         {
-            return await _context.DocumentInfos.FirstOrDefaultAsync(df => df.IdDcIf == id);
+            return await _context.DocumentInfos
+                .Include(d => d.Account)
+                .Include(d => d.IdEventNavigation)
+                .Include(d => d.IdArtworkNavigation)
+                .Include(d => d.IdProjectNavigation)
+                .AsNoTracking()  // Duy trì AsNoTracking cho truy vấn chỉ đọc
+                .FirstOrDefaultAsync(df => df.IdDcIf == id);
         }
+
 
         public async Task Update(DocumentInfo documentInfo)
         {
-            var existingItem = await GetDocumentInfoById(documentInfo.IdDcIf);
+            var existingItem = await _context.DocumentInfos
+                .AsNoTracking() // Đảm bảo không theo dõi thực thể cũ
+                .FirstOrDefaultAsync(df => df.IdDcIf == documentInfo.IdDcIf);
+
             if (existingItem != null)
             {
-                _context.Entry(existingItem).CurrentValues.SetValues(documentInfo);
+                // Đặt thực thể vào trạng thái 'Modified'
+                _context.Entry(documentInfo).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
             }
         }
+
 
         public async Task<bool> ChangeActive(int id)
         {
@@ -81,6 +102,12 @@ namespace DataAccess
         public async Task<IEnumerable<DocumentInfo>> GetDocumentInfoByProjectId(int projectId)
         {
             return await _context.DocumentInfos.Where(di => di.IdProject == projectId).ToListAsync();
+        }
+        public async Task<DocumentInfo?> GetDocumentInfoByIdAsNoTracking(int id)
+        {
+            return await _context.DocumentInfos
+                .AsNoTracking()  // Sử dụng AsNoTracking để không theo dõi thực thể
+                .FirstOrDefaultAsync(df => df.IdDcIf == id);
         }
     }
 }

@@ -24,7 +24,6 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             accountDetailRepository = new AccountDetailRepository();
         }
 
-        // GET: Admin/AccountDetails
         public async Task<IActionResult> Index(string searchString, int? page)
         {
             var accountDetails = await accountDetailRepository.GetAccountDetailAll();
@@ -40,7 +39,6 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             return View(accountDetails.ToPagedList(page ?? 1, (int)ViewBag.Page));
         }
 
-        // GET: Admin/AccountDetails/Create
         public async Task<IActionResult> Create()
         {
             // Lấy danh sách tài khoản để gán vào SelectList cho dropdown
@@ -48,20 +46,34 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             return View();
         }
 
-        // POST: Admin/AccountDetails/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("IdAccountDt,Active,Fullname,IdAccount,CCCD,Description,Birthday,Nationality,Gender,Address")] AccountDetail accountDetail)
         {
             if (ModelState.IsValid)
             {
-                // Lấy ID người dùng hiện tại từ Session
                 var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
 
                 if (currentUserId == null)
                 {
                     ModelState.AddModelError("", "Không thể xác định người dùng hiện tại.");
                     return View(accountDetail);
+                }
+
+                // Kiểm tra nếu ngày sinh có tồn tại
+                if (accountDetail.Birthday != null)
+                {
+                    try
+                    {
+                        // Chuyển đổi định dạng ngày sinh từ chuỗi "dd/MM/yyyy" về kiểu DateTime
+                        accountDetail.Birthday = DateTime.ParseExact(accountDetail.Birthday?.ToString("dd/MM/yyyy"), "dd/MM/yyyy", null);
+                    }
+                    catch (FormatException)
+                    {
+                        ModelState.AddModelError("Birthday", "Ngày sinh không hợp lệ. Vui lòng nhập đúng định dạng (dd/MM/yyyy).");
+                        ViewData["IdAccount"] = new SelectList(await accountRepository.GetAccountAll(), "IdAccount", "Email", accountDetail.IdAccount);
+                        return View(accountDetail);
+                    }
                 }
 
                 // Gán CreatedBy và LastUpdateBy là người dùng hiện tại
@@ -75,12 +87,10 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Nếu ModelState không hợp lệ, vẫn cần lấy lại danh sách tài khoản
             ViewData["IdAccount"] = new SelectList(await accountRepository.GetAccountAll(), "IdAccount", "Email", accountDetail.IdAccount);
             return View(accountDetail);
         }
 
-        // GET: Admin/AccountDetails/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -99,7 +109,6 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             return View(accountDetail);
         }
 
-        // POST: Admin/AccountDetails/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("IdAccountDt,Active,Fullname,IdAccount,CCCD,Description,Birthday,Nationality,Gender,Address,CreatedBy,CreatedWhen")] AccountDetail accountDetail)
@@ -134,7 +143,6 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             return View(accountDetail);
         }
 
-        // POST: Admin/AccountDetails/Delete/5
         [HttpPost]
         public async Task<JsonResult> DeleteId(int id)
         {

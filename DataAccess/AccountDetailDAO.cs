@@ -17,11 +17,14 @@ namespace DataAccess
         }
         public async Task<AccountDetail> GetAccountDetailById(int id)
         {
-            var accountdetail = await _context.AccountDetails.FirstOrDefaultAsync(ad => ad.IdAccountDt == id);
+            var accountdetail = await _context.AccountDetails
+                                              .AsNoTracking()  // Sử dụng AsNoTracking để ngăn chặn theo dõi thực thể
+                                              .FirstOrDefaultAsync(ad => ad.IdAccountDt == id);
             if (accountdetail == null) return null;
 
             return accountdetail;
         }
+
         public async Task Add(AccountDetail accountdetail)
         {
             _context.AccountDetails.Add(accountdetail);
@@ -29,16 +32,16 @@ namespace DataAccess
         }
         public async Task Update(AccountDetail accountdetail)
         {
-
-            var existingItem = await GetAccountDetailById(accountdetail.IdAccountDt);
+            var existingItem = await _context.AccountDetails.AsNoTracking().FirstOrDefaultAsync(ad => ad.IdAccountDt == accountdetail.IdAccountDt);
             if (existingItem != null)
             {
-                // Cập nhật các thuộc tính cần thiết
-                _context.Entry(existingItem).CurrentValues.SetValues(accountdetail);
+                // Attach entity and set state to Modified
+                _context.AccountDetails.Attach(accountdetail);
+                _context.Entry(accountdetail).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
             }
-
         }
+
         public async Task Delete(int id)
         {
             var accountdetail = await GetAccountDetailById(id);

@@ -1,147 +1,392 @@
-﻿@{
+﻿@inject IHttpContextAccessor HttpContextAccessor
+@using Business
+@{
     ViewData["Title"] = "Sự Kiện";
 }
+
 @section Style {
+    <link href="~/Website/assets/css/event.css" rel="stylesheet" />
+
 }
+
+<div id="toast"></div>
 <div class="container-fluid py-5">
-    <div class="container py-5">
+    <div class="container ">
         <div class="row g-4">
-            <div class="col-lg-12 bg-white p-3 rounded shadow-sm">
-                <div class="d-flex align-items-center mb-3">
-                    <img src="https://via.placeholder.com/40"
-                         alt="User"
-                         class="rounded-circle me-2" />
-
-                    <!-- Input cho màn hình lớn hơn 576px -->
-                    <input type="text"
-                           class="form-control form-control-lg d-none d-sm-block"
-                           placeholder="Quang ơi, bạn đang nghĩ gì thế?"
-                           style="background-color: #f0f2f5; border-radius: 20px"
-                           data-bs-toggle="modal"
-                           data-bs-target="#postModal" />
-
-                    <!-- Input cho màn hình nhỏ hơn 576px -->
-                    <input type="text"
-                           class="form-control form-control-sm d-block d-sm-none"
-                           placeholder="Quang ơi, bạn đang nghĩ gì thế?"
-                           style="background-color: #f0f2f5; border-radius: 20px"
-                           data-bs-toggle="modal"
-                           data-bs-target="#postModal" />
+            <!-- Phần tạo bài đăng sự kiện -->
+            @{
+                var userRoleId = ViewBag.UserRoleId as int?;
+            }
+            <div class="col-lg-12">
+                <div class="bdlayout  mb-2">
+                    <div class="d-flex search align-items-center">
+                        <form method="get" action="@Url.Action("Index", "Events")" class="d-flex w-100">
+                            <input type="text" name="searchTerm" class="search-event" placeholder="Hãy nhập từ khóa bạn muốn tìm kiếm..." />
+                            <button class="searchbtn btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
+                        </form>
+                    </div>
+                    <select class="all-event form-select" id="filterEvents" onchange="filterEventsByUser()">
+                        <option value="all">Tất Cả</option>
+                        <option value="mine">Sự Kiện Của Tôi</option>
+                    </select>
                 </div>
-                <!-- modal post -->
-                <div class="modal fade"
-                     id="postModal"
-                     tabindex="-1"
-                     aria-labelledby="postModalLabel"
-                     aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="postModalLabel">
-                                    Tạo bài viết
-                                </h5>
-                                <button type="button"
-                                        class="btn-close"
-                                        data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <!-- User Info and Input -->
-                                <div class="d-flex align-items-center mb-3">
-                                    <img src="https://via.placeholder.com/40"
-                                         alt="User"
-                                         class="rounded-circle me-2" />
-                                    <div>
-                                        <p class="mb-0">Ngọc Quang</p>
-                                        <small class="text-muted">Bạn bè</small>
-                                    </div>
-                                </div>
+            </div>
+            @if (userRoleId == 1 || userRoleId == 3)
+            {
+                <!-- Hiển thị nội dung cho người dùng có vai trò 1 hoặc 3 -->
+                <div class="col-lg-12  p-3 rounded ">
+                    <div class="bdlayout1" style="padding: 15px;">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="@Url.Content("~/Upload/images/" + ViewBag.UserAvatar)"
+                                 alt="User"
+                                 class="rounded-circle me-2"
+                                 style="width: 40px; height: 40px; object-fit: cover;"
+                                 onerror="this.onerror=null; this.src='@Url.Content("~/Upload/images/default-profile.png")';" />
 
-                                <!-- Tiêu đề sự kiện -->
-                                <div class="mb-3">
-                                    <label for="eventTitle" class="form-label">Tiêu Đề Sự Kiện</label>
-                                    <input type="text"
-                                           id="eventTitle"
-                                           class="form-control"
-                                           placeholder="Nhập tiêu đề sự kiện" />
-                                </div>
+                            <input type="text"
+                                   class="form-control form-control-lg d-none d-sm-block"
+                                   placeholder="@ViewBag.UserName ơi, bạn đang nghĩ gì thế?"
+                                   style="background-color: #f0f2f5; border-radius: 20px"
+                                   data-bs-toggle="modal"
+                                   data-bs-target="#postModal" />
 
-                                <!-- Số lượng người tham gia -->
-                                <div class="mb-3">
-                                    <label for="participants" class="form-label">Số Lượng Người Tham Gia</label>
-                                    <input type="number"
-                                           id="participants"
-                                           class="form-control"
-                                           placeholder="Nhập số lượng người tham gia" />
-                                </div>
-
-                                <!-- Ngày bắt đầu -->
-                                <div class="mb-3">
-                                    <label for="fromDate" class="form-label">Ngày Bắt Đầu</label>
-                                    <input type="datetime-local"
-                                           id="fromDate"
-                                           class="form-control"
-                                           placeholder="Ngày bắt đầu" />
-                                </div>
-
-                                <!-- Ngày kết thúc -->
-                                <div class="mb-3">
-                                    <label for="toDate" class="form-label">Ngày Kết Thúc</label>
-                                    <input type="datetime-local"
-                                           id="toDate"
-                                           class="form-control"
-                                           placeholder="Ngày kết thúc" />
-                                </div>
-
-                                <!-- Nội dung chi tiết của sự kiện -->
-                                <div class="mb-3">
-                                    <label for="eventDescription" class="form-label">Nội Dung Chi Tiết Của Sự Kiện</label>
-                                    <textarea id="eventDescription"
-                                              class="form-control"
-                                              rows="4"
-                                              placeholder="Nhập nội dung chi tiết của sự kiện"
-                                              style="resize: none"></textarea>
-                                </div>
-                            </div>
-                            <div class="modal-footer d-flex justify-content-between">
-                                <div class="d-flex">
-                                    <button class="btn">
-                                        <i class="fas fa-images text-success"></i>
-                                    </button>
-                                    <button class="btn">
-                                        <i class="fas fa-user-friends text-primary"></i>
-                                    </button>
-                                    <button class="btn">
-                                        <i class="fas fa-smile text-warning"></i>
-                                    </button>
-                                    <button class="btn">
-                                        <i class="fas fa-gift text-info"></i>
-                                    </button>
-                                </div>
-                                <button type="button" class="btn btn-primary">Đăng</button>
+                            <input type="text"
+                                   class="form-control form-control-sm d-block d-sm-none"
+                                   placeholder="@ViewBag.UserName ơi, bạn đang nghĩ gì thế?"
+                                   style="background-color: #f0f2f5; border-radius: 20px"
+                                   data-bs-toggle="modal"
+                                   data-bs-target="#postModal" />
+                        </div>
+                        <hr />
+                        <div class="d-flex justify-content-around">
+                            <div class="d-flex align-items-center" style="cursor: pointer;" data-bs-toggle="modal"
+                                 data-bs-target="#postModal">
+                                <i class="fas fa-images text-success me-2"></i>
+                                <span>Ảnh/video</span>
                             </div>
                         </div>
                     </div>
-                </div>
-                <!-- Dòng phân cách -->
-                <hr />
+                    <!-- Form tạo sự kiện -->
+                    <form asp-action="Index" method="post" enctype="multipart/form-data">
+                        <div class="modal fade" id="postModal" tabindex="-1" aria-labelledby="postModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                <div class="modal-content bg-white">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="postModalLabel">Tạo sự kiện</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Thông tin người dùng -->
+                                        <div class="d-flex align-items-center mb-3">
+                                            <img src="@Url.Content("~/Upload/images/" + ViewBag.UserAvatar)" alt="User" class="rounded-circle me-2" style="width: 50px; height: 50px; object-fit: cover;" />
+                                            <div>
+                                                <p class="mb-0 fw-bold">@ViewBag.UserName</p>
+                                                <small class="text-muted">Công Khai</small>
+                                            </div>
+                                        </div>
 
-                <!-- Phần lựa chọn video, ảnh/video, cảm xúc -->
-                <div class="d-flex justify-content-around">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-video text-danger me-2"></i>
-                        <span>Video trực tiếp</span>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-images text-success me-2"></i>
-                        <span>Ảnh/video</span>
-                    </div>
-                    <div class="d-flex align-items-center d-none d-sm-flex">
-                        <i class="fas fa-smile text-warning me-2"></i>
-                        <span>Cảm xúc/hoạt động</span>
+                                        <!-- Tiêu đề sự kiện -->
+                                        <div class="mb-3">
+                                            <label for="Title" class="form-label fw-bold">Tiêu Đề Sự Kiện</label>
+                                            <input type="text" id="Title" name="Title" class="form-control" placeholder="Tiêu Đề Sự Kiện..." />
+                                        </div>
+
+                                        <!-- Nội dung sự kiện -->
+                                        <div class="mb-3">
+                                            <label for="Description" class="form-label fw-bold">Nội Dung Sự Kiện</label>
+                                            <textarea id="Description" name="Description" class="form-control" rows="4" placeholder="Nội Dung Sự Kiện..." style="resize: none"></textarea>
+                                        </div>
+
+                                        <!-- Số lượng người tham gia -->
+                                        <div class="mb-3">
+                                            <label for="NumberOfPeople" class="form-label fw-bold">Số Lượng Người Tham Gia</label>
+                                            <input type="number" id="NumberOfPeople" name="NumberOfPeople" class="form-control" placeholder="Số Lượng Người Tham Gia..." />
+                                        </div>
+
+                                        <!-- Thời gian bắt đầu và kết thúc -->
+                                        <div class="mb-3">
+                                            <label for="StartDate" class="form-label fw-bold">Ngày Bắt Đầu</label>
+                                            <input type="datetime-local" id="StartDate" name="StartDate" class="form-control" placeholder="Ngày Bắt Đầu..." />
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="EndDate" class="form-label fw-bold">Ngày Kết Thúc</label>
+                                            <input type="datetime-local" id="EndDate" name="EndDate" class="form-control" placeholder="Ngày Kết Thúc..." />
+                                        </div>
+
+                                        <!-- Tải ảnh sự kiện -->
+                                        <div class="mb-3">
+                                            <label for="imageUpload" class="form-label fw-bold">Hiển thị ảnh đã chọn:</label>
+                                            <input type="file" name="ImageFiles" class="form-control" multiple id="imageUpload" style="display: none;">
+                                            <div id="imagePreview" class="d-flex mt-3 flex-wrap"></div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer d-flex justify-content-between">
+                                        <div class="d-flex align-items-center">
+                                            <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('imageUpload').click();">
+                                                <i class="fas fa-images text-success me-2"></i>Chọn Ảnh
+                                            </button>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Đăng</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    
+                </div>
+            }
+
+            <div class="col-lg-4">
+                <div class="p-3 rounded border">
+                    <h4 class="my-4">Danh Sách Nghệ Sĩ</h4>
+                    <div class="row g-4">
+                        @if (ViewBag.UsersWithRoles != null && ViewBag.UsersWithRoles.Count > 0)
+                        {
+                            @foreach (var user in ViewBag.UsersWithRoles)
+                            {
+                                <div class="col-12">
+                                    <div class="row g-4 align-items-center features-item mb-4">
+                                        <div class="col-4">
+                                            <div class="rounded-circle position-relative">
+                                                <div class="overflow-hidden rounded-circle" style="width: 70px; height: 70px;">
+                                                    <img src="@Url.Content("~/Upload/images/" + user.ProfileImage)"
+                                                         class="img-zoomin img-fluid rounded-circle w-100"
+                                                         alt="@user.Name" style="height: 100%; object-fit: cover;" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="features-content d-flex flex-column">
+                                                <p class="text-uppercase mb-2">@user.Name</p>
+                                                @{
+                                                    var currentUserId = Context.Session.GetInt32("CurrentUserId");
+                                                }
+                                                <a href="@(
+                                        user.IdAccount == currentUserId
+                                        ? Url.Action("Index", "Personal") // Link về trang cá nhân nếu là người dùng hiện tại
+                                        : Url.Action("Index", "ArtistDetails", new { id = user.IdAccount }) // Link về trang chi tiết nghệ sĩ nếu không phải người dùng hiện tại
+                                    )" class="h6">Thông tin chi tiết về nghệ sĩ</a>
+                                                <small class="text-body d-block"><i class="fas fa-calendar-alt me-1"></i> @user.DateOfBirth?.ToString("dd/MM/yyyy")</small>
+                                                <small class="text-body d-block"><i class="fas fa-map-marker-alt me-1"></i> @user.Country</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p>Không có nghệ sĩ hoặc admin nào để hiển thị.</p>
+                        }
+                        <div class="col-lg-12">
+                            <a href="@Url.Action("Index", "Artists")"
+                               class="link-hover btn border border-primary rounded-pill text-dark w-100 py-3 mb-4">Xem Tất Cả</a>
+                        </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Hiển thị danh sách sự kiện -->
+            <div class="col-lg-8 post">
+                <h4 class="bdlayout">Sự Kiện</h4>
+                @if (ViewBag.EventList != null && ViewBag.EventList.Count > 0)
+                {
+                    @foreach (var eventItem in ViewBag.EventList)
+                    {
+                        <div class="post-item bdlayout mb-4">
+                            <div class="post-user">
+                                <div class="user-show d-flex align-items-center mb-2">
+                                    <img src="~/Upload/images/@eventItem.UploaderAvatar"
+                                         alt="Người Đăng"
+                                         class="img-fluid rounded-circle me-2"
+                                         width="40" />
+                                    <div class="user-name">
+                                        <span class="fw-bold">@eventItem.UploaderName</span>
+                                        <span class="text-muted d-block" style="font-size: 0.85rem">@eventItem.TimeAgo</span>
+                                    </div>
+                                    @if (eventItem.IdAc == ViewBag.CurrentUserId) // Kiểm tra nếu người dùng hiện tại là người tạo sự kiện
+                                    {
+                                        <div class="ms-auto act dropdown">
+                                            <i class="fas fa-ellipsis-v" id="menuIcon" style="cursor: pointer;" data-bs-toggle="dropdown" aria-expanded="false"></i>
+                                            <ul class="dropdown-menu dropdown-menu-right">
+                                                <li><a href="#" class="dropdown-item editPost" data-id="@eventItem.Event.IdEvent">Chỉnh sửa sự kiện</a></li>
+                                                <li><a href="#" class="dropdown-item text-danger deletePost" data-id="@eventItem.Event.IdEvent">Xóa sự kiện</a></li>
+                                            </ul>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="event mb-2">
+                                    <h3 class="bold">@eventItem.Event.Title</h3>
+                                    <div class="post-content-wrapper">
+                                        <p class="post-content mb-2">@eventItem.Event.Description</p>
+                                        <span class="show-more" style="display: none; cursor: pointer">Xem thêm</span>
+                                    </div>
+                                    <div class="post-images @(eventItem.Images.Count == 1 ? "single" : eventItem.Images.Count == 2 ? "double" : eventItem.Images.Count == 3 ? "triple" : "quad")">
+                                        @foreach (var image in eventItem.Images)
+                                        {
+                                            <img src="@image" alt="Event Image" class="img-fluid rounded" />
+                                        }
+                                    </div>
+                                </div>
+                                <div class="btn btn-outline-primary mb-2 register-btn" data-event-id="@eventItem.Event.IdEvent">
+                                    Đăng Ký Tham Gia Sự Kiện
+                                </div>
+
+                            </div>
+                        </div>
+                    }
+                    
+                    <!-- Phân trang -->
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            @if (ViewBag.CurrentPage > 1)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.CurrentPage - 1, filter = ViewBag.Filter, searchTerm = ViewBag.SearchTerm })" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            }
+                            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", new { page = i, filter = ViewBag.Filter, searchTerm = ViewBag.SearchTerm })">@i</a>
+                                </li>
+                            }
+                            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.CurrentPage + 1, filter = ViewBag.Filter, searchTerm = ViewBag.SearchTerm })" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+
+                }
+                else
+                {
+                    <p class="text-center">Không có sự kiện nào để hiển thị.</p>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="imageModal" class="modal">
+    <span class="close"><i class="fas fa-times"></i></span>
+    <img id="modalImage" class="modal-content" style="background: none;" alt="Image">
+    <div class="modal-nav">
+        <button id="prevImage" style="margin-right: auto;"><i class="fas fa-chevron-left"></i></button>
+        <button id="nextImage"><i class="fas fa-chevron-right"></i></button>
+    </div>
+</div>
+<!-- Modal Chỉnh sửa và Xóa -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-white">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Chỉnh sửa sự kiện</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="editEventId" name="IdEvent" />
+                    <input type="hidden" id="deletedImages" name="DeletedImages" />
+
+                    <!-- Title -->
+                    <div class="mb-3">
+                        <label for="editTitle" class="form-label">Tiêu đề sự kiện</label>
+                        <input type="text" class="form-control" id="editTitle" name="Title" required />
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-3">
+                        <label for="editDescription" class="form-label">Nội dung</label>
+                        <textarea class="form-control" id="editDescription" name="Description" rows="3"></textarea>
+                    </div>
+
+                    <!-- Số lượng người tham gia -->
+                    <div class="mb-3">
+                        <label for="editNumberOfPeople" class="form-label">Số lượng người tham gia</label>
+                        <input type="number" class="form-control" id="editNumberOfPeople" name="NumberOfPeople" required />
+                    </div>
+
+                    <!-- Ngày bắt đầu -->
+                    <div class="mb-3">
+                        <label for="editStartDate" class="form-label">Ngày bắt đầu</label>
+                        <input type="datetime-local" class="form-control" id="editStartDate" name="StartDate" required />
+                    </div>
+
+                    <!-- Ngày kết thúc -->
+                    <div class="mb-3">
+                        <label for="editEndDate" class="form-label">Ngày kết thúc</label>
+                        <input type="datetime-local" class="form-control" id="editEndDate" name="EndDate" required />
+                    </div>
+
+                    <!-- Existing Images -->
+                    <div class="mb-3">
+                        <label class="form-label">Hình ảnh hiện tại</label>
+                        <div id="editImagePreview" class="d-flex mt-3 flex-wrap post-images"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editImageUpload" class="form-label">Chọn hình ảnh mới</label>
+                        <input type="file" name="ImageFiles" class="form-control" multiple id="editImageUpload" />
+                        <div id="editNewImagePreview" class="d-flex mt-3 flex-wrap"></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                </form>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-white">
+            <div class="modal-header">
+                <h5 class="modal-title">Xóa sự kiện</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa sự kiện này không?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        DateTime currentDate = DateTime.Now;
+    }
+    <script src="~/Website/assets/js/events.js?@currentDate"></script>
+    <script>
+        function filterEventsByUser() {
+            var selectedValue = document.getElementById('filterEvents').value;
+            var url = '@Url.Action("Index", "Events")' + '?filter=' + selectedValue;
+            window.location.href = url; // Chuyển hướng đến URL với filter đã chọn
+        }
+
+        // Hàm để đặt giá trị đã chọn (selected) của dropdown khi trang được tải lại
+        window.onload = function () {
+            var filter = '@ViewBag.Filter';  // Lấy giá trị filter từ ViewBag
+            var selectElement = document.getElementById('filterEvents');
+            if (filter === 'mine') {
+                selectElement.value = 'mine';  // Đặt giá trị 'mine' nếu filter là sự kiện của người dùng
+            } else {
+                selectElement.value = 'all';  // Đặt giá trị mặc định là 'all'
+            }
+        };
+    </script>
+}

@@ -1,8 +1,10 @@
-﻿using Business;
+﻿using ArtistSocialNetwork.Models;
+using Business;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Repository;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,11 +18,12 @@ namespace ArtistSocialNetwork.Controllers
         private readonly IEventRepository _eventRepository;
         private readonly IProjectRepository _projectRepository;
         private readonly IReactionRepository _reactionRepository;
+        private readonly IFollowRepository _followRepository;
 
         public PersonalController(ILogger<BaseController> logger, ApplicationDbContext context,
             IAccountRepository accountRepository, IDocumentInfoRepository documentInfoRepository,
             IArtworkRepository artworkRepository, IEventRepository eventRepository, IProjectRepository projectRepository,
-            IReactionRepository reactionRepository)
+            IReactionRepository reactionRepository, IFollowRepository followRepository)
             : base(logger, context)
         {
             _accountRepository = accountRepository;
@@ -29,6 +32,7 @@ namespace ArtistSocialNetwork.Controllers
             _eventRepository = eventRepository;
             _projectRepository = projectRepository;
             _reactionRepository = reactionRepository;
+            _followRepository = followRepository;
         }
 
         public async Task<IActionResult> Index()
@@ -47,10 +51,14 @@ namespace ArtistSocialNetwork.Controllers
                 var user = await _accountRepository.GetAccountById(currentUserId.Value);
                 if (user != null)
                 {
+                    // Truy xuất hình ảnh đại diện và thông tin cơ bản của người dùng
                     var profileImage = (await _documentInfoRepository.GetDocumentInfoByAccountId(currentUserId.Value))?.UrlDocument ?? "default-profile.png";
                     var fullName = user.AccountDetail?.Fullname ?? "Unknown";
-                    var followersCount = user.Followers?.Count() ?? 0;
-                    var followingCount = user.Following?.Count() ?? 0;
+
+                    // Đếm số lượng người theo dõi và đang theo dõi bằng cách sử dụng FollowRepository
+                    var followers = await _followRepository.GetFollowAll();
+                    var followersCount = followers.Count(f => f.IdFollowing == currentUserId.Value && f.Active);  // Đếm số người theo dõi (Followers)
+                    var followingCount = followers.Count(f => f.IdFollower == currentUserId.Value && f.Active);  // Đếm số người mà người dùng đang theo dõi (Following)
 
                     ViewBag.ProfileImage = profileImage;
                     ViewBag.FullName = fullName;
@@ -66,6 +74,7 @@ namespace ArtistSocialNetwork.Controllers
                 ViewBag.FollowingCount = 0;
             }
         }
+
 
         private async Task GetUserPosts()
         {
@@ -100,12 +109,13 @@ namespace ArtistSocialNetwork.Controllers
 
                 posts.Add(new
                 {
-                    ArtworkId = artwork.IdArtwork, // Thêm ArtworkId để dùng trong view
+                    ArtworkId = artwork.IdArtwork,
                     Title = artwork.Title,
                     Content = artwork.Description,
                     Images = images,
                     Timestamp = artwork.LastUpdateWhen,
-                    IsArtwork = true, // Mark as artwork for reaction section
+                    TimeAgo = CalculateTimeAgo((DateTime)artwork.LastUpdateWhen), // Add time ago
+                    IsArtwork = true,
                     LikeCount = likeCount,
                     IsLikedByCurrentUser = isLikedByCurrentUser,
                     GridClass = GetImageGridClass(images.Count)
@@ -121,14 +131,15 @@ namespace ArtistSocialNetwork.Controllers
 
                 posts.Add(new
                 {
-                    ArtworkId = 0, // Thêm giá trị mặc định cho ArtworkId
+                    ArtworkId = 0,
                     Title = evnt.Title,
                     Content = evnt.Description,
                     Images = images,
                     Timestamp = evnt.LastUpdateWhen,
-                    IsArtwork = false, // Mark as not artwork to exclude reaction section
-                    LikeCount = 0, // Add default value for LikeCount
-                    IsLikedByCurrentUser = false, // Add default value for IsLikedByCurrentUser
+                    TimeAgo = CalculateTimeAgo((DateTime)evnt.LastUpdateWhen), // Add time ago
+                    IsArtwork = false,
+                    LikeCount = 0,
+                    IsLikedByCurrentUser = false,
                     GridClass = GetImageGridClass(images.Count)
                 });
             }
@@ -142,14 +153,15 @@ namespace ArtistSocialNetwork.Controllers
 
                 posts.Add(new
                 {
-                    ArtworkId = 0, // Thêm giá trị mặc định cho ArtworkId
+                    ArtworkId = 0,
                     Title = project.Title,
                     Content = project.Description,
                     Images = images,
                     Timestamp = project.LastUpdateWhen,
-                    IsArtwork = false, // Mark as not artwork to exclude reaction section
-                    LikeCount = 0, // Add default value for LikeCount
-                    IsLikedByCurrentUser = false, // Add default value for IsLikedByCurrentUser
+                    TimeAgo = CalculateTimeAgo((DateTime)project.LastUpdateWhen), // Add time ago
+                    IsArtwork = false,
+                    LikeCount = 0,
+                    IsLikedByCurrentUser = false,
                     GridClass = GetImageGridClass(images.Count)
                 });
             }
@@ -171,6 +183,42 @@ namespace ArtistSocialNetwork.Controllers
                 default:
                     return "quad";
             }
+        }
+
+        // New helper method to calculate time ago
+        private string CalculateTimeAgo(DateTime dateTime)
+        {
+            var timeSpan = DateTime.Now - dateTime;
+
+            if (timeSpan.TotalMinutes < 1)
+                return "Bây giờ";
+            else if (timeSpan.TotalMinutes < 60)
+                return $"{timeSpan.Minutes} phút trước";
+            else if (timeSpan.TotalHours < 24)
+                return $"{timeSpan.Hours} giờ trước";
+            else if (timeSpan.TotalDays < 7)
+                return $"{timeSpan.Days} ngày trước";
+            else if (timeSpan.TotalDays < 30)
+            {
+                int weeks = (int)(timeSpan.TotalDays / 7);
+                return $"{weeks} tuần trước";
+            }
+            else if (timeSpan.TotalDays < 365)
+            {
+                int months = (int)(timeSpan.TotalDays / 30);
+                return $"{months} tháng trước";
+            }
+            else
+            {
+                int years = (int)(timeSpan.TotalDays / 365);
+                return $"{years} năm trước";
+            }
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

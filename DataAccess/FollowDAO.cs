@@ -62,18 +62,39 @@ namespace DataAccess
                 throw;
             }
         }
-        public async Task Update(Follow follows)
+        public async Task Update(Follow follow)
         {
-
-            var existingItem = await GetFollowById(follows.IdFollow);
-            if (existingItem != null)
+            try
             {
-                // Cập nhật các thuộc tính cần thiết
-                _context.Entry(existingItem).CurrentValues.SetValues(follows);
-                await _context.SaveChangesAsync();
-            }
+                var existingItem = await _context.Follows.FindAsync(follow.IdFollow); // Lấy trực tiếp từ DB
 
+                if (existingItem != null)
+                {
+                    // Cập nhật trạng thái Active
+                    existingItem.Active = follow.Active;
+                    existingItem.LastUpdateWhen = DateTime.Now;
+
+                    // Ghi log để kiểm tra trạng thái trước khi cập nhật
+                    Console.WriteLine($"Trạng thái trước cập nhật: {existingItem.Active}");
+
+                    _context.Follows.Update(existingItem); // Cập nhật đối tượng
+                    await _context.SaveChangesAsync(); // Lưu thay đổi
+
+                    // Ghi log để kiểm tra trạng thái sau khi cập nhật
+                    Console.WriteLine($"Trạng thái sau cập nhật: {existingItem.Active}");
+                }
+                else
+                {
+                    Console.WriteLine("Không tìm thấy bản ghi Follow để cập nhật.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khi cập nhật Follow: {ex.Message}");
+                throw;
+            }
         }
+
         public async Task Delete(int id)
         {
             var follows = await GetFollowById(id);

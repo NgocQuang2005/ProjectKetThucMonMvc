@@ -11,10 +11,11 @@ namespace ArtistSocialNetwork.Controllers
         protected readonly ILogger<BaseController> _logger;
         protected readonly ApplicationDbContext _context; // Add ApplicationDbContext for database access
 
+        // Constructor chính thức, nhận cả ILogger và ApplicationDbContext
         public BaseController(ILogger<BaseController> logger, ApplicationDbContext context)
         {
-            _logger = logger;
-            _context = context; // Initialize the database context
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger)); // Đảm bảo logger không null
+            _context = context ?? throw new ArgumentNullException(nameof(context)); // Đảm bảo _context không null
         }
 
         public override void OnActionExecuting(ActionExecutingContext context)
@@ -66,7 +67,7 @@ namespace ArtistSocialNetwork.Controllers
                 }
             }
 
-            return "Người dùng không xác định"; 
+            return "Người dùng không xác định";
         }
 
         public void SetAlert(string msg, string type)

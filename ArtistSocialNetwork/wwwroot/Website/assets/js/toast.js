@@ -48,7 +48,7 @@
 function showSuccessDelete() {
     toast({
         title: "Thành công!",
-        message: "Bạn Đã Xóa Bài Viết Thành Công",
+        message: "Bạn đã xóa bài viết thành công",
         type: "success",
         duration: 5000
     });
@@ -61,6 +61,23 @@ function showSuccessEdit() {
         type: "success",
         duration: 5000
     });
+}
+function showSuccessEventDki() {
+    toast({
+        title: "Thành công!",
+        message: "Bạn đã đăng kí tham gia thành công",
+        type: "success",
+        duration: 5000
+    });
+}
+function showWarningEventDki() {
+    toast({
+        title: "Thất Bại!",
+        message: "Hiện tại bạn chưa thể đăng kí , vui lòng quay lại sau  !!!.",
+        type: "warning",
+        duration: 5000
+    });
+    return false;
 }
 function showWarningToast() {
     toast({

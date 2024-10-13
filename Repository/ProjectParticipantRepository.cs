@@ -1,5 +1,6 @@
 ﻿using Business;
 using DataAccess;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +37,33 @@ namespace Repository
         public async Task<bool> ChangeActive(int id)
         {
             return await ProjectParticipantDAO.Instance.ChangeActive(id);
+        }
+
+        public async Task DeleteByProjectId(int projectId)
+        {
+            // Lấy danh sách tất cả người tham gia dựa trên IdProject
+            var participants = await ProjectParticipantDAO.Instance.GetProjectParticipantsByProjectId(projectId);
+
+            // Nếu tồn tại người tham gia, xóa từng người tham gia
+            if (participants != null && participants.Any())
+            {
+                foreach (var participant in participants)
+                {
+                    await ProjectParticipantDAO.Instance.Delete(participant.IdProjectParticipant);
+                }
+            }
+        }
+        public async Task<IEnumerable<ProjectParticipant>> GetProjectParticipantsByProjectId(int projectId)
+        {
+            return await ProjectParticipantDAO.Instance.GetProjectParticipantsByProjectId(projectId);
+        }
+        public async Task DeleteByProjectAndAccount(int projectId, int accountId)
+        {
+            var participant = await ProjectParticipantDAO.Instance.GetProjectParticipantByProjectAndAccount(projectId, accountId);
+            if (participant != null)
+            {
+                await ProjectParticipantDAO.Instance.Delete(participant.IdProjectParticipant);
+            }
         }
     }
 }

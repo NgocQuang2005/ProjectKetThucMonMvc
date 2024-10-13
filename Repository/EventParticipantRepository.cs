@@ -37,5 +37,10 @@ namespace Repository
         {
             return await EventParticipantsDAO.Instance.ChangeActive(id);
         }
+        public async Task<EventParticipants?> GetEventParticipantsByEventAndUser(int eventId, int userId)
+        {
+            return await EventParticipantsDAO.Instance.GetEventParticipantsByEventAndUser(eventId, userId);
+        }
+
     }
 }
