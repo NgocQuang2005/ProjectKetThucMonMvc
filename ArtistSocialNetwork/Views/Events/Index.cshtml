@@ -134,7 +134,7 @@
                         </div>
                     </form>
 
-                    
+
                 </div>
             }
 
@@ -219,6 +219,8 @@
                                 </div>
                                 <div class="event mb-2">
                                     <h3 class="bold">@eventItem.Event.Title</h3>
+                                    <p class="mb-1"><b>Ngày Bắt Đầu:</b> @eventItem.Event.StartDate.ToString("HH:mm dd/MM/yyyy")</p>
+                                    <p class="mb-1"><b>Ngày Kết Thúc:</b> @eventItem.Event.EndDate.ToString("HH:mm dd/MM/yyyy")</p>
                                     <div class="post-content-wrapper">
                                         <p class="post-content mb-2">@eventItem.Event.Description</p>
                                         <span class="show-more" style="display: none; cursor: pointer">Xem thêm</span>
@@ -230,14 +232,24 @@
                                         }
                                     </div>
                                 </div>
-                                <div class="btn btn-outline-primary mb-2 register-btn" data-event-id="@eventItem.Event.IdEvent">
-                                    Đăng Ký Tham Gia Sự Kiện
+                                <div class="mb-2">
+                                    @if (eventItem.IsUserRegistered)
+                                    {
+                                        <div class="btn btn-success cancel-registration-btn" data-event-id="@eventItem.Event.IdEvent" role="button">
+                                            Đã tham gia
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="btn btn-outline-primary register-btn" data-event-id="@eventItem.Event.IdEvent" role="button">
+                                            Đăng Ký Tham Gia Sự Kiện
+                                        </div>
+                                    }
                                 </div>
-
                             </div>
                         </div>
                     }
-                    
+
                     <!-- Phân trang -->
                     <nav aria-label="Page navigation">
                         <ul class="pagination justify-content-center">
@@ -365,7 +377,25 @@
         </div>
     </div>
 </div>
+@* delete đki sự kiện *@
 
+<div class="modal fade" id="cancelRegistrationModal" tabindex="-1" aria-labelledby="cancelRegistrationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-white">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelRegistrationModalLabel">Xác nhận hủy đăng ký</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn hủy tham gia sự kiện này không?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmCancelRegistrationBtn">Hủy tham gia</button>
+            </div>
+        </div>
+    </div>
+</div>
 @section Scripts {
     @{
         DateTime currentDate = DateTime.Now;
@@ -388,5 +418,13 @@
                 selectElement.value = 'all';  // Đặt giá trị mặc định là 'all'
             }
         };
+        document.addEventListener("DOMContentLoaded", function () {
+            // Đặt giá trị min cho input datetime-local khi trang tải
+            var currentDateTime = new Date().toISOString().slice(0, 16); // Lấy thời gian hiện tại theo định dạng yyyy-MM-ddTHH:mm
+            document.getElementById("StartDate").setAttribute("min", currentDateTime);
+            document.getElementById("EndDate").setAttribute("min", currentDateTime);
+            document.getElementById("editStartDate").setAttribute("min", currentDateTime);
+            document.getElementById("editEndDate").setAttribute("min", currentDateTime);
+        });
     </script>
 }

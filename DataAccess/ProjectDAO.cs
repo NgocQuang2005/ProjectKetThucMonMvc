@@ -30,6 +30,10 @@ namespace DataAccess
 
             return projects;
         }
+        public async Task<int> GetTotalProjects()
+        {
+            return await _context.Projects.AsNoTracking().CountAsync();
+        }
         public async Task Add(Project projects)
         {
             _context.Projects.Add(projects);
@@ -74,6 +78,28 @@ namespace DataAccess
                 return projects.Active;
             }
             return false;
+        }
+        public async Task<IEnumerable<Project>> GetActiveProjects()
+        {
+            var activeProjects = await _context.Projects
+                .Where(p => p.Active && p.EndDate > DateTime.Now)  // Dự án đang hoạt động và chưa kết thúc
+                .Include(p => p.Account)
+                .ThenInclude(a => a.AccountDetail)
+                .AsNoTracking()
+                .ToListAsync();
+            return activeProjects;
+        }
+
+        // Phương thức lấy tất cả dự án đã hoàn thành
+        public async Task<IEnumerable<Project>> GetCompletedProjects()
+        {
+            var completedProjects = await _context.Projects
+                .Where(p => p.EndDate <= DateTime.Now)  // Dự án đã kết thúc
+                .Include(p => p.Account)
+                .ThenInclude(a => a.AccountDetail)
+                .AsNoTracking()
+                .ToListAsync();
+            return completedProjects;
         }
     }
 }

@@ -14,5 +14,6 @@ namespace Repository
         Task Delete(int id);
         Task<Account> GetAccountEmailPassWord(string email, string password);
         Task<Account> GetAccountByEmailOrPhone(string emailOrPhone);
+        Task<int> GetTotalAccounts();
     }
 }

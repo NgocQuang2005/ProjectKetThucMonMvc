@@ -65,5 +65,9 @@ namespace Repository
                 await ProjectParticipantDAO.Instance.Delete(participant.IdProjectParticipant);
             }
         }
+        public async Task<int> GetParticipantCountByProjectId(int projectId)
+        {
+            return await ProjectParticipantDAO.Instance.GetParticipantCountByProjectId(projectId);
+        }
     }
 }

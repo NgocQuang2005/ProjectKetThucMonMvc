@@ -93,5 +93,11 @@ namespace DataAccess
             return await _context.ProjectParticipants
                                  .FirstOrDefaultAsync(pp => pp.IdProject == projectId && pp.IdAc == accountId);
         }
+        public async Task<int> GetParticipantCountByProjectId(int projectId)
+        {
+            var participantCount = await _context.ProjectParticipants
+                .CountAsync(pp => pp.IdProject == projectId);  // Đếm số lượng người tham gia dự án theo IdProject
+            return participantCount;
+        }
     }
 }

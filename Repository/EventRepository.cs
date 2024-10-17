@@ -39,5 +39,19 @@ namespace Repository
         {
             return await EventDAO.Instance.ChangeActive(id);
         }
+        public async Task<int> GetTotalEvents()
+        {
+            return await EventDAO.Instance.GetTotalEvents();
+        }
+        public async Task<IEnumerable<Event>> GetActiveEvents()
+        {
+            return await EventDAO.Instance.GetActiveEvents();
+        }
+
+        // Lấy tất cả sự kiện không hoạt động
+        public async Task<IEnumerable<Event>> GetInactiveEvents()
+        {
+            return await EventDAO.Instance.GetInactiveEvents();
+        }
     }
 }

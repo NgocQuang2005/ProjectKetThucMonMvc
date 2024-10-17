@@ -15,5 +15,7 @@ namespace Repository
         Task Update(AccountDetail accountDetail);
         Task Delete(int id);
         Task<bool> ChangeActive(int id);
+        Task<IEnumerable<AccountDetail>> GetActiveAccounts();
+        Task<IEnumerable<AccountDetail>> GetInactiveAccounts();
     }
 }

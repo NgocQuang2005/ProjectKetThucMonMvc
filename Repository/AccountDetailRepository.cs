@@ -37,5 +37,14 @@ namespace Repository
         {
             return await AccountDetailDAO.Instance.ChangeActive(id);
         }
+        public async Task<IEnumerable<AccountDetail>> GetActiveAccounts()
+        {
+            return await AccountDetailDAO.Instance.GetActiveAccounts();
+        }
+
+        public async Task<IEnumerable<AccountDetail>> GetInactiveAccounts()
+        {
+            return await AccountDetailDAO.Instance.GetInactiveAccounts();
+        }
     }
 }

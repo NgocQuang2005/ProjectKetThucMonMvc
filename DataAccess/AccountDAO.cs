@@ -23,6 +23,10 @@ namespace DataAccess
                            .Include(a => a.DocumentInfos)
                            .AsNoTracking(); // để tối ưu hóa truy vấn
         }
+        public async Task<int> GetTotalAccounts()
+        {
+            return await _context.Accounts.AsNoTracking().CountAsync();
+        }
 
         public async Task<Account> GetAccountById(int id)
         {

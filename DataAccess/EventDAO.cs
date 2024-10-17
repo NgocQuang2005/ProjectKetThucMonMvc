@@ -32,7 +32,10 @@ namespace DataAccess
 
             return events;
         }
-
+        public async Task<int> GetTotalEvents()
+        {
+            return await _context.Events.AsNoTracking().CountAsync();
+        }
         public async Task Add(Event events)
         {
             _context.Events.Add(events);
@@ -79,6 +82,26 @@ namespace DataAccess
                 return events.Active;
             }
             return false;
+        }
+        public async Task<IEnumerable<Event>> GetActiveEvents()
+        {
+            return await _context.Events
+                                 .Where(e => e.Active)  // Lọc sự kiện có Active = true
+                                 .Include(e => e.Account)
+                                 .ThenInclude(a => a.AccountDetail)
+                                 .AsNoTracking()
+                                 .ToListAsync();
+        }
+
+        // Lấy tất cả sự kiện không hoạt động (Active = false)
+        public async Task<IEnumerable<Event>> GetInactiveEvents()
+        {
+            return await _context.Events
+                                 .Where(e => !e.Active) // Lọc sự kiện có Active = false
+                                 .Include(e => e.Account)
+                                 .ThenInclude(a => a.AccountDetail)
+                                 .AsNoTracking()
+                                 .ToListAsync();
         }
     }
 }

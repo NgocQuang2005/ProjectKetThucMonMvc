@@ -48,5 +48,9 @@ namespace Repository
         {
             return await AccountDAO.Instance.GetAccountByEmailOrPhone(emailOrPhone);
         }
+        public async Task<int> GetTotalAccounts()
+        {
+            return await AccountDAO.Instance.GetTotalAccounts();
+        }
     }
 }

@@ -15,6 +15,8 @@ namespace Repository
         Task Update(Project project);
         Task Delete(int id);
         Task<bool> ChangeActive(int id);
-
+        Task<int> GetTotalProjects();
+        Task<IEnumerable<Project>> GetActiveProjects();      // Dự án đang hoạt động
+        Task<IEnumerable<Project>> GetCompletedProjects();   // Dự án đã hoàn thành
     }
 }

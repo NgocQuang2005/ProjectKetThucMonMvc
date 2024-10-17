@@ -1,0 +1,152 @@
+﻿@{
+    ViewBag.Title = "Báo Cáo Tác Phẩm";
+    var artworkStats = ViewBag.ArtworkStats as List<dynamic> ?? new List<dynamic>();
+    var artworkDates = artworkStats.Select(x => x.Date.ToString("dd/MM/yyyy")).ToList();
+    var totalArtworks = artworkStats.Select(x => x.TotalArtworks).ToList();
+}
+
+@section Style{
+    <link rel="stylesheet" href="~/Admin/css/ArtworkReport.css" />
+}
+
+<!-- Bộ lọc tác phẩm theo loại -->
+<div class="container mt-4">
+    <h2> </h2>
+    <div class="col-md-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <h5 class="card-title">Tổng Số Tác Phẩm</h5>
+                <p class="stat-number">@ViewBag.TotalArtworks</p>
+            </div>
+        </div>
+    </div>
+    <form method="get" action="@Url.Action("Index", "ArtworkReport")">
+        <!-- Thêm action cho form -->
+        <div class="form-group row">
+            <!-- Đối với màn hình lớn thì chiếm 1/4, màn hình nhỏ hơn thì chiếm toàn bộ -->
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <label for="typeOfArtworkId">Loại Tác Phẩm:</label>
+                <select name="typeOfArtworkId" id="typeOfArtworkId" class="form-control">
+                    <option value="">Tất cả loại tác phẩm</option>
+                    @foreach (var type in ViewBag.TypesOfArtwork)
+                    {
+
+                        if (ViewBag.SelectedTypeOfArtworkId != null && ViewBag.SelectedTypeOfArtworkId == type.IdTypeOfArtwork)
+                        {
+                            <option value="@type.IdTypeOfArtwork" selected="selected">@type.NameTypeOfArtwork</option>
+                        }
+                        else
+                        {
+                            <option value="@type.IdTypeOfArtwork">@type.NameTypeOfArtwork</option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Lọc</button>
+    </form>
+
+
+    <!-- Biểu đồ thống kê tác phẩm -->
+    <div class="row mb-5 mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Tác phẩm được tạo theo thời gian</h5>
+                    <div id="artworkStatsChart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bảng danh sách tác phẩm -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Danh Sách Tác Phẩm</h5>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tiêu đề</th>
+                                <th>Nghệ sĩ</th>
+                                <th>Loại tác phẩm</th>
+                                <th>Ngày tạo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var artwork in Model)
+                            {
+                                <tr>
+                                    <td>@artwork.IdArtwork</td>
+                                    <td>@artwork.Title</td>
+                                    <td>@artwork.Account?.AccountDetail?.Fullname </td>
+                                    <td>@artwork.TypeOfArtwork?.NameTypeOfArtwork </td>
+                                    <td>@artwork.CreatedWhen?.ToString("dd/MM/yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <!-- Phân trang -->
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            @if (ViewBag.CurrentPage > 1)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.CurrentPage - 1, typeOfArtworkId = ViewBag.SelectedTypeOfArtworkId })">Trước</a>
+                                </li>
+                            }
+
+                            @for (var i = 1; i <= ViewBag.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", new { page = i, typeOfArtworkId = ViewBag.SelectedTypeOfArtworkId })">@i</a>
+                                </li>
+                            }
+
+                            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.CurrentPage + 1, typeOfArtworkId = ViewBag.SelectedTypeOfArtworkId })">Tiếp</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Script hiển thị biểu đồ -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const artworkDates = @Html.Raw(Json.Serialize(artworkDates));
+            const totalArtworks = @Html.Raw(Json.Serialize(totalArtworks));
+
+            const options = {
+                series: [{
+                    name: 'Tác phẩm',
+                    data: totalArtworks
+                }],
+                chart: {
+                    height: 350,
+                    type: 'area'
+                },
+                xaxis: {
+                    categories: artworkDates
+                },
+                colors: ["#3a57e8"],
+                fill: {
+                    type: 'gradient'
+                }
+            };
+
+            const chart = new ApexCharts(document.querySelector("#artworkStatsChart"), options);
+            chart.render();
+        });
+    </script>
+}

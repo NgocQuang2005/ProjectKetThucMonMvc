@@ -1,0 +1,142 @@
+﻿@{
+    ViewBag.Title = "Báo Cáo Thống Kê Sự Kiện";
+    var eventStats = ViewBag.EventStats as List<dynamic> ?? new List<dynamic>();
+    var eventDates = eventStats.Select(x => x.Date.ToString("dd/MM/yyyy")).ToList();
+    var totalEvents = eventStats.Select(x => x.TotalEvents).ToList();
+}
+@section Style{
+    <link rel="stylesheet" href="~/Admin/css/EventReport.css" />
+}
+<!-- Trang tổng quan sự kiện -->
+<div class="container mt-4">
+    <!-- Thống kê số lượng sự kiện -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <h5 class="card-title">Tổng số sự kiện</h5>
+                    <p class="stat-number">@ViewBag.TotalEvents</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <h5 class="card-title">Sự kiện đang hoạt động</h5>
+                    <p class="stat-number">@ViewBag.TotalActiveEvents</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <h5 class="card-title">Sự kiện đã kết thúc</h5>
+                    <p class="stat-number">@ViewBag.TotalInactiveEvents</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biểu đồ thống kê sự kiện theo thời gian -->
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Sự kiện được tạo theo thời gian</h5>
+                    <div id="eventStatsChart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Báo cáo chi tiết sự kiện và người tham gia -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Báo cáo chi tiết sự kiện</h5>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tên sự kiện</th>
+                                <th>Người tổ chức</th>
+                                <th>Số người tham gia</th>
+                                <th>Ngày tạo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var eventDetail in ViewBag.EventDetails)
+                            {
+                                <tr>
+                                    <td>@eventDetail.Event.IdEvent</td>
+                                    <td>@eventDetail.Event.Title</td>
+                                    <td>@eventDetail.Event.Account.AccountDetail.Fullname</td>
+                                    <td>@eventDetail.ParticipantsCount</td>
+                                    <td>@eventDetail.Event.CreatedWhen?.ToString("dd/MM/yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <!-- Phân trang -->
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            @if (ViewBag.CurrentPage > 1)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.CurrentPage - 1 })">Trước</a>
+                                </li>
+                            }
+
+                            @for (var i = 1; i <= ViewBag.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                                </li>
+                            }
+
+                            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.CurrentPage + 1 })">Tiếp</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Script hiển thị biểu đồ -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const eventDates = @Html.Raw(Json.Serialize(eventDates));
+            const totalEvents = @Html.Raw(Json.Serialize(totalEvents));
+
+            const options = {
+                series: [{
+                    name: 'Sự kiện',
+                    data: totalEvents
+                }],
+                chart: {
+                    height: 350,
+                    type: 'area'
+                },
+                xaxis: {
+                    categories: eventDates
+                },
+                colors: ["#3a57e8"],
+                fill: {
+                    type: 'gradient'
+                }
+            };
+
+            const chart = new ApexCharts(document.querySelector("#eventStatsChart"), options);
+            chart.render();
+        });
+    </script>
+}

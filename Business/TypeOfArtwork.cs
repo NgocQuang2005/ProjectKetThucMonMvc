@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,6 +27,8 @@ namespace Business
         public string Description { get; set; }
 
         public ICollection<Artwork>? Artworks { get; set; }
+        [NotMapped] // Thuộc tính này không cần lưu vào database
+        public bool IsSelected { get; set; }
 
     }
 }

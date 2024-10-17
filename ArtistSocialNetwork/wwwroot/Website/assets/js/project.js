@@ -272,3 +272,36 @@
         });
     });
 });
+document.addEventListener("DOMContentLoaded", function () {
+    const posts = document.querySelectorAll('.post-content-wrapper');
+
+    posts.forEach(post => {
+        const content = post.querySelector('.post-content');
+        const showMoreBtn = post.querySelector('.show-more');
+
+        const maxHeight = 100; // Điều chỉnh độ cao này cho phù hợp với 4 dòng
+         // Đặt trạng thái ban đầu: nếu nội dung lớn hơn chiều cao tối đa thì hiển thị nút "Xem thêm"
+
+        if (content.scrollHeight > maxHeight) {
+            showMoreBtn.style.display = 'inline'; 
+            content.style.maxHeight = `${maxHeight}px`;
+            content.style.overflow = 'hidden'; 
+        }
+
+        //  xử lý sự kiện cho nút "Xem thêm"/"Ẩn giảm"
+        showMoreBtn.addEventListener('click', function () {
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                content.style.maxHeight = `${maxHeight}px`;
+                content.style.overflow = 'hidden';
+                showMoreBtn.textContent = 'Xem thêm';
+            } else {
+                content.classList.add('expanded');
+                content.style.maxHeight = content.scrollHeight + 'px'; // Tự động điều chỉnh theo chiều cao đầy đủ
+
+                content.style.overflow = 'visible';
+                showMoreBtn.textContent = 'Ẩn bớt';
+            }
+        });
+    });
+});

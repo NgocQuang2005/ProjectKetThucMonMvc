@@ -1,5 +1,6 @@
 ﻿using Business;
 using DataAccess;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -38,6 +39,10 @@ namespace Repository
         public async Task<Artwork> GetArtworkByIdAsNoTracking(int id)
         {
             return await ArtworkDAO.Instance.GetArtworkByIdAsNoTracking(id);
+        }
+        public async Task<int> GetTotalArtwork()
+        {
+            return await ArtworkDAO.Instance.GetTotalArtwork();
         }
     }
 }

@@ -204,19 +204,35 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link @IsActive("AccountReport")" href="@Url.Action("Index", "AccountReport")">
                         <i class="icon">
                             <i class="fa-solid fa-square-poll-horizontal  icon-20  flexI"></i>
                         </i>
-                        <span class="item-name">Báo cáo </span>
+                        <span class="item-name">Người Dùng </span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @IsActive("ArtworkReport")" href="@Url.Action("Index", "ArtworkReport")">
+                        <i class="icon">
+                            <i class="fa-solid fa-square-poll-horizontal  icon-20  flexI"></i>
+                        </i>
+                        <span class="item-name">Tác Phẩm </span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @IsActive("ProjectReport")" href="@Url.Action("Index", "ProjectReport")">
+                        <i class="icon">
+                            <i class="fa-solid fa-square-poll-horizontal  icon-20  flexI"></i>
+                        </i>
+                        <span class="item-name">Dự Án </span>
                     </a>
                 </li>
                 <li class="nav-item mb-5">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link @IsActive("EventReport")" href="@Url.Action("Index", "EventReport")">
                         <i class="icon">
-                            <i class="fa-solid fa-chart-simple icon-20  flexI"></i>
+                            <i class="fa-solid fa-square-poll-horizontal  icon-20  flexI"></i>
                         </i>
-                        <span class="item-name"> Thống kê </span>
+                        <span class="item-name"> Sự Kiện </span>
                     </a>
                 </li>
             </ul>

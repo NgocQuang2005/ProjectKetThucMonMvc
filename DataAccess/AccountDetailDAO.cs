@@ -58,6 +58,23 @@ namespace DataAccess
             await _context.SaveChangesAsync();
             return accountdetail.Active;
         }
+        // Lấy tất cả tài khoản đang hoạt động
+        public async Task<IEnumerable<AccountDetail>> GetActiveAccounts()
+        {
+            return await _context.AccountDetails
+                                 .Include(ad => ad.account)
+                                 .Where(ad => ad.Active) // Chỉ lấy những tài khoản đang hoạt động
+                                 .ToListAsync();
+        }
+
+        // Lấy tất cả tài khoản không hoạt động
+        public async Task<IEnumerable<AccountDetail>> GetInactiveAccounts()
+        {
+            return await _context.AccountDetails
+                                 .Include(ad => ad.account)
+                                 .Where(ad => !ad.Active) // Chỉ lấy những tài khoản không hoạt động
+                                 .ToListAsync();
+        }
     }
 
 }

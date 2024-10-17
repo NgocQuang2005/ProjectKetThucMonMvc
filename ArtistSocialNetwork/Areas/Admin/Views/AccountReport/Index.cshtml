@@ -1,0 +1,141 @@
+﻿@{
+    ViewBag.Title = "Báo Cáo Thống Kê Người Dùng";
+    var accountStats = ViewBag.AccountStats as List<dynamic> ?? new List<dynamic>();
+    var dates = accountStats.Select(x => x.Date.ToString("dd/MM/yyyy")).ToList();
+    var totals = accountStats.Select(x => x.TotalRegistrations).ToList();
+}
+@section Style{
+    <link rel="stylesheet" href="~/Admin/css/AccountReport.css" />
+}
+<!-- Trang tổng quan -->
+<div class="container mt-4">
+    <!-- Thống kê tài khoản -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <h5 class="card-title">Tổng Số Người Dùng</h5>
+                    <p class="stat-number">@ViewBag.TotalUsers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <h5 class="card-title">Người Dùng Hoạt Động</h5>
+                    <p class="stat-number">@ViewBag.ActiveUsers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <h5 class="card-title">Người Dùng Không Hoạt Động</h5>
+                    <p class="stat-number">@ViewBag.InactiveUsers</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biểu đồ thống kê đăng ký tài khoản theo ngày -->
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Đăng Ký Tài Khoản</h5>
+                    <div id="accountStatsChart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Báo cáo chi tiết tài khoản -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Báo Cáo Tài Khoản</h5>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tên</th>
+                                <th>Email</th>
+                                <th>Trạng Thái</th>
+                                <th>Ngày Tạo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var account in ViewBag.AccountDetails)
+                            {
+                                <tr>
+                                    <td>@account.IdAccount</td>
+                                    <td>@account.AccountDetail.Fullname</td> <!-- Thay đổi để hiển thị từ AccountDetail -->
+                                    <td>@account.Email</td>
+                                    <td>@(account.AccountDetail.Active ? "Hoạt Động" : "Không Hoạt Động")</td> <!-- Trạng thái từ AccountDetail -->
+                                    <td>@account.CreatedWhen?.ToString("dd/MM/yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <!-- Phân trang -->
+                    <nav aria-label="Điều hướng trang">
+                        <ul class="pagination">
+                            @if (ViewBag.CurrentPage > 1)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.CurrentPage - 1 })">Trang Trước</a>
+                                </li>
+                            }
+
+                            @for (var i = 1; i <= ViewBag.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                                </li>
+                            }
+
+                            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.CurrentPage + 1 })">Trang Sau</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Script hiển thị biểu đồ -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const dates = @Html.Raw(Json.Serialize(dates));
+            const totals = @Html.Raw(Json.Serialize(totals));
+
+            const options = {
+                series: [{
+                    name: 'Đăng Ký',
+                    data: totals
+                }],
+                chart: {
+                    height: 350,
+                    type: 'area'
+                },
+                xaxis: {
+                    categories: dates
+                },
+                colors: ["#3a57e8"],
+                fill: {
+                    type: 'gradient'
+                }
+            };
+
+            const chart = new ApexCharts(document.querySelector("#accountStatsChart"), options);
+            chart.render();
+        });
+    </script>
+}

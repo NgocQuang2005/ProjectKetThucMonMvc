@@ -18,5 +18,6 @@ namespace Repository
         Task DeleteByProjectId(int projectId);
         Task<IEnumerable<ProjectParticipant>> GetProjectParticipantsByProjectId(int projectId);
         Task DeleteByProjectAndAccount(int projectId, int accountId);
+        Task<int> GetParticipantCountByProjectId(int projectId);  // Số người tham gia theo Id dự án
     }
 }

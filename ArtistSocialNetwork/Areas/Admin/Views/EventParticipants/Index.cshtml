@@ -107,7 +107,7 @@
                     <tr>
                         <th>#</th>
                         <th>@Html.DisplayNameFor(model => model.Active)</th>
-                        <th>@Html.DisplayNameFor(model => model.Event.Description)</th>
+                        <th>@Html.DisplayNameFor(model => model.Event.Title)</th>
                         <th>@Html.DisplayNameFor(model => model.Account.Email)</th>
                         <th>@Html.DisplayNameFor(model => model.RegistrationTime)</th>
                         <th>Hành động</th>
@@ -129,7 +129,7 @@
                             <td>
                                 <a href="#" class="btn @(item.Active ? "btn-primary" : "btn-danger") btn-active" data-id="@item.IdEventParticipant">@(item.Active ? "Bật" : "Tắt")</a>
                             </td>
-                            <td>@Html.DisplayFor(modelItem => item.Event.Description)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Event.Title)</td>
                             <td>@Html.DisplayFor(modelItem => item.Account.Email)</td>
                             <td>@Html.DisplayFor(modelItem => item.RegistrationTime)</td>
                             <td>

@@ -31,6 +31,12 @@ namespace DataAccess
                                  .AsNoTracking() // Tối ưu hóa cho truy vấn chỉ đọc
                                  .FirstOrDefaultAsync(a => a.IdArtwork == id);
         }
+        public async Task<int> GetTotalArtwork()
+        {
+            return await _context.Artworks
+                                   // Thêm để tối ưu hóa
+                                 .CountAsync();
+        }
 
 
         // Thêm mới một Artwork

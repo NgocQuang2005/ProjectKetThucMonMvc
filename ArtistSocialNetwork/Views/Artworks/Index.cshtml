@@ -232,7 +232,10 @@
 
                                 <div class="artwork mb-2">
                                     <h3 class="bold">@artwork.Artwork.Title</h3>
-                                    <p class="post-content mb-2">@artwork.Artwork.Description</p>
+                                    <div class="post-content-wrapper">
+                                        <p class="post-content mb-2">@artwork.Artwork.Description</p>
+                                        <span class="show-more" style="display: none; cursor: pointer">Xem thêm</span>
+                                    </div>
                                     <div class="post-images @(artwork.Images.Count == 1 ? "single" : artwork.Images.Count == 2 ? "double" : artwork.Images.Count == 3 ? "triple" : "quad")">
                                         @foreach (var image in artwork.Images)
                                         {

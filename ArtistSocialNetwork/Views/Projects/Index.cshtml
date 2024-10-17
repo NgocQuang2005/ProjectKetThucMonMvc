@@ -231,7 +231,7 @@
                                     <h3 class="bold">@projectItem.Project.Title</h3>
                                     <div class="post-content-wrapper">
                                         <p class="post-content mb-2">@projectItem.Project.Description</p>
-                                        <span class="show-more" style="display: none; cursor: pointer">Hiển thị thêm</span>
+                                        <span class="show-more" style="display: none; cursor: pointer">Xem Thêm</span>
                                     </div>
                                     <div class="post-images @(projectItem.Images.Count == 1 ? "single" : projectItem.Images.Count == 2 ? "double" : projectItem.Images.Count == 3 ? "triple" : "quad")">
                                         @foreach (var image in projectItem.Images)
@@ -418,6 +418,13 @@
                 selectElement.value = 'all';  // Đặt giá trị mặc định là 'all'
             }
         };
-
+        document.addEventListener("DOMContentLoaded", function () {
+            // Đặt giá trị min cho input datetime-local khi trang tải
+            var currentDateTime = new Date().toISOString().slice(0, 16); // Lấy thời gian hiện tại theo định dạng yyyy-MM-ddTHH:mm
+            document.getElementById("StartDate").setAttribute("min", currentDateTime);
+            document.getElementById("EndDate").setAttribute("min", currentDateTime);
+            document.getElementById("editStartDate").setAttribute("min", currentDateTime);
+            document.getElementById("editEndDate").setAttribute("min", currentDateTime);
+        });
     </script>
 }

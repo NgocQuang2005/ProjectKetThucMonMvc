@@ -1,0 +1,145 @@
+﻿@{
+    ViewBag.Title = "Báo Cáo Thống Kê Dự Án";
+    var projectStats = ViewBag.ProjectStats as List<dynamic> ?? new List<dynamic>();
+    var projectDates = projectStats.Select(x => x.Date.ToString("dd/MM/yyyy")).ToList();
+    var totalProjectsPerDay = projectStats.Select(x => x.TotalProjects).ToList();
+}
+
+@section Style{
+    <link rel="stylesheet" href="~/Admin/css/ProjectReport.css" />
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <h5 class="card-title">Tổng Số Dự Án</h5>
+                    <p class="stat-number">@ViewBag.TotalProjects</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <h5 class="card-title">Dự Án Đang Hoạt Động</h5>
+                    <p class="stat-number">@ViewBag.ActiveProjects</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <h5 class="card-title">Dự Án Đã Kết Thúc</h5>
+                    <p class="stat-number">@ViewBag.CompletedProjects</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biểu đồ thống kê dự án theo ngày -->
+    <div class="row mb-5 mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Dự án được tạo theo thời gian</h5>
+                    <div id="projectStatsChart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bảng danh sách dự án -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Danh Sách Dự Án</h5>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tiêu Đề</th>
+                                <th>Người Đăng</th>
+                                <th>Ngày Bắt Đầu</th>
+                                <th>Ngày Kết Thúc</th>
+                                <th>Số Người Tham Gia</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var projectDetail in Model)
+                            {
+                                <tr>
+                                    <td>@projectDetail.Project.IdProject</td>
+                                    <td>@projectDetail.Project.Title</td>
+                                    <td>@projectDetail.Project.Account.AccountDetail.Fullname</td>
+                                    <td>@projectDetail.Project.StartDate.ToString("dd/MM/yyyy")</td>
+                                    <td>@projectDetail.Project.EndDate.ToString("dd/MM/yyyy")</td>
+                                    <td>@projectDetail.Participants</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <!-- Phân trang -->
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination"> 
+                            @if (ViewBag.CurrentPage > 1) 
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.CurrentPage - 1 })">Trước</a>
+                                </li>
+                            }
+
+                            @for (var i = 1; i <= ViewBag.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                                </li>
+                            }
+
+                            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.CurrentPage + 1 })">Tiếp</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <!-- Script hiển thị biểu đồ -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const projectDates = @Html.Raw(Json.Serialize(projectDates));
+            const totalProjectsPerDay = @Html.Raw(Json.Serialize(totalProjectsPerDay));
+
+            const options = {
+                series: [{
+                    name: 'Dự án',
+                    data: totalProjectsPerDay
+                }],
+                chart: {
+                    height: 350,
+                    type: 'area'
+                },
+                xaxis: {
+                    categories: projectDates
+                },
+                colors: ["#28a745"],
+                fill: {
+                    type: 'gradient'
+                }
+            };
+
+            const chart = new ApexCharts(document.querySelector("#projectStatsChart"), options);
+            chart.render();
+        });
+    </script>
+}

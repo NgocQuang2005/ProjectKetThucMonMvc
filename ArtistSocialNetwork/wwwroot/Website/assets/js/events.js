@@ -203,28 +203,63 @@
             reader.readAsDataURL(file);
         });
     });
+    // Đăng ký tham gia sự kiện
     $(document).on('click', '.register-btn', function () {
         var eventId = $(this).data('event-id'); // Lấy ID sự kiện từ thuộc tính data-event-id của nút
 
         $.ajax({
             type: "POST",
-            url: '@Url.Action("RegisterEvent", "Events")',
+            url: '/Events/RegisterEvent', // Gọi trực tiếp URL của phương thức trong controller
             data: { IdEvent: eventId },
             success: function (response) {
                 if (response.success) {
-                    showSuccessEventDki();
+                    showSuccessEventDki(); // Hiển thị thông báo đăng ký thành công
                     setTimeout(function () {
-                        location.reload(); // Tải lại trang sau khi đăng ký thành công
-                    }, 2000);
+                        location.reload(); // Tải lại trang sau khi thông báo được hiển thị trong 2 giây
+                    }, 2000); // Đặt thời gian chờ 2 giây (2000ms) trước khi tải lại trang
                 } else {
                     alert(response.message); // Hiển thị thông báo lỗi nếu có
                 }
             },
             error: function () {
-                showWarningEventDki(); // Hiển thị cảnh báo khi có lỗi xảy ra
+                showWarningEventDki(); // Hiển thị thông báo lỗi khi đăng ký
             }
         });
     });
+
+
+
+    // Hiển thị modal xác nhận khi hủy sự kiện
+    $(document).on('click', '.cancel-registration-btn', function () {
+        var eventId = $(this).data('event-id');
+        $('#confirmCancelRegistrationBtn').data('event-id', eventId);
+        $('#cancelRegistrationModal').modal('show');
+    });
+
+    $('#confirmCancelRegistrationBtn').on('click', function () {
+        var eventId = $(this).data('event-id');
+
+        $.ajax({
+            type: "POST",
+            url: '/Events/CancelRegistration', // Gọi trực tiếp URL của phương thức trong controller
+            data: { IdEvent: eventId },
+            success: function (response) {
+                if (response.success) {
+                    $('#cancelRegistrationModal').modal('hide');
+                    showSuccessHuyEventDki(); // Hiển thị thông báo hủy thành công
+                    setTimeout(function () {
+                        location.reload(); // Tải lại trang sau khi thông báo được hiển thị trong 2 giây
+                    }, 2000); // Đặt thời gian chờ 2 giây (2000ms) trước khi tải lại trang
+                } else {
+                    alert(response.message); // Hiển thị thông báo lỗi nếu có
+                }
+            },
+            error: function () {
+                showWarningHuyEventDki(); // Hiển thị thông báo lỗi khi hủy đăng ký
+            }
+        });
+    });
+
 
     // Modal logic for image viewing
     const modal = document.querySelector("#imageModal");
@@ -266,17 +301,15 @@ document.addEventListener("DOMContentLoaded", function () {
     posts.forEach(post => {
         const content = post.querySelector('.post-content');
         const showMoreBtn = post.querySelector('.show-more');
-
-        const maxHeight = 100; // Adjust this height to the appropriate size for 4 lines
-
-        // Set the initial state: if the content is larger than the max height, show the "Xem thêm" button
+        const maxHeight = 100; 
+        // Đặt trạng thái ban đầu: nếu nội dung lớn hơn chiều cao tối đa thì hiển thị nút "Xem thêm"
         if (content.scrollHeight > maxHeight) {
             showMoreBtn.style.display = 'inline'; // Show the button if content is too long
             content.style.maxHeight = `${maxHeight}px`;
             content.style.overflow = 'hidden'; // Prevent content overflow
         }
 
-        // Event listener for the "Xem thêm" / "Ẩn bớt" button
+        //  xử lý sự kiện cho nút "Xem thêm"/"Ẩn giảm"
         showMoreBtn.addEventListener('click', function () {
             if (content.classList.contains('expanded')) {
                 content.classList.remove('expanded');
@@ -285,7 +318,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 showMoreBtn.textContent = 'Xem thêm';
             } else {
                 content.classList.add('expanded');
-                content.style.maxHeight = content.scrollHeight + 'px'; // Dynamically adjust to full height
+                content.style.maxHeight = content.scrollHeight + 'px'; // Tự động điều chỉnh theo chiều cao đầy đủ
                 content.style.overflow = 'visible';
                 showMoreBtn.textContent = 'Ẩn bớt';
             }

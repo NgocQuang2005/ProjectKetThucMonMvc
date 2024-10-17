@@ -147,6 +147,15 @@ namespace ArtistSocialNetwork.Controllers
                 var images = await _documentInfoRepository.GetDocumentInfoByEventId(eventItem.IdEvent);
                 var uploaderAvatarInfo = await _documentInfoRepository.GetDocumentInfoByAccountId(eventItem.IdAc);
 
+                // Kiểm tra xem người dùng đã đăng ký sự kiện này chưa
+                var isUserRegistered = false;
+                if (currentUserId != null)
+                {
+                    var existingRegistration = await _eventParticipantRepository.GetEventParticipantsByEventAndUser(eventItem.IdEvent, currentUserId.Value);
+                    isUserRegistered = existingRegistration != null;
+                }
+
+                // Tạo danh sách sự kiện để truyền tới View
                 eventViewModelList.Add(new
                 {
                     Event = eventItem,
@@ -156,7 +165,8 @@ namespace ArtistSocialNetwork.Controllers
                                    .ToList(),
                     UploaderName = eventItem.Account?.AccountDetail?.Fullname ?? "Unknown",
                     UploaderAvatar = uploaderAvatarInfo?.UrlDocument ?? "default-profile.png",
-                    TimeAgo = eventItem.LastUpdateWhen.HasValue ? CalculateTimeAgo(eventItem.LastUpdateWhen.Value) : "Unknown time"
+                    TimeAgo = eventItem.LastUpdateWhen.HasValue ? CalculateTimeAgo(eventItem.LastUpdateWhen.Value) : "Unknown time",
+                    IsUserRegistered = isUserRegistered // Thêm thông tin người dùng đã đăng ký hay chưa
                 });
             }
 
@@ -352,23 +362,30 @@ namespace ArtistSocialNetwork.Controllers
         public async Task<IActionResult> RegisterEvent(int IdEvent)
         {
             var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
+
+            // Kiểm tra nếu người dùng chưa đăng nhập
             if (currentUserId == null)
             {
                 return Json(new { success = false, message = "Bạn cần đăng nhập để đăng ký sự kiện." });
             }
 
+            // Lấy sự kiện theo IdEvent
             var eventItem = await _eventRepository.GetEventById(IdEvent);
+
+            // Kiểm tra nếu sự kiện không tồn tại
             if (eventItem == null)
             {
                 return Json(new { success = false, message = "Sự kiện không tồn tại." });
             }
 
+            // Kiểm tra nếu người dùng đã đăng ký sự kiện này rồi
             var existingRegistration = await _eventParticipantRepository.GetEventParticipantsByEventAndUser(IdEvent, currentUserId.Value);
             if (existingRegistration != null)
             {
                 return Json(new { success = false, message = "Bạn đã đăng ký sự kiện này rồi." });
             }
 
+            // Tạo đối tượng EventParticipants để lưu đăng ký mới
             var eventParticipants = new EventParticipants
             {
                 IdAc = currentUserId.Value,
@@ -377,14 +394,47 @@ namespace ArtistSocialNetwork.Controllers
                 Active = true
             };
 
+            // Cố gắng thêm thông tin đăng ký vào cơ sở dữ liệu
             try
             {
                 await _eventParticipantRepository.Add(eventParticipants);
                 return Json(new { success = true, message = "Đăng ký thành công!" });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Lỗi trong quá trình đăng ký sự kiện.");
                 return Json(new { success = false, message = "Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại sau." });
+            }
+        }
+
+        // Hủy đăng ký sự kiện
+        [HttpPost]
+        public async Task<IActionResult> CancelRegistration(int IdEvent)
+        {
+            var currentUserId = HttpContext.Session.GetInt32("CurrentUserId");
+
+            if (currentUserId == null)
+            {
+                return Json(new { success = false, message = "Bạn cần đăng nhập để hủy đăng ký sự kiện." });
+            }
+
+            // Tìm bản ghi đăng ký sự kiện của người dùng
+            var registration = await _eventParticipantRepository.GetEventParticipantsByEventAndUser(IdEvent, currentUserId.Value);
+
+            if (registration == null)
+            {
+                return Json(new { success = false, message = "Bạn chưa đăng ký sự kiện này." });
+            }
+
+            try
+            {
+                await _eventParticipantRepository.Delete(registration.IdEventParticipant); // Xóa bản ghi đăng ký
+                return Json(new { success = true, message = "Hủy đăng ký thành công!" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi trong quá trình hủy đăng ký sự kiện.");
+                return Json(new { success = false, message = "Đã xảy ra lỗi trong quá trình hủy đăng ký. Vui lòng thử lại sau." });
             }
         }
 

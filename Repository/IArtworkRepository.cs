@@ -13,5 +13,7 @@ namespace Repository
         Task Delete(int id); // Xóa Artwork
         Task<bool> ChangeActive(int id);
         Task<Artwork> GetArtworkByIdAsNoTracking(int id);
+        Task<int> GetTotalArtwork();
+
     }
 }

@@ -15,7 +15,7 @@
                 clearTimeout(autoRemoveId);
             }
         };
-
+         
         const icons = {
             success: "fas fa-check-circle",
             //info: "fas fa-info-circle",
@@ -69,6 +69,23 @@ function showSuccessEventDki() {
         type: "success",
         duration: 5000
     });
+}
+function showSuccessHuyEventDki() {
+    toast({
+        title: "Thành công!",
+        message: "Bạn đã hủy tham gia sự kiện này thành công.",
+        type: "success",
+        duration: 5000
+    });
+}
+function showWarningHuyEventDki() {
+    toast({
+        title: "Thất Bại!",
+        message: "Bạn vui lòng chờ hệ thống xác thực nhé  !!!.",
+        type: "warning",
+        duration: 5000
+    });
+    return false;
 }
 function showWarningEventDki() {
     toast({

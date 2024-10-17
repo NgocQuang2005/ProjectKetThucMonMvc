@@ -37,5 +37,21 @@ namespace Repository
         {
             return await ProjectDAO.Instance.ChangeActive(id);
         }
+        public async Task<int> GetTotalProjects()
+        {
+            return await ProjectDAO.Instance.GetTotalProjects();
+        }
+        // Lấy tất cả dự án đang hoạt động
+        public async Task<IEnumerable<Project>> GetActiveProjects()
+        {
+            return await ProjectDAO.Instance.GetActiveProjects();
+        }
+
+        // Lấy tất cả dự án đã hoàn thành
+        public async Task<IEnumerable<Project>> GetCompletedProjects()
+        {
+            return await ProjectDAO.Instance.GetCompletedProjects();
+        }
+
     }
 }
