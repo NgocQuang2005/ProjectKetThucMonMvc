@@ -24,9 +24,19 @@
           crossorigin="anonymous"
           referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="~/Website/assets/css/signUp.css" />
+
 </head>
 
 <body>
+    <!-- Loading spinner with three dots -->
+    <div id="loadingSpinner">
+        <div class="dot-container">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+    </div>
+
     <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center p-0">
         <div class="row w-100 h-100">
             <div class="col-md-6 d-flex justify-content-center align-items-center">
@@ -34,9 +44,8 @@
                     <div>
                         <div class="text-center mb-4">
                             <h4>Đăng Ký Tài Khoản</h4>
-                            
                         </div>
-                        <form asp-action="Index" method="post">
+                        <form asp-action="Index" method="post" id="signUpForm">
                             @if (TempData["AlertMessage"] != null)
                             {
                                 <div class="alert @TempData["Type"]">
@@ -124,8 +133,18 @@
                 dateFormat: "d/m/Y", // Date format
                 maxDate: "today" // Prevent selecting future dates
             });
+
+            // Hiển thị loading khi form được submit
+            $('#signUpForm').on('submit', function () {
+                // Hiển thị loading spinner
+                $('#loadingSpinner').show();
+            });
         });
     </script>
     <script src="~/Website/assets/js/app.js"></script>
 </body>
+
 </html>
+
+
+

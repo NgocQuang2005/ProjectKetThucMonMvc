@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Collections.Generic;
 using System.Reflection.Metadata;
+using Microsoft.EntityFrameworkCore;
 
 namespace ArtistSocialNetwork.Areas.Admin.Controllers
 {
@@ -180,7 +181,7 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             return View(project);
         }
 
-        // Modify the Edit POST method in ProjectsController
+        // POST: Admin/Projects/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("IdProject,Active,Title,IdAc,Description,StartDate,EndDate,CreatedBy,CreatedWhen")] Project project, List<IFormFile> ImageFiles, string DeletedImages = "")
@@ -201,27 +202,25 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                     return View(project);
                 }
 
-                // Retrieve the original project from the database
+                // Lấy dự án từ database qua repository (dùng AsNoTracking để tránh bị theo dõi)
                 var originalProject = await projectRepository.GetProjectById(id);
                 if (originalProject == null)
                 {
                     return NotFound();
                 }
 
-                // Preserve the original CreatedBy and CreatedWhen values
+                // Cập nhật thông tin của dự án
                 project.CreatedBy = originalProject.CreatedBy;
                 project.CreatedWhen = originalProject.CreatedWhen;
-
-                // Update other fields
                 project.LastUpdateBy = currentUserId.Value;
                 project.LastUpdateWhen = DateTime.Now;
 
                 try
                 {
-                    // Update project in the repository
+                    // Cập nhật dự án
                     await projectRepository.Update(project);
 
-                    // Handle deleted images
+                    // Xử lý hình ảnh bị xóa
                     if (!string.IsNullOrEmpty(DeletedImages))
                     {
                         var deletedImageIds = DeletedImages.Split(',');
@@ -230,20 +229,19 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                             var documentInfo = await documentInfoRepository.GetDocumentInfoById(int.Parse(imageId));
                             if (documentInfo != null)
                             {
-                                // Delete file from folder
                                 var filePath = Path.Combine("wwwroot/Upload/Images", documentInfo.UrlDocument);
                                 if (System.IO.File.Exists(filePath))
                                 {
-                                    System.IO.File.Delete(filePath);
+                                    System.IO.File.Delete(filePath); // Xóa tệp từ thư mục
                                 }
 
-                                // Delete image info from database
+                                // Xóa DocumentInfo khỏi cơ sở dữ liệu
                                 await documentInfoRepository.Delete(documentInfo.IdDcIf);
                             }
                         }
                     }
 
-                    // Handle new image uploads
+                    // Xử lý thêm hình ảnh mới
                     if (ImageFiles != null && ImageFiles.Count > 0)
                     {
                         foreach (var file in ImageFiles)
@@ -299,29 +297,37 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
         {
             try
             {
+                // Lấy dự án từ repository với AsNoTracking để không bị theo dõi
                 var project = await projectRepository.GetProjectById(id);
                 if (project == null)
                 {
-                    return Json(new { success = false, message = "Project not found." });
+                    return Json(new { success = false, message = "Không tìm thấy sự kiện" });
                 }
 
+                // Xử lý xóa các DocumentInfos liên quan đến dự án
                 var documentInfos = await documentInfoRepository.GetDocumentInfoByProjectId(id);
                 foreach (var documentInfo in documentInfos)
                 {
                     var filePath = Path.Combine("wwwroot/Upload/Images", documentInfo.UrlDocument);
                     if (System.IO.File.Exists(filePath))
                     {
-                        System.IO.File.Delete(filePath); 
+                        System.IO.File.Delete(filePath); // Xóa tệp từ thư mục
                     }
+
+                    // Xóa bản ghi DocumentInfo khỏi cơ sở dữ liệu
                     await documentInfoRepository.Delete(documentInfo.IdDcIf);
                 }
 
+                // Xóa dự án khỏi cơ sở dữ liệu
                 await projectRepository.Delete(id);
+
                 SetAlert(Commons.Contants.Delete_success, Commons.Contants.success);
                 return Json(new { status = true });
             }
             catch (Exception ex)
             {
+                // Ghi lỗi ra console
+                Console.WriteLine($"Lỗi khi xóa dự án với id: {id}. Chi tiết lỗi: {ex.Message}");
                 return Json(new { success = false, message = ex.Message });
             }
         }

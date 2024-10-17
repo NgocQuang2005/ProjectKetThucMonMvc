@@ -22,6 +22,15 @@
     <link rel="stylesheet" href="~/Website/assets/css/login.css" />
 </head>
 <body>
+    <!-- Loading spinner with three dots -->
+    <div id="loadingSpinner">
+        <div class="dot-container">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+    </div>
+
     <section class="vh-100">
         <div class="container-fluid h-custom">
             <div class="row d-flex justify-content-center align-items-center h-100">
@@ -32,7 +41,7 @@
                 </div>
                 <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
                     <!-- Form đăng nhập -->
-                    <form asp-controller="Login" asp-action="Index" method="post">
+                    <form asp-controller="Login" asp-action="Index" method="post" id="loginForm">
                         <!-- Hiển thị thông báo lỗi (nếu có) -->
                         @if (TempData["Message"] != null)
                         {
@@ -101,5 +110,18 @@
             </div>
         </div>
     </section>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Khi form được submit
+            $('#loginForm').on('submit', function () {
+                // Hiển thị loading spinner
+                $('#loadingSpinner').show();
+            });
+        });
+    </script>
 </body>
 </html>
+
+

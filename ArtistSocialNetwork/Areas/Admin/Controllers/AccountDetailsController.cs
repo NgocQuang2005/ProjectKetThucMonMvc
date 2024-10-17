@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Repository;
 using X.PagedList;
 using Microsoft.AspNetCore.Http; // Để sử dụng Session
+using Microsoft.EntityFrameworkCore;
 
 namespace ArtistSocialNetwork.Areas.Admin.Controllers
 {
@@ -129,19 +130,61 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                     return View(accountDetail);
                 }
 
-                // Cập nhật LastUpdateBy là người dùng hiện tại
+                // Cập nhật LastUpdateBy và LastUpdateWhen
                 accountDetail.LastUpdateBy = currentUserId.Value;
                 accountDetail.LastUpdateWhen = DateTime.Now;
 
-                await accountDetailRepository.Update(accountDetail);
-                SetAlert(Commons.Contants.Update_success, Commons.Contants.success);
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    // Lấy thực thể từ cơ sở dữ liệu trước khi cập nhật
+                    var existingAccountDetail = await accountDetailRepository.GetAccountDetailById(accountDetail.IdAccountDt);
+
+                    if (existingAccountDetail == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Cập nhật các trường cần thay đổi
+                    existingAccountDetail.Fullname = accountDetail.Fullname;
+                    existingAccountDetail.Active = accountDetail.Active;
+                    existingAccountDetail.IdAccount = accountDetail.IdAccount;
+                    existingAccountDetail.CCCD = accountDetail.CCCD;
+                    existingAccountDetail.Description = accountDetail.Description;
+                    existingAccountDetail.Birthday = accountDetail.Birthday;
+                    existingAccountDetail.Nationality = accountDetail.Nationality;
+                    existingAccountDetail.Gender = accountDetail.Gender;
+                    existingAccountDetail.Address = accountDetail.Address;
+                    existingAccountDetail.LastUpdateBy = accountDetail.LastUpdateBy;
+                    existingAccountDetail.LastUpdateWhen = accountDetail.LastUpdateWhen;
+
+                    // Gọi hàm update trong repository
+                    await accountDetailRepository.Update(existingAccountDetail);
+                    SetAlert(Commons.Contants.Update_success, Commons.Contants.success);
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!AccountDetailExists(accountDetail.IdAccountDt))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
             }
 
             // Nếu ModelState không hợp lệ, vẫn cần lấy lại danh sách tài khoản
             ViewData["IdAccount"] = new SelectList(await accountRepository.GetAccountAll(), "IdAccount", "Email", accountDetail.IdAccount);
             return View(accountDetail);
         }
+
+        private bool AccountDetailExists(int id)
+        {
+            return accountDetailRepository.GetAccountDetailById(id) != null;
+        }
+
 
         [HttpPost]
         public async Task<JsonResult> DeleteId(int id)

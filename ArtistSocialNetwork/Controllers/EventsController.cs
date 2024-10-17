@@ -444,20 +444,28 @@ namespace ArtistSocialNetwork.Controllers
         {
             try
             {
-                var eventItem = await _eventRepository.GetEventById(id);
+                var eventItem = await _context.Events.Include(e => e.DocumentInfos)
+                                                      .Include(e => e.EventParticipants)
+                                                      .AsNoTracking()
+                                                      .FirstOrDefaultAsync(e => e.IdEvent == id);
                 if (eventItem == null)
                 {
                     return Json(new { success = false, message = "Event not found." });
                 }
 
-                var images = await _documentInfoRepository.GetDocumentInfoByEventId(id);
-                foreach (var image in images)
+                // Bước 2: Xóa tất cả các phản hồi (Reaction) liên quan đến artwork
+                if (eventItem.EventParticipants != null && eventItem.EventParticipants.Any())
                 {
-                    await _documentInfoRepository.Delete(image.IdDcIf);
+                    _context.EventParticipants.RemoveRange(eventItem.EventParticipants); // Xóa tất cả các phản hồi khỏi context
                 }
 
-                await _eventRepository.Delete(id);
-                await GetEventList();
+                // Bước 3: Xóa tất cả các hình ảnh liên quan đến artwork
+                if (eventItem.DocumentInfos != null && eventItem.DocumentInfos.Any())
+                {
+                    _context.DocumentInfos.RemoveRange(eventItem.DocumentInfos); // Xóa tất cả các hình ảnh khỏi context
+                }
+                _context.Events.Remove(eventItem);  // Xóa tác phẩm
+                await _context.SaveChangesAsync();
                 return Json(new { success = true });
             }
             catch (DbUpdateException)

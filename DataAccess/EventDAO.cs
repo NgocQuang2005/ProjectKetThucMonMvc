@@ -48,29 +48,15 @@ namespace DataAccess
             await _context.SaveChangesAsync();
         }
 
-
         public async Task Delete(int id)
         {
             var events = await GetEventById(id);
             if (events != null)
             {
-                _context.Entry(events).State = EntityState.Detached;
-
-                if (events.Account?.AccountDetail != null)
-                {
-                    _context.Entry(events.Account.AccountDetail).State = EntityState.Detached;
-                }
-
-                foreach (var doc in events.DocumentInfos)
-                {
-                    _context.Entry(doc).State = EntityState.Detached;
-                }
-
                 _context.Events.Remove(events);
                 await _context.SaveChangesAsync();
             }
-        }   
-
+        }
         public async Task<bool> ChangeActive(int id)
         {
             var events = await GetEventById(id);

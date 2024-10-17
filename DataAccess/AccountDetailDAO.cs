@@ -30,17 +30,27 @@ namespace DataAccess
             _context.AccountDetails.Add(accountdetail);
             await _context.SaveChangesAsync();
         }
-        public async Task Update(AccountDetail accountdetail)
+        public async Task Update(AccountDetail accountDetail)
         {
-            var existingItem = await _context.AccountDetails.AsNoTracking().FirstOrDefaultAsync(ad => ad.IdAccountDt == accountdetail.IdAccountDt);
-            if (existingItem != null)
+            // Kiểm tra xem thực thể có đang được theo dõi không
+            var trackedEntity = _context.ChangeTracker.Entries<AccountDetail>()
+                                        .FirstOrDefault(e => e.Entity.IdAccountDt == accountDetail.IdAccountDt);
+
+            if (trackedEntity == null)
             {
-                // Attach entity and set state to Modified
-                _context.AccountDetails.Attach(accountdetail);
-                _context.Entry(accountdetail).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
+                // Nếu thực thể chưa được theo dõi, thực hiện Attach
+                _context.AccountDetails.Attach(accountDetail);
             }
+            else
+            {
+                // Nếu thực thể đã được theo dõi, không cần Attach mà chỉ cần đánh dấu trạng thái Modified
+                _context.Entry(trackedEntity.Entity).State = EntityState.Modified;
+            }
+
+            await _context.SaveChangesAsync();
         }
+
+
 
         public async Task Delete(int id)
         {

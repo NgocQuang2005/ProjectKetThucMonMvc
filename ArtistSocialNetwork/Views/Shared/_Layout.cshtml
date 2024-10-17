@@ -67,6 +67,13 @@
     </style>
 </head>
 <body>
+    <div id="loadingSpinner">
+        <div class="dot-container">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+    </div>
     <!-- Spinner Start -->
     <div id="spinner"
          class="show w-100 vh-100 bg-white position-fixed translate-middle top-50 start-50 d-flex align-items-center justify-content-center">
@@ -156,6 +163,32 @@
     <!-- Template Javascript -->
     <script src="~/Website/assets/js/main.js"></script>
     <script src="~/Website/assets/js/toast.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Ẩn spinner khi nội dung đã tải xong
+            document.getElementById('loadingSpinner').style.display = 'none';
+
+            // Hiển thị spinner trước khi tải lại trang hoặc chuyển hướng
+            window.addEventListener('beforeunload', function (e) {
+                document.getElementById('loadingSpinner').style.display = 'block';
+            });
+
+            // Hiển thị spinner khi click vào bất kỳ liên kết nào (ngoại trừ các liên kết đặc biệt như #, mailto, tel)
+            const links = document.querySelectorAll('a[href]:not([href^="#"]):not([href^="mailto"]):not([href^="tel"])');
+            links.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    document.getElementById('loadingSpinner').style.display = 'block';
+                });
+            });
+
+            // Hiển thị spinner khi nhấn nút F5 (refresh)
+            window.addEventListener('keydown', function (e) {
+                if (e.key === 'F5') {
+                    document.getElementById('loadingSpinner').style.display = 'block';
+                }
+            });
+        });
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

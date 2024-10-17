@@ -14,13 +14,11 @@
 
 <div class="bdlayout p-0">
     <h2 class="h2-title bg4 text-white">Chỉnh sửa thông tin người dùng</h2>
-    @{
-        if (TempData["AlertMessage"] != null)
-        {
-            <div id="alert-message" class="alert @TempData["AlertType"]">
-                @TempData["AlertMessage"]
-            </div>
-        }
+    @if (TempData["AlertMessage"] != null)
+    {
+        <div id="alert-message" class="alert @TempData["AlertType"]">
+            @TempData["AlertMessage"]
+        </div>
     }
 
     <div class="container my-4">
@@ -64,8 +62,7 @@
 
                 <div class="form-group col-md-6">
                     <label asp-for="Birthday" class="control-label"></label>
-                    <!-- Trường nhập liệu cho ngày sinh -->
-                    <input asp-for="Birthday" class="form-control" id="Birthday" />
+                    <input asp-for="Birthday" class="form-control" id="Birthday" value="@Model.Birthday?.ToString("yyyy-MM-dd")" />
                     <span asp-validation-for="Birthday" class="text-danger"></span>
                 </div>
 
@@ -100,14 +97,14 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/ckeditor5-classic-free-full-feature@35.4.1/build/ckeditor.min.js"></script>
 
     <script>
         ClassicEditor.create(document.querySelector('#editor'))
             .then(editor => {
-                // Lấy giá trị từ CKEditor vào textarea khi submit form
+                editor.setData(document.querySelector('textarea[name="Description"]').value);
+
                 const form = document.querySelector('form');
                 form.onsubmit = () => {
                     document.querySelector('textarea[name="Description"]').value = editor.getData();
@@ -116,18 +113,17 @@
             .catch(error => {
                 console.error(error);
             });
+
         $(function () {
-            // Khởi tạo flatpickr với giá trị từ input
             flatpickr("#Birthday", {
-                dateFormat: "Y-m-d", // Định dạng ngày phù hợp với input của ASP.NET
-                maxDate: "today", // Không cho phép chọn ngày trong tương lai
-                defaultDate: $("#Birthday").val() || null // Sử dụng giá trị của input nếu có
+                dateFormat: "Y-m-d",
+                maxDate: "today",
+                defaultDate: $("#Birthday").val() ? new Date($("#Birthday").val()) : null
             });
 
-            // Kiểm tra CCCD phải là số
             $("form").on("submit", function () {
                 var cccd = $("#CCCD").val();
-                if (!/^\d{9,12}$/.test(cccd)) { // Đảm bảo CCCD có từ 9 đến 12 chữ số
+                if (!/^\d{9,12}$/.test(cccd)) {
                     alert("CCCD phải là dãy số có độ dài từ 9 đến 12 chữ số.");
                     return false;
                 }

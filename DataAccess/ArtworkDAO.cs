@@ -70,8 +70,6 @@ namespace DataAccess
             var artwork = await GetArtworkById(id);
             if (artwork != null)
             {
-                _context.Entry(artwork).State = EntityState.Detached;
-                _context.Artworks.Attach(artwork);
                 _context.Artworks.Remove(artwork);
                 await _context.SaveChangesAsync();
             }
