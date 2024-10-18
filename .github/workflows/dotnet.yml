@@ -1,0 +1,58 @@
+# This workflow will build, test, and deploy a .NET project to MonsterAsp hosting.
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: .NET CI/CD Workflow
+
+on:
+  push:
+    branches: [ "master" ]  # Giữ nguyên "master" vì bạn đang dùng nhánh này
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 7.0.x  # Sử dụng .NET 7.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build  # Chỉ chạy sau khi hoàn tất build và test
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 7.0.x  # Sử dụng .NET 7.0.x
+
+    - name: Publish app
+      run: dotnet publish -c Release -o ./publish  # Publish ứng dụng vào thư mục ./publish
+
+    - name: Deploy to MonsterAsp
+      uses: easingthemes/ssh-deploy@v2.1.5
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.MONSTERASP_SSH_PRIVATE_KEY }}
+        SSH_HOST: ${{ secrets.MONSTERASP_HOST }}
+        SSH_USERNAME: ${{ secrets.MONSTERASP_USERNAME }}
+        SOURCE: "publish/"
+        TARGET: "/path/to/your/website/folder"  # Cập nhật đường dẫn mục tiêu cho MonsterAsp hosting
