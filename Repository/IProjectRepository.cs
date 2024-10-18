@@ -18,5 +18,6 @@ namespace Repository
         Task<int> GetTotalProjects();
         Task<IEnumerable<Project>> GetActiveProjects();      // Dự án đang hoạt động
         Task<IEnumerable<Project>> GetCompletedProjects();   // Dự án đã hoàn thành
+        void Detach(Project project);
     }
 }

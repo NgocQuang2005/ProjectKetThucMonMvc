@@ -180,7 +180,13 @@
                     document.getElementById('loadingSpinner').style.display = 'block';
                 });
             });
-
+            // Hiển thị spinner khi form được submit
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function (e) {
+                    document.getElementById('loadingSpinner').style.display = 'block';
+                });
+            });
             // Hiển thị spinner khi nhấn nút F5 (refresh)
             window.addEventListener('keydown', function (e) {
                 if (e.key === 'F5') {

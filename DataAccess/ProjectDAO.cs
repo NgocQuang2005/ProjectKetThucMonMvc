@@ -108,5 +108,18 @@ namespace DataAccess
         {
             return await _context.Projects.AsNoTracking().CountAsync();
         }
+
+        public void Detach(Project project)
+        {
+            // Kiểm tra xem thực thể có đang được theo dõi trong DbContext không
+            var trackedEntity = _context.ChangeTracker.Entries<Project>()
+                .FirstOrDefault(e => e.Entity.IdProject == project.IdProject);
+
+            // Nếu thực thể đang được theo dõi, thì detach nó
+            if (trackedEntity != null)
+            {
+                _context.Entry(trackedEntity.Entity).State = EntityState.Detached;
+            }
+        }
     }
 }

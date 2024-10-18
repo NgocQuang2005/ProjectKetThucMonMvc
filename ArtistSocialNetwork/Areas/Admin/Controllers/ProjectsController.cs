@@ -67,7 +67,6 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
         }
 
         // POST: Admin/Projects/Create
-        // POST: Admin/Projects/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("IdProject,Active,Title,IdAc,Description,StartDate,EndDate")] Project project, List<IFormFile> ImageFiles)
@@ -140,26 +139,11 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                 }
             }
 
-            // If ModelState is not valid, log the errors
-            if (!ModelState.IsValid)
-            {
-                Console.WriteLine("Model state is not valid. Errors:");
-                foreach (var modelStateKey in ModelState.Keys)
-                {
-                    var value = ModelState[modelStateKey];
-                    foreach (var error in value.Errors)
-                    {
-                        Console.WriteLine($"Error in {modelStateKey}: {error.ErrorMessage}");
-                    }
-                }
-            }
-
             ViewData["IdAc"] = new SelectList(await accountRepository.GetAccountAll(), "IdAccount", "Email", project.IdAc);
             return View(project);
         }
 
         // GET: Admin/Projects/Edit/5
-        // Modify the Edit method in ProjectsController
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -181,7 +165,7 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             return View(project);
         }
 
-        // POST: Admin/Projects/Edit/5
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("IdProject,Active,Title,IdAc,Description,StartDate,EndDate,CreatedBy,CreatedWhen")] Project project, List<IFormFile> ImageFiles, string DeletedImages = "")
@@ -202,22 +186,26 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                     return View(project);
                 }
 
-                // Lấy dự án từ database qua repository (dùng AsNoTracking để tránh bị theo dõi)
-                var originalProject = await projectRepository.GetProjectById(id);
-                if (originalProject == null)
-                {
-                    return NotFound();
-                }
-
-                // Cập nhật thông tin của dự án
-                project.CreatedBy = originalProject.CreatedBy;
-                project.CreatedWhen = originalProject.CreatedWhen;
-                project.LastUpdateBy = currentUserId.Value;
-                project.LastUpdateWhen = DateTime.Now;
-
                 try
                 {
-                    // Cập nhật dự án
+                    // Lấy dự án từ repository với AsNoTracking để tránh theo dõi
+                    var originalProject = await projectRepository.GetProjectById(id);
+
+                    if (originalProject == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Detach thực thể đang theo dõi (nếu có)
+                    projectRepository.Detach(originalProject); // Hoặc thực hiện detach ở đây nếu repository không tự động xử lý
+
+                    // Cập nhật thông tin dự án
+                    project.CreatedBy = originalProject.CreatedBy;
+                    project.CreatedWhen = originalProject.CreatedWhen;
+                    project.LastUpdateBy = currentUserId.Value;
+                    project.LastUpdateWhen = DateTime.Now;
+
+                    // Cập nhật dự án trong cơ sở dữ liệu
                     await projectRepository.Update(project);
 
                     // Xử lý hình ảnh bị xóa
@@ -282,7 +270,7 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Error occurred while updating the project: " + ex.Message);
+                    Console.WriteLine($"Error occurred while updating the project: {ex.Message}");
                     ModelState.AddModelError("", "An error occurred while updating the project.");
                 }
             }
@@ -297,12 +285,15 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
         {
             try
             {
-                // Lấy dự án từ repository với AsNoTracking để không bị theo dõi
+                // Lấy dự án từ database (AsNoTracking để tránh theo dõi thực thể)
                 var project = await projectRepository.GetProjectById(id);
                 if (project == null)
                 {
-                    return Json(new { success = false, message = "Không tìm thấy sự kiện" });
+                    return Json(new { success = false, message = "Không tìm thấy dự án." });
                 }
+
+                // Detach project nếu đã được theo dõi trong DbContext
+                projectRepository.Detach(project);
 
                 // Xử lý xóa các DocumentInfos liên quan đến dự án
                 var documentInfos = await documentInfoRepository.GetDocumentInfoByProjectId(id);
@@ -314,7 +305,7 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
                         System.IO.File.Delete(filePath); // Xóa tệp từ thư mục
                     }
 
-                    // Xóa bản ghi DocumentInfo khỏi cơ sở dữ liệu
+                    // Xóa DocumentInfo khỏi cơ sở dữ liệu
                     await documentInfoRepository.Delete(documentInfo.IdDcIf);
                 }
 
@@ -326,7 +317,6 @@ namespace ArtistSocialNetwork.Areas.Admin.Controllers
             }
             catch (Exception ex)
             {
-                // Ghi lỗi ra console
                 Console.WriteLine($"Lỗi khi xóa dự án với id: {id}. Chi tiết lỗi: {ex.Message}");
                 return Json(new { success = false, message = ex.Message });
             }

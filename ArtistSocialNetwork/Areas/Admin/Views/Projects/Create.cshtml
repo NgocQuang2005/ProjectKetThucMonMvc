@@ -53,7 +53,6 @@
                     <span asp-validation-for="IdAc" class="text-danger"></span>
                 </div>
 
-                <!-- Sử dụng textarea thay vì div để liên kết với model -->
                 <div class="form-group col-md-6">
                     <label asp-for="Description" class="control-label"></label>
                     <textarea asp-for="Description" class="form-control" id="editor"></textarea>
@@ -96,15 +95,12 @@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
-        DateTime currentDate = DateTime.Now;
     }
     <script src="https://cdn.jsdelivr.net/npm/ckeditor5-classic-free-full-feature@35.4.1/build/ckeditor.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
-        // Khởi tạo CKEditor
         ClassicEditor.create(document.querySelector('#editor'))
             .then(editor => {
-                // Lấy giá trị từ CKEditor vào textarea khi submit form
                 const form = document.querySelector('form');
                 form.onsubmit = () => {
                     document.querySelector('textarea[name="Description"]').value = editor.getData();
@@ -113,29 +109,36 @@
             .catch(error => {
                 console.error(error);
             });
+
+        // Khởi tạo Flatpickr với minDate là thời gian hiện tại
         flatpickr("#StartDate", {
             enableTime: true,
             dateFormat: "Y-m-d H:i",
-            time_24hr: true
+            time_24hr: true,
+            minDate: new Date(), // Không cho phép chọn ngày quá khứ
+            onChange: function (selectedDates, dateStr, instance) {
+                const startDate = selectedDates[0];
+                const endDatePicker = document.getElementById("EndDate")._flatpickr;
+                endDatePicker.set("minDate", startDate); // Cập nhật minDate của EndDate
+            }
         });
 
         flatpickr("#EndDate", {
             enableTime: true,
             dateFormat: "Y-m-d H:i",
-            time_24hr: true
+            time_24hr: true,
+            minDate: new Date() // Không cho phép chọn ngày quá khứ
         });
 
-        // Xử lý ảnh tải lên
         document.getElementById("imageInput").addEventListener("change", function (event) {
             var imagePreview = document.getElementById("imagePreview");
             imagePreview.innerHTML = ""; // Clear previous previews
 
             const files = event.target.files;
-            const fileArray = Array.from(files); // Convert file list to an array for easier manipulation
             let newFileList = new DataTransfer(); // To store new files when some are removed
 
-            if (fileArray) {
-                fileArray.forEach((file, index) => {
+            if (files) {
+                Array.from(files).forEach((file, index) => {
                     const reader = new FileReader();
 
                     reader.onload = function (e) {
@@ -154,13 +157,9 @@
 
                         removeBtn.addEventListener("click", function () {
                             imgWrapper.remove();
-                            fileArray.splice(index, 1); // Remove from array
-                            newFileList.items.clear(); // Clear all previously added files
-
-                            // Add all remaining files to the new FileList
-                            fileArray.forEach(f => newFileList.items.add(f));
-
-                            // Set the new FileList back to the input
+                            newFileList = new DataTransfer();
+                            const updatedFiles = Array.from(newFileList.files).filter((_, i) => i !== index);
+                            updatedFiles.forEach(f => newFileList.items.add(f));
                             document.getElementById("imageInput").files = newFileList.files;
                         });
 
@@ -169,13 +168,10 @@
                         imagePreview.appendChild(imgWrapper);
                     };
 
-                    reader.readAsDataURL(file); // Read file as Data URL
-
-                    // Add to DataTransfer object, which will hold the files
+                    reader.readAsDataURL(file);
                     newFileList.items.add(file);
                 });
 
-                // Assign the updated file list back to the input field
                 document.getElementById("imageInput").files = newFileList.files;
             }
         });

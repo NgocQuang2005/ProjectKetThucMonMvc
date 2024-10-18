@@ -52,6 +52,10 @@ namespace Repository
         {
             return await ProjectDAO.Instance.GetCompletedProjects();
         }
+        public void Detach(Project project)
+        {
+            ProjectDAO.Instance.Detach(project);
+        }
 
     }
 }
