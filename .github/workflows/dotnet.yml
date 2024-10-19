@@ -31,7 +31,7 @@ jobs:
         run: dotnet publish -c Release -o ./publish
 
       - name: Deploy to MonsterASP via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4  # Cập nhật phiên bản của hành động FTP Deploy
+        uses: SamKirkland/FTP-Deploy-Action@4.3.0  # Sử dụng phiên bản 4.3.0
         with:
           ftp-server: ${{ secrets.FTP_HOST }}  
           ftp-username: ${{ secrets.FTP_USERNAME }}  
