@@ -13,23 +13,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Bước kiểm tra mã nguồn từ repository
       - name: Check out repository
         uses: actions/checkout@v4
 
+      # Cài đặt môi trường .NET
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '7.0.x'
 
+      # Khôi phục dependencies
       - name: Restore dependencies
         run: dotnet restore
 
+      # Xây dựng dự án
       - name: Build the project
         run: dotnet build --configuration Release --no-restore
 
+      # Publish dự án
       - name: Publish the project
         run: dotnet publish -c Release -o ./publish
 
+      # Deploy qua FTP
       - name: Deploy to MonsterASP via FTP
         uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
@@ -37,7 +43,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./publish/
-          server-dir: ${{ secrets.FTP_PATH }}/   # Đảm bảo rằng đường dẫn này chính xác và kết thúc bằng dấu /
-          protocol: ftps
-          security: strict  # Chế độ bảo mật kết nối
+          server-dir: ${{ secrets.FTP_PATH }}/   # Đảm bảo đường dẫn chính xác và kết thúc bằng dấu /
+          protocol: ftps  # Thử FTPS trước
+          security: loose  # Bỏ qua kiểm tra chứng chỉ nếu có lỗi
           log-level: verbose  # Log chi tiết để kiểm tra lỗi
