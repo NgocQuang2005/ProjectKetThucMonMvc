@@ -33,9 +33,10 @@ jobs:
       - name: Deploy to MonsterASP via FTP
         uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
-          server: ${{ secrets.FTP_HOST }}     # Thay thế đúng trường
-          username: ${{ secrets.FTP_USERNAME }}  # Thay thế đúng trường
-          password: ${{ secrets.FTP_PASSWORD }}  # Thay thế đúng trường
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./publish/
-          server-dir: ${{ secrets.FTP_PATH }}   # Thay thế đúng trường
-          protocol: ftps   # Có thể điều chỉnh nếu bạn dùng sftp hoặc ftps
+          server-dir: ${{ secrets.FTP_PATH }}/   # Đảm bảo rằng đường dẫn này chính xác và kết thúc bằng dấu /
+          protocol: ftps  # Hoặc thử 'sftp' nếu máy chủ yêu cầu
+          log-level: verbose  # Log chi tiết để dễ kiểm tra lỗi hơn
