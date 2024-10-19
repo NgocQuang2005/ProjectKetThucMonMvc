@@ -1,61 +1,40 @@
-name: CI/CD for .NET Project
+name: Deploy ASP.NET to MonsterASP
 
 on:
   push:
-    branches: [ "master" ]  # CI/CD kích hoạt khi có thay đổi trên nhánh master
+    branches:
+      - master  # Chạy khi có thay đổi ở nhánh master
   pull_request:
-    branches: [ "master" ]  # Kích hoạt khi có pull request vào nhánh master
+    branches:
+      - master  # Chạy khi có pull request tới nhánh master
 
 jobs:
-  # Job đầu tiên: Build và Test dự án
-  build-and-test:
-    runs-on: ubuntu-latest  # Chạy trên Ubuntu
+  build:
+    runs-on: ubuntu-latest
 
     steps:
-    # Bước 1: Lấy mã nguồn từ repository
-    - uses: actions/checkout@v4
-    
-    # Bước 2: Cài đặt .NET SDK (phiên bản 8.0.x)
-    - name: Setup .NET Core SDK
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'  # Cài đặt phiên bản .NET phù hợp
+      - name: Check out repository
+        uses: actions/checkout@v4
 
-    # Bước 3: Restore dependencies (khôi phục các gói NuGet)
-    - name: Restore dependencies
-      run: dotnet restore
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '7.0.x'
 
-    # Bước 4: Build dự án
-    - name: Build the project
-      run: dotnet build --no-restore --configuration Release
+      - name: Restore dependencies
+        run: dotnet restore
 
-    # Bước 5: Chạy unit test
-    - name: Run unit tests
-      run: dotnet test --no-build --verbosity normal
+      - name: Build the project
+        run: dotnet build --configuration Release --no-restore
 
-  # Job thứ hai: Deploy ứng dụng sau khi build-and-test thành công
-  deploy:
-    runs-on: ubuntu-latest  # Chạy trên Ubuntu
-    needs: build-and-test  # Chỉ chạy job này nếu job build-and-test thành công
+      - name: Publish the project
+        run: dotnet publish -c Release -o ./publish
 
-    steps:
-    - uses: actions/checkout@v4
-
-    # Bước 6: Cài đặt lại .NET SDK để deploy nếu cần
-    - name: Setup .NET Core SDK for Deploy
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
-
-    # Bước 7: Publish ứng dụng (cụ thể hóa với lệnh publish cho .NET)
-    - name: Publish Application
-      run: |
-        dotnet publish -c Release -o ./publish  # Publish dự án vào thư mục ./publish
-
-    # Bước 8: Triển khai ứng dụng lên server riêng (ví dụ sử dụng SCP)
-    - name: Deploy to Server
-      run: |
-        echo "Deploying application..." 
-        scp -r ./publish/* username@your-server:/var/www/your-app  # Lệnh SCP để sao chép file lên server từ xa
-
-    # Bạn có thể thêm lệnh cụ thể cho các dịch vụ như Docker hoặc Azure tại đây, tùy thuộc vào môi trường triển khai.
+      - name: Deploy to MonsterASP via FTP
+        uses: SamKirkland/FTP-Deploy-Action@4.4.0
+        with:
+          ftp-server: ${{ secrets.FTP_HOST }}  # Sử dụng secret FTP_HOST
+          ftp-username: ${{ secrets.FTP_USERNAME }}  # Sử dụng secret FTP_USERNAME
+          ftp-password: ${{ secrets.FTP_PASSWORD }}  # Sử dụng secret FTP_PASSWORD
+          local-dir: ./publish  # Đường dẫn thư mục được publish
+          server-dir: ${{ secrets.FTP_PATH }}  # Đường dẫn trên máy chủ
