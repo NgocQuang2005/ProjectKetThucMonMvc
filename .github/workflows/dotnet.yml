@@ -31,10 +31,11 @@ jobs:
         run: dotnet publish -c Release -o ./publish
 
       - name: Deploy to MonsterASP via FTP
-        uses: SamKirkland/FTP-Deploy-Action@4.3.0  # Sử dụng phiên bản 4.3.0
+        uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
-          ftp-server: ${{ secrets.FTP_HOST }}  
-          ftp-username: ${{ secrets.FTP_USERNAME }}  
-          ftp-password: ${{ secrets.FTP_PASSWORD }}  
-          local-dir: ./publish  
-          server-dir: ${{ secrets.FTP_PATH }}  
+          server: ${{ secrets.FTP_HOST }}     # Thay thế đúng trường
+          username: ${{ secrets.FTP_USERNAME }}  # Thay thế đúng trường
+          password: ${{ secrets.FTP_PASSWORD }}  # Thay thế đúng trường
+          local-dir: ./publish
+          server-dir: ${{ secrets.FTP_PATH }}   # Thay thế đúng trường
+          protocol: ftp   # Có thể điều chỉnh nếu bạn dùng sftp hoặc ftps
