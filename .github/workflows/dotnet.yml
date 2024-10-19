@@ -3,10 +3,10 @@ name: Deploy ASP.NET to MonsterASP
 on:
   push:
     branches:
-      - master  # Chạy khi có thay đổi ở nhánh master
+      - master
   pull_request:
     branches:
-      - master  # Chạy khi có pull request tới nhánh master
+      - master
 
 jobs:
   build:
@@ -31,10 +31,10 @@ jobs:
         run: dotnet publish -c Release -o ./publish
 
       - name: Deploy to MonsterASP via FTP
-        uses: SamKirkland/FTP-Deploy-Action@4.4.0
+        uses: SamKirkland/FTP-Deploy-Action@v4  # Cập nhật phiên bản của hành động FTP Deploy
         with:
-          ftp-server: ${{ secrets.FTP_HOST }}  # Sử dụng secret FTP_HOST
-          ftp-username: ${{ secrets.FTP_USERNAME }}  # Sử dụng secret FTP_USERNAME
-          ftp-password: ${{ secrets.FTP_PASSWORD }}  # Sử dụng secret FTP_PASSWORD
-          local-dir: ./publish  # Đường dẫn thư mục được publish
-          server-dir: ${{ secrets.FTP_PATH }}  # Đường dẫn trên máy chủ
+          ftp-server: ${{ secrets.FTP_HOST }}  
+          ftp-username: ${{ secrets.FTP_USERNAME }}  
+          ftp-password: ${{ secrets.FTP_PASSWORD }}  
+          local-dir: ./publish  
+          server-dir: ${{ secrets.FTP_PATH }}  
