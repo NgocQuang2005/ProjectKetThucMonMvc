@@ -38,5 +38,6 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./publish/
           server-dir: ${{ secrets.FTP_PATH }}/   # Đảm bảo rằng đường dẫn này chính xác và kết thúc bằng dấu /
-          protocol: ftps  # Hoặc thử 'sftp' nếu máy chủ yêu cầu
-          log-level: verbose  # Log chi tiết để dễ kiểm tra lỗi hơn
+          protocol: ftps
+          security: strict  # Chế độ bảo mật kết nối
+          log-level: verbose  # Log chi tiết để kiểm tra lỗi
