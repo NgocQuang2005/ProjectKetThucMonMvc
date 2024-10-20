@@ -1,4 +1,4 @@
-name: Deploy ASP.NET to MonsterASP
+name: Build ASP.NET project
 
 on:
   push:
@@ -34,16 +34,3 @@ jobs:
       # Publish dự án
       - name: Publish the project
         run: dotnet publish -c Release -o ./publish
-
-      # Deploy qua FTP
-      - name: Deploy to MonsterASP via FTP
-        uses: SamKirkland/FTP-Deploy-Action@4.3.0
-        with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./publish/
-          server-dir: ${{ secrets.FTP_PATH }}/   # Đảm bảo đường dẫn chính xác và kết thúc bằng dấu /
-          protocol: ftps  # Thử FTPS trước
-          security: loose  # Bỏ qua kiểm tra chứng chỉ nếu có lỗi
-          log-level: verbose  # Log chi tiết để kiểm tra lỗi
